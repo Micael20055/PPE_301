@@ -45,4 +45,4 @@ def agent_dashboard(request):
 def proprietaire_dashboard(request):
     return HttpResponse("Bienvenue, propriétaire !")
 def home(request):
-    return HttpResponse("Bienvenue sur la page d'accueil des comptes.")
+    return redirect('register')

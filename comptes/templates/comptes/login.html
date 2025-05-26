@@ -1,15 +1,109 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Connexion</title>
+     <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: url('/static/assets/images/img1.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .login-register-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 40px 32px 32px 32px;
+            max-width: 350px;
+            width: 100%;
+            margin: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .login-register-container h2,
+        .login-register-container h1 {
+            margin: 0 0 18px 0;
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: left;
+        }
+        .login-register-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .login-register-container input[type="text"],
+        .login-register-container input[type="email"],
+        .login-register-container input[type="password"],
+        .login-register-container select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .login-register-container input:focus,
+        .login-register-container select:focus {
+            border: 1.5px solid #1e293b;
+        }
+        .login-register-container button[type="submit"] {
+            background: #111827;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .login-register-container button[type="submit"]:hover {
+            background: #374151;
+        }
+        .login-register-container .links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.98rem;
+        }
+        .login-register-container .links a {
+            color: #1e293b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .login-register-container .links a:hover {
+            color: #2563eb;
+        }
+        .login-register-container .errorlist,
+        .login-register-container ul[style*="color: red"] {
+            color: #dc2626;
+            margin: 0 0 10px 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.98rem;
+        }
+    </style>
 </head>
 <body>
-    <h2>Connexion</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Se connecter</button>
-    </form>
-    <p>Pas encore inscrit ? <a href="{% url 'register' %}">Créer un compte</a></p>
+    <div class="login-register-container">
+        <h2>Connexion</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Se connecter</button>
+        </form>
+        <div class="links">
+            <p>Pas encore inscrit ? <a href="{% url 'register' %}">Créer un compte</a></p>
+        </div>
+    </div>
 </body>
 </html>
