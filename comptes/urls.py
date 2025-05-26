@@ -7,8 +7,11 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='comptes/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('redirect/', views.redirect_user, name='redirect'),
-    path('client-dashboard/', views.client_dashboard),
-    path('agent-dashboard/', views.agent_dashboard),
-    path('proprietaire-dashboard/', views.proprietaire_dashboard),
+    path('client-dashboard/', views.client_dashboard, name='client_dashboard'),
+    path('agent-dashboard/', views.agent_dashboard, name='agent_dashboard'),
+    path('proprietaire-dashboard/', views.proprietaire_dashboard, name='proprietaire_dashboard'),
     path('', views.home, name='comptes_home'),  # Ajoute cette ligne
+    path('index/', views.register, name='index'),
+    path('agent-index/', views.agent_index, name='agent_index'),
+    path('proprietaire-index/', views.proprietaire_index, name='proprietaire_index'),
 ]

@@ -24,9 +24,9 @@ def redirect_user(request):
     if user.profession == 'client':
         return redirect('home')
     elif user.profession == 'agent':
-        return redirect('/agent-dashboard/')
+        return redirect('agent_index')
     elif user.profession == 'proprietaire':
-        return redirect('/proprietaire-dashboard/')
+        return redirect('proprietaire_index')
     else:
         return redirect('/login/')
 
@@ -34,6 +34,8 @@ def redirect_user(request):
 @user_passes_test(lambda u: u.profession == 'client')
 def client_dashboard(request):
     return HttpResponse("Bienvenue, client !")
+def home(request):
+    return redirect('register')
 
 @login_required
 @user_passes_test(lambda u: u.profession == 'agent')
@@ -44,5 +46,12 @@ def agent_dashboard(request):
 @user_passes_test(lambda u: u.profession == 'proprietaire')
 def proprietaire_dashboard(request):
     return HttpResponse("Bienvenue, propriétaire !")
-def home(request):
-    return redirect('register')
+
+@login_required
+@user_passes_test(lambda u: u.profession == 'agent')
+def agent_index(request):
+    return render(request, 'comptes/index.html')
+@login_required
+@user_passes_test(lambda u: u.profession == 'proprietaire')
+def proprietaire_index(request):
+    return render(request, 'comptes/index_proprietaire.html')
