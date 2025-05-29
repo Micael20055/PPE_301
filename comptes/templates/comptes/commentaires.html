@@ -1,0 +1,12 @@
+{% extends 'comptes/index.html' %}
+{% block content %}
+<h2>Commentaires sur mes biens</h2>
+<ul class="commentaires">
+    {% for commentaire in commentaires %}
+    <li>
+        <p><strong>{{ commentaire.utilisateur }}</strong> : {{ commentaire.texte }}</p>
+        <small>Publié le {{ commentaire.date }}</small>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

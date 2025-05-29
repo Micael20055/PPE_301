@@ -1,4 +1,115 @@
-﻿/*!
+﻿body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f5f8;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+}
+.sidebar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+.sidebar .logo span {
+    color: #007bff;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar li {
+    margin-bottom: 15px;
+}
+.sidebar a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+.sidebar a i {
+    margin-right: 10px;
+}
+
+/* Topbar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px 30px;
+    border-bottom: 1px solid #ddd;
+}
+.topbar .search input {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+}
+.topbar .topbar-actions i,
+.topbar .user-photo {
+    margin-left: 20px;
+    cursor: pointer;
+}
+.user-photo {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dashboard Cards */
+.dashboard {
+    padding: 30px;
+}
+.dashboard h1 {
+    margin-bottom: 25px;
+}
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    min-width: 250px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.card-icon {
+    font-size: 30px;
+    padding: 15px;
+    border-radius: 50%;
+    color: #fff;
+}
+.card-icon.yellow { background: #ffc107; }
+.card-icon.pink { background: #e83e8c; }
+.card-icon.green { background: #28a745; }
+
+
+/*!
  * Fancytree "Win8" skin.
  *
  * DON'T EDIT THE CSS FILE DIRECTLY, since it is automatically generated from

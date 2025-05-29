@@ -1,0 +1,8 @@
+{% extends 'comptes/index.html' %}
+{% block content %}
+<h2>Mon Profil</h2>
+<p>Nom : {{ user.last_name }}</p>
+<p>Prénom : {{ user.first_name }}</p>
+<p>Email : {{ user.email }}</p>
+<a href="{% url 'modifier_profil' %}" class="btn">Modifier mon profil</a>
+{% endblock %}

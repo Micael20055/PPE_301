@@ -1,0 +1,10 @@
+{% extends 'comptes/index.html' %}
+{% block content %}
+<h2>Supprimer la Publication</h2>
+<p>Voulez-vous vraiment supprimer la publication <strong>{{ publication.titre }}</strong> ?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+    <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
