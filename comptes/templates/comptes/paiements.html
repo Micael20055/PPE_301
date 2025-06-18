@@ -1,24 +1,129 @@
 {% extends 'comptes/index.html' %}
 {% block content %}
-<h2>Historique des Paiements</h2>
-<table class="table-paiements">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Montant</th>
-            <th>Méthode</th>
-            <th>Statut</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for paiement in paiements %}
-        <tr>
-            <td>{{ paiement.date }}</td>
-            <td>{{ paiement.montant }}€</td>
-            <td>{{ paiement.methode }}</td>
-            <td>{{ paiement.statut }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-credit icon-gradient bg-mean-fruit"></i>
+            </div>
+            <div>Paiements
+                <div class="page-title-subheading">Gérez vos paiements et factures</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h5 class="card-title mb-0">Historique des paiements</h5>
+                    <div class="ml-auto">
+                        <button class="btn btn-success mr-2">
+                            <i class="fa fa-plus mr-2"></i>Nouveau paiement
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fa fa-file-pdf mr-2"></i>Exporter PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if paiements %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Méthode</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paiement in paiements %}
+                                <tr class="paiement-row">
+                                    <td>
+                                        <span class="text-primary">#{{ paiement.reference }}</span>
+                                    </td>
+                                    <td>{{ paiement.date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <strong>{{ paiement.montant|floatformat:2 }} €</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            <i class="fa {% if paiement.methode == 'carte' %}fa-credit-card
+                                                      {% elif paiement.methode == 'virement' %}fa-university
+                                                      {% else %}fa-money-bill{% endif %} mr-1"></i>
+                                            {{ paiement.methode|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{% if paiement.statut == 'complete' %}success
+                                                              {% elif paiement.statut == 'en_cours' %}warning
+                                                              {% else %}danger{% endif %}">
+                                            {{ paiement.get_statut_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-info mr-2" data-toggle="tooltip" title="Détails">
+                                                <i class="fa fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-primary mr-2" data-toggle="tooltip" title="Télécharger facture">
+                                                <i class="fa fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" data-toggle="tooltip" title="Imprimer">
+                                                <i class="fa fa-print"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="pe-7s-credit fa-4x text-muted mb-3"></i>
+                        <h5>Aucun paiement</h5>
+                        <p class="text-muted">Vos paiements apparaîtront ici</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.paiement-row:hover {
+    background-color: rgba(0,0,0,0.02);
+    transition: background-color 0.3s ease;
+}
+
+.badge {
+    padding: 0.5em 1em;
+}
+
+.btn-group .btn {
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+}
+
+.badge i {
+    font-size: 0.9em;
+}
+</style>
+
 {% endblock %}

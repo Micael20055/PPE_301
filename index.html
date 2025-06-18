@@ -1,0 +1,187 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard AGENCE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'assets/comptes/css/main.d810cf0ae7f39f28f336' %}">
+    <style>
+        body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f5f8;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+}
+.sidebar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+.sidebar .logo span {
+    color: #007bff;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar li {
+    margin-bottom: 15px;
+}
+.sidebar a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+.sidebar a i {
+    margin-right: 10px;
+}
+
+/* Topbar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px 30px;
+    border-bottom: 1px solid #ddd;
+}
+.topbar .search input {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+}
+.topbar .topbar-actions i,
+.topbar .user-photo {
+    margin-left: 20px;
+    cursor: pointer;
+}
+.user-photo {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dashboard Cards */
+.dashboard {
+    padding: 30px;
+}
+.dashboard h1 {
+    margin-bottom: 25px;
+}
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    min-width: 250px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.card-icon {
+    font-size: 30px;
+    padding: 15px;
+    border-radius: 50%;
+    color: #fff;
+}
+.card-icon.yellow { background: #ffc107; }
+.card-icon.pink { background: #e83e8c; }
+.card-icon.green { background: #28a745; }
+
+
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">Immo<span>Dash</span></div>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'dashboard_home' %}"><i class="fa fa-user-circle"></i> Mon Profil</a></li>
+                    <li><a href="{% url 'mes_publications' %}"><i class="fa fa-building"></i> Mes Publications</a></li>
+                    <li><a href="{% url 'commentaires_proprietaire' %}"><i class="fa fa-comments"></i> Commentaires</a></li>
+                    <li><a href="{% url 'visites_programmees' %}"><i class="fa fa-calendar-check"></i> Visites</a></li>
+                    <li><a href="{% url 'transactions_proprietaire' %}"><i class="fa fa-handshake"></i> Transactions</a></li>
+                    <li><a href="{% url 'paiements_proprietaire' %}"><i class="fa fa-credit-card"></i> Paiements</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search"><input type="text" placeholder="Rechercher..."><i class="fa fa-search"></i></div>
+                <div class="topbar-actions">
+                    <i class="fa fa-bell"></i>
+                    <i class="fa fa-cog"></i>
+                    <img src="{{ user.profile.photo.url }}" alt="User" class="user-photo">
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <section class="dashboard">
+                <h1>Bienvenue {{ user.first_name }}</h1>
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-icon yellow"><i class="fa fa-home"></i></div>
+                        <div>
+                            <h3>{{ biens_count }}</h3>
+                            <p>Biens publiés</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon pink"><i class="fa fa-calendar-check"></i></div>
+                        <div>
+                            <h3>{{ visites_count }}</h3>
+                            <p>Visites à venir</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon green"><i class="fa fa-handshake"></i></div>
+                        <div>
+                            <h3>{{ transactions_count }}</h3>
+                            <p>Transactions conclues</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% block content %}
+                <!-- Contenu dynamique de chaque page -->
+                {% endblock %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>

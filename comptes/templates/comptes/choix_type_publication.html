@@ -1,0 +1,8 @@
+{% extends 'comptes/index.html' %}
+{% block content %}
+<div class="container">
+    <h2>Que souhaitez-vous faire ?</h2>
+    <a href="{% url 'choix_bien' %}?type=vente" class="btn btn-success">Vendre</a>
+    <a href="{% url 'choix_bien' %}?type=location" class="btn btn-primary">Louer</a>
+</div>
+{% endblock %}

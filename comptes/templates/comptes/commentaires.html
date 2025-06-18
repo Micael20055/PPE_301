@@ -1,12 +1,87 @@
 {% extends 'comptes/index.html' %}
 {% block content %}
-<h2>Commentaires sur mes biens</h2>
-<ul class="commentaires">
-    {% for commentaire in commentaires %}
-    <li>
-        <p><strong>{{ commentaire.utilisateur }}</strong> : {{ commentaire.texte }}</p>
-        <small>Publié le {{ commentaire.date }}</small>
-    </li>
-    {% endfor %}
-</ul>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-comment icon-gradient bg-mean-fruit"></i>
+            </div>
+            <div>Commentaires
+                <div class="page-title-subheading">Gérez les commentaires sur vos biens immobiliers</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                {% if commentaires %}
+                    {% for commentaire in commentaires %}
+                        <div class="comment-item mb-3 p-3 border-bottom">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar mr-3">
+                                    {% if commentaire.utilisateur.photo %}
+                                        <img src="{{ commentaire.utilisateur.photo.url }}" alt="Avatar" class="rounded-circle" width="40">
+                                    {% else %}
+                                        <i class="pe-7s-user fa-2x text-muted"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ commentaire.utilisateur.get_full_name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="pe-7s-clock"></i> 
+                                        {{ commentaire.date|date:"d/m/Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="comment-content ml-5 pl-2">
+                                <p class="mb-2">{{ commentaire.texte }}</p>
+                                <div class="comment-actions">
+                                    <a href="#" class="btn btn-sm btn-outline-primary mr-2">
+                                        <i class="fa fa-reply"></i> Répondre
+                                    </a>
+                                    {% if commentaire.utilisateur == request.user %}
+                                        <a href="#" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa fa-trash"></i> Supprimer
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="pe-7s-comment fa-4x text-muted mb-3"></i>
+                        <h5>Aucun commentaire pour le moment</h5>
+                        <p class="text-muted">Les commentaires sur vos biens apparaîtront ici</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.comment-item:hover {
+    background-color: rgba(0,0,0,0.02);
+    transition: background-color 0.3s ease;
+}
+
+.comment-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.comment-item:hover .comment-actions {
+    opacity: 1;
+}
+
+.avatar {
+    min-width: 40px;
+}
+</style>
+
 {% endblock %}

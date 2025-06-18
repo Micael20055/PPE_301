@@ -1,187 +1,306 @@
 ﻿{% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Propriétaire</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'assets/comptes/css/main.d810cf0ae7f39f28f336' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ImmoDash - Tableau de bord</title>
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.5/css/perfect-scrollbar.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css" rel="stylesheet">
+    <link href="{% static 'assets/comptes/css/main.d810cf0ae7f39f28f336.css'%}" rel="stylesheet">
+
     <style>
-        body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: #f4f5f8;
-}
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3f6ad8;
+        }
 
-.layout {
-    display: flex;
-    min-height: 100vh;
-}
+        .widget-content-left img {
+            border: 2px solid #3f6ad8;
+        }
 
-/* Sidebar */
-.sidebar {
-    width: 230px;
-    background: #fff;
-    border-right: 1px solid #ddd;
-    padding: 20px;
-}
-.sidebar .logo {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 40px;
-}
-.sidebar .logo span {
-    color: #007bff;
-}
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-.sidebar li {
-    margin-bottom: 15px;
-}
-.sidebar a {
-    text-decoration: none;
-    color: #333;
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-}
-.sidebar a i {
-    margin-right: 10px;
-}
+        .modal-body .form-control {
+            background-color: #f8f9fa;
+            cursor: default;
+        }
 
-/* Topbar */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fff;
-    padding: 15px 30px;
-    border-bottom: 1px solid #ddd;
-}
-.topbar .search input {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-}
-.topbar .topbar-actions i,
-.topbar .user-photo {
-    margin-left: 20px;
-    cursor: pointer;
-}
-.user-photo {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+        .dropdown-menu {
+            min-width: 200px;
+        }
 
-/* Main Content */
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
 
-/* Dashboard Cards */
-.dashboard {
-    padding: 30px;
-}
-.dashboard h1 {
-    margin-bottom: 25px;
-}
-.cards {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex: 1;
-    min-width: 250px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-.card-icon {
-    font-size: 30px;
-    padding: 15px;
-    border-radius: 50%;
-    color: #fff;
-}
-.card-icon.yellow { background: #ffc107; }
-.card-icon.pink { background: #e83e8c; }
-.card-icon.green { background: #28a745; }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
 
+        .info-item i {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            background: rgba(63, 106, 216, 0.1);
+            border-radius: 8px;
+        }
 
+        .modal-header {
+            border-bottom: 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .badge {
+            padding: 0.5em 1em;
+            font-weight: 500;
+        }
     </style>
 </head>
+
 <body>
-    <div class="layout">
+    <div class="app-container app-theme-white body-tabs-shadow fixed-header fixed-sidebar">
+        <!-- Header -->
+        <div class="app-header header-shadow">
+            <div class="app-header__logo">
+                <div class="logo-src d-flex align-items-center">
+                    <i class="pe-7s-home text-primary mr-2"></i>
+                    <span class="logo-text">ImmoDash Pro</span>
+                </div>
+            </div>
+
+            <div class="app-header__content">
+                <div class="app-header-right">
+                    <!-- Notifications -->
+                    <div class="header-btn-lg pr-0">
+                        <div class="dropdown">
+                            <button type="button" class="btn-icon btn-icon-only btn btn-link" data-bs-toggle="dropdown">
+                                <i class="pe-7s-bell btn-icon-wrapper font-size-xlg"></i>
+                                <span class="badge badge-pill badge-danger">3</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">
+                                    <i class="pe-7s-mail mr-2"></i> Nouveau message
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="header-btn-lg pr-0">
+                        <div class="dropdown">
+                            <button type="button" class="btn-icon btn-icon-only btn btn-link" data-bs-toggle="dropdown">
+                                <i class="pe-7s-config btn-icon-wrapper font-size-xlg"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <h6 class="dropdown-header">Paramètres</h6>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                                    <i class="pe-7s-config mr-2"></i> Configuration
+                                </a>
+                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="pe-7s-power mr-2"></i> Déconnexion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="header-btn-lg pr-0">
+                        <div class="widget-content p-0">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="btn-group">
+                                        <a data-bs-toggle="dropdown" class="p-0 btn">
+                                            <img width="42" class="rounded-circle" 
+                                                 src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
+                                                 alt="{{ user.agence.nom_agence }}">
+                                            <span class="ml-2">{{ user.agence.nom_agence }}</span>
+                                            <i class="fa fa-angle-down ml-2 opacity-8"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <h6 class="dropdown-header">{{ user.agence.nom }}</h6>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                                <i class="pe-7s-id mr-2"></i> Profil Agence
+                                            </a>
+                                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                                <i class="pe-7s-power mr-2"></i> Déconnexion
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">Immo<span>Dash</span></div>
-            <nav>
-                <ul>
-                    <li><a href="{% url 'dashboard_home' %}"><i class="fa fa-user-circle"></i> Mon Profil</a></li>
-                    <li><a href="{% url 'mes_publications' %}"><i class="fa fa-building"></i> Mes Publications</a></li>
-                    <li><a href="{% url 'commentaires_proprietaire' %}"><i class="fa fa-comments"></i> Commentaires</a></li>
-                    <li><a href="{% url 'visites_programmees' %}"><i class="fa fa-calendar-check"></i> Visites</a></li>
-                    <li><a href="{% url 'transactions_proprietaire' %}"><i class="fa fa-handshake"></i> Transactions</a></li>
-                    <li><a href="{% url 'paiements_proprietaire' %}"><i class="fa fa-credit-card"></i> Paiements</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main -->
-        <main class="main-content">
-            <!-- Topbar -->
-            <header class="topbar">
-                <div class="search"><input type="text" placeholder="Rechercher..."><i class="fa fa-search"></i></div>
-                <div class="topbar-actions">
-                    <i class="fa fa-bell"></i>
-                    <i class="fa fa-cog"></i>
-                    <img src="{{ user.profile.photo.url }}" alt="User" class="user-photo">
+        <div class="app-sidebar sidebar-shadow">
+            <div class="scrollbar-sidebar">
+                <div class="app-sidebar__inner">
+                    <ul class="vertical-nav-menu">
+                        <li class="app-sidebar__heading">Menu Principal</li>
+                        <li>
+                            <a href="{% url 'dashboard_home' %}" {% if request.resolver_match.url_name == 'dashboard_home' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-home"></i>
+                                Tableau de bord
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'mes_publications' %}" {% if request.resolver_match.url_name == 'mes_publications' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-display2"></i>
+                                Mes Publications
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'commentaires_proprietaire' %}" {% if request.resolver_match.url_name == 'commentaires_proprietaire' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-comment"></i>
+                                Commentaires
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'visites_programmees' %}" {% if request.resolver_match.url_name == 'visites_programmees' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-date"></i>
+                                Visites
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'transactions_proprietaire' %}" {% if request.resolver_match.url_name == 'transactions_proprietaire' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-cash"></i>
+                                Transactions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'paiements_proprietaire' %}" {% if request.resolver_match.url_name == 'paiements_proprietaire' %}class="mm-active"{% endif %}>
+                                <i class="metismenu-icon pe-7s-credit"></i>
+                                Paiements
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-            </header>
+            </div>
+        </div>
 
-            <!-- Dashboard Content -->
-            <section class="dashboard">
-                <h1>Bienvenue {{ user.first_name }}</h1>
-                <div class="cards">
-                    <div class="card">
-                        <div class="card-icon yellow"><i class="fa fa-home"></i></div>
-                        <div>
-                            <h3>{{ biens_count }}</h3>
-                            <p>Biens publiés</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon pink"><i class="fa fa-calendar-check"></i></div>
-                        <div>
-                            <h3>{{ visites_count }}</h3>
-                            <p>Visites à venir</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon green"><i class="fa fa-handshake"></i></div>
-                        <div>
-                            <h3>{{ transactions_count }}</h3>
-                            <p>Transactions conclues</p>
-                        </div>
-                    </div>
+        <!-- Main Content -->
+        <div class="app-main">
+            <div class="app-main__outer">
+                <div class="app-main__inner">
+                    {% block content %}
+                    {% endblock %}
                 </div>
+            </div>
+        </div>
+    </div>
 
-                {% block content %}
-                <!-- Contenu dynamique de chaque page -->
-                {% endblock %}
-            </section>
-        </main>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/metismenu@3.0.7/dist/metisMenu.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // Initialisation de MetisMenu
+        $('.vertical-nav-menu').metisMenu();
+
+        // Active link handling
+        const currentPath = window.location.pathname;
+        $('.vertical-nav-menu a').each(function() {
+            if ($(this).attr('href') === currentPath) {
+                $(this).addClass('mm-active');
+                $(this).parents('li').addClass('mm-active');
+            }
+        });
+
+        // Dropdowns initialization
+        var dropdowns = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
+        dropdowns.forEach(function(dropdown) {
+            new bootstrap.Dropdown(dropdown);
+        });
+    });
+    </script>
+
+    <!-- Modal de profil -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="pe-7s-id mr-2"></i>
+                        {{ user.agence.nom_agence }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <img src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
+                                 class="rounded-circle border-primary mb-3" width="120" height="120" alt="Logo agence"
+                                 style="border: 3px solid;">
+                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2"
+                                  style="border: 2px solid white;"></span>
+                        </div>
+                        <h4 class="mb-1">{{ user.agence.nom_agence }}</h4>
+                        <span class="badge bg-primary">{{ user.agence.statut }}</span>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="pe-7s-mail text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Email</small>
+                                <strong>{{ user.agence.email }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="pe-7s-call text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Téléphone</small>
+                                <strong>{{ user.agence.telephone }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <i class="pe-7s-map-marker text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Adresse</small>
+                                <strong>{{ user.agence.adresse }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <i class="pe-7s-id text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">SIRET</small>
+                                <strong>{{ user.agence.siret }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.agence.description %}
+                    <div class="mt-4">
+                        <h6 class="mb-2">À propos de nous</h6>
+                        <p class="text-muted mb-0">{{ user.agence.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

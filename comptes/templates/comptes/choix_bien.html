@@ -1,0 +1,76 @@
+{% extends 'comptes/index.html' %}
+{% block content %}
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-home icon-gradient bg-mean-fruit"></i>
+            </div>
+            <div>Choisir le type de bien
+                <div class="page-title-subheading">Sélectionnez le type de bien immobilier que vous souhaitez publier</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'ajouter_publication' %}?type={{ type_action }}&bien=maison" class="card card-hover-shadow p-4 text-decoration-none">
+                            <i class="pe-7s-home icon-gradient bg-mean-fruit fa-3x mb-3"></i>
+                            <h5 class="card-title">Maison</h5>
+                            <p class="text-muted">Publier une maison</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'ajouter_publication' %}?type={{ type_action }}&bien=appartement" class="card card-hover-shadow p-4 text-decoration-none">
+                            <i class="pe-7s-portfolio icon-gradient bg-happy-itmeo fa-3x mb-3"></i>
+                            <h5 class="card-title">Appartement</h5>
+                            <p class="text-muted">Publier un appartement</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'ajouter_publication' %}?type={{ type_action }}&bien=terrain" class="card card-hover-shadow p-4 text-decoration-none">
+                            <i class="pe-7s-map icon-gradient bg-amy-crisp fa-3x mb-3"></i>
+                            <h5 class="card-title">Terrain</h5>
+                            <p class="text-muted">Publier un terrain</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-hover-shadow {
+        transition: all 0.3s ease;
+    }
+    
+    .card-hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03), 
+                   0 0.9375rem 1.40625rem rgba(4,9,20,0.03), 
+                   0 0.25rem 0.53125rem rgba(4,9,20,0.05), 
+                   0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+    }
+
+    .card-hover-shadow:active {
+        transform: translateY(0);
+        background-color: rgba(0,0,0,0.05);
+    }
+
+    .icon-gradient {
+        transition: transform 0.3s ease;
+    }
+
+    .card-hover-shadow:hover .icon-gradient {
+        transform: scale(1.1);
+    }
+</style>
+
+{% endblock %}

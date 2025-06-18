@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from .forms import CustomUserCreationForm
 from .models import Utilisateur, Publication, BienImmobilier, Transaction
 from .forms import PublicationForm, CommentaireForm, TransactionForm, PaiementForm
+from .forms import MaisonForm, AppartementForm, TerrainForm
 
 def register(request):
     if request.method == 'POST':
@@ -73,14 +74,20 @@ def proprietaire_index(request):
 
 
 def dashboard_home(request):
-    return render(request, 'comptes/base.html')
+    biens = BienImmobilier.objects.all().select_related('maison', 'appartement', 'terrain')
+    # Ajoute aussi les autres contextes déjà présents
+    return render(request, 'comptes/index.html', {
+        'biens': biens,
+        # ... autres variables de contexte ...
+    })
 
 def profil_view(request):
     return render(request, 'comptes/profil.html')
 
 @login_required
 def publications_view(request):
-    publications = Publication.objects.filter(auteur=request.user)
+    # Récupérer les publications liées aux biens du propriétaire connecté
+    publications = Publication.objects.filter(bien__proprietaire=request.user)
     return render(request, 'comptes/publications.html', {'publications': publications})
 
 def commentaires_view(request):
@@ -102,17 +109,49 @@ def paiements_view(request):
 def visites_view(request):
     return render(request, 'comptes/visites.html')
 
+def choix_type_publication(request):
+    return render(request, 'comptes/choix_type_publication.html')
+
+def choix_bien(request):
+    type_action = request.GET.get('type')  # 'vente' ou 'location'
+    return render(request, 'comptes/choix_bien.html', {'type_action': type_action})
+
 def ajouter_publication(request):
-    if request.method == 'POST':
-        form = PublicationForm(request.POST, request.FILES)
-        if form.is_valid():
-            publication = form.save(commit=False)
-            publication.auteur = request.user
-            publication.save()
-            return redirect('mes_publications')  # Redirige vers la page principale des publications
+    type_action = request.GET.get('type')
+    bien = request.GET.get('bien')  # 'maison', 'appartement', 'terrain'
+    # Sélectionne le bon formulaire selon le bien
+    if bien == 'maison':
+        form_class = MaisonForm
+    elif bien == 'appartement':
+        form_class = AppartementForm
+    elif bien == 'terrain':
+        form_class = TerrainForm
     else:
-        form = PublicationForm()
-    return render(request, 'comptes/ajouter_publication.html', {'form': form})
+        form_class = None
+
+    if request.method == 'POST' and form_class:
+        form = form_class(request.POST, request.FILES)
+        if form.is_valid():
+            bien_obj = form.save(commit=False)
+            bien_obj.proprietaire = request.user
+            bien_obj.save()
+            
+            # Création automatique de la publication avec le prix du formulaire
+            Publication.objects.create(
+                bien=bien_obj,
+                titre=f"{type_action.capitalize()} {bien}",
+                description=f"Description {bien}",
+                prix=form.cleaned_data['prix']  # Utilise le prix du formulaire
+            )
+            return redirect('mes_publications')
+    else:
+        form = form_class() if form_class else None
+
+    return render(request, 'comptes/ajouter_publication.html', {
+        'form': form,
+        'type_action': type_action,
+        'bien': bien,
+    })
 
 def modifier_publication(request, pk):
     publication = get_object_or_404(Publication, pk=pk)
@@ -131,3 +170,11 @@ def supprimer_publication(request, pk):
         publication.delete()
         return redirect('mes_publications')
     return render(request, 'comptes/supprimer_publication.html', {'publication': publication})
+
+@login_required
+def mes_publications(request):
+    # Récupérer les publications liées aux biens du propriétaire connecté
+    publications = Publication.objects.filter(
+        bien__proprietaire=request.user
+    ).select_related('bien')  # Pour optimiser les requêtes
+    return render(request, 'comptes/publications.html', {'publications': publications})

@@ -1,6 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+class Agence(models.Model):
+    nom_agence = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    telephone = models.CharField(max_length=15)
+    adresse = models.TextField()
+    siret = models.CharField(max_length=14)
+    logo = models.ImageField(upload_to='agences/logos/', null=True, blank=True)
+    description = models.TextField(blank=True)
+    statut = models.CharField(max_length=50, default='Active')
+
+    def __str__(self):
+        return self.nom_agence
+
 class Utilisateur(AbstractUser):
     PROFESSION_CHOICES = [
         ('client', 'Client'),
@@ -8,6 +21,7 @@ class Utilisateur(AbstractUser):
         ('proprietaire', 'Propriétaire'),
     ]
     profession = models.CharField(max_length=20, choices=PROFESSION_CHOICES, null=True, blank=True)
+    agence = models.OneToOneField(Agence, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.username} ({self.profession})"
@@ -22,7 +36,10 @@ class BienImmobilier(models.Model):
     ]
     type_bien = models.CharField(max_length=20, choices=TYPE_CHOICES)
     superficie = models.FloatField()
+    description = models.TextField(blank=True)
+    prix = models.DecimalField(max_digits=10, decimal_places=2)  # Ajout du champ prix
     proprietaire = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, limit_choices_to={'profession': 'proprietaire'})
+    image = models.ImageField(upload_to='biens/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.type_bien} - {self.superficie}m²"
@@ -56,17 +73,19 @@ class Transaction(models.Model):
 # ==================== PUBLICATION ====================
 
 class Publication(models.Model):
-    titre = models.CharField(max_length=255)
-    type_bien = models.CharField(max_length=20)
+    bien = models.ForeignKey(
+        BienImmobilier, 
+        on_delete=models.CASCADE,
+        null=True,  # Permet temporairement null
+        blank=True  # Permet temporairement blank
+    )
+    titre = models.CharField(max_length=200)
     description = models.TextField()
-    prix = models.FloatField()
-    adresse = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='publications/', null=True, blank=True)
-    auteur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE)
-    date_publication = models.DateField(auto_now_add=True)
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    date_creation = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.titre
+        return f"{self.titre}"
 
 # ==================== ANNONCES ET COMMENTAIRES ====================
 

@@ -1,13 +1,109 @@
 {% extends 'comptes/index.html' %}
 {% block content %}
-<h2>Visites Programmées</h2>
-<ul class="visites">
-    {% for visite in visites %}
-    <li>
-        <p>Bien : {{ visite.publication.titre }}</p>
-        <p>Date : {{ visite.date }} à {{ visite.heure }}</p>
-        <p>Client : {{ visite.client.nom }} {{ visite.client.prenom }}</p>
-    </li>
-    {% endfor %}
-</ul>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-date icon-gradient bg-mean-fruit"></i>
+            </div>
+            <div>Visites Programmées
+                <div class="page-title-subheading">Gérez vos rendez-vous de visites</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                {% if visites %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Bien</th>
+                                    <th>Date</th>
+                                    <th>Heure</th>
+                                    <th>Client</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visite in visites %}
+                                <tr class="visite-row">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if visite.publication.image %}
+                                                <img src="{{ visite.publication.image.url }}" class="mr-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% else %}
+                                                <i class="pe-7s-home fa-2x mr-2 text-muted"></i>
+                                            {% endif %}
+                                            {{ visite.publication.titre }}
+                                        </div>
+                                    </td>
+                                    <td>{{ visite.date|date:"d/m/Y" }}</td>
+                                    <td>{{ visite.heure }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="pe-7s-user mr-2"></i>
+                                            {{ visite.client.nom }} {{ visite.client.prenom }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{% if visite.status == 'confirme' %}success{% elif visite.status == 'en_attente' %}warning{% else %}danger{% endif %}">
+                                            {{ visite.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-primary mr-2" data-toggle="tooltip" title="Confirmer">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger mr-2" data-toggle="tooltip" title="Annuler">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-info" data-toggle="tooltip" title="Détails">
+                                                <i class="fa fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="pe-7s-date fa-4x text-muted mb-3"></i>
+                        <h5>Aucune visite programmée</h5>
+                        <p class="text-muted">Les visites programmées apparaîtront ici</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.visite-row:hover {
+    background-color: rgba(0,0,0,0.02);
+    transition: background-color 0.3s ease;
+}
+
+.badge {
+    padding: 0.5em 1em;
+}
+
+.btn-group .btn {
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+}
+</style>
+
 {% endblock %}
