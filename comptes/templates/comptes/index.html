@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!doctype html>
 <html lang="fr">
 <head>
@@ -13,59 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css" rel="stylesheet">
     <link href="{% static 'assets/comptes/css/main.d810cf0ae7f39f28f336.css'%}" rel="stylesheet">
 
-    <style>
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3f6ad8;
-        }
-
-        .widget-content-left img {
-            border: 2px solid #3f6ad8;
-        }
-
-        .modal-body .form-control {
-            background-color: #f8f9fa;
-            cursor: default;
-        }
-
-        .dropdown-menu {
-            min-width: 200px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .info-item i {
-            font-size: 1.5rem;
-            padding: 0.5rem;
-            background: rgba(63, 106, 216, 0.1);
-            border-radius: 8px;
-        }
-
-        .modal-header {
-            border-bottom: 0;
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .badge {
-            padding: 0.5em 1em;
-            font-weight: 500;
-        }
-    </style>
+    <link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
 </head>
 
 <body>
@@ -75,7 +23,7 @@
             <div class="app-header__logo">
                 <div class="logo-src d-flex align-items-center">
                     <i class="pe-7s-home text-primary mr-2"></i>
-                    <span class="logo-text">ImmoDash Pro</span>
+                    <span class="logo-text">Home</span>
                 </div>
             </div>
 
@@ -201,7 +149,157 @@
             <div class="app-main__outer">
                 <div class="app-main__inner">
                     {% block content %}
-                    {% endblock %}
+    <div class="row">
+        <!-- Statistiques -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Mes Biens</h5>
+                    <h2 class="display-4 mb-0">{{ biens_count }}</h2>
+                    <p class="text-muted">Biens immobiliers publiés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Visites</h5>
+                    <h2 class="display-4 mb-0">{{ visites_count }}</h2>
+                    <p class="text-muted">Visites programmées</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Transactions</h5>
+                    <h2 class="display-4 mb-0">{{ transactions_count }}</h2>
+                    <p class="text-muted">Transactions conclues</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des biens -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Mes Biens Immobiliers</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Superficie (m²)</th>
+                            <th>Prix (€)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bien in bien_list %}
+                        <tr>
+                            <td>
+                                <img src="{{ bien.image.url|default:'/static/assets/images/no-image.jpg' }}" 
+                                     alt="Photo du bien" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">{{ bien.type_bien }}</span>
+                                    <span class="badge bg-success">{{ bien.type_transaction.type_transaction }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="description-container">
+                                    <div class="description-short">
+                                        {{ bien.description|truncatewords:15 }}
+                                        <a href="#" class="btn btn-link btn-sm" data-bs-toggle="collapse" data-bs-target="#details-{{ bien.id }}">
+                                            <i class="pe-7s-angle-down"></i>
+                                            Voir plus
+                                        </a>
+                                    </div>
+                                    <div id="details-{{ bien.id }}" class="collapse">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                 <div class="info-grid">
+                                                     <div class="info-item">
+                                                         <i class="pe-7s-tag"></i>
+                                                         Superficie: {{ bien.superficie }} m²
+                                                     </div>
+                                                     <div class="info-item">
+                                                         <i class="pe-7s-wallet"></i>
+                                                         Prix: {{ bien.prix|floatformat:"2" }} FCFA
+                                                     </div>
+                                                     <div class="info-item">
+                                                         <i class="pe-7s-graph1"></i>
+                                                         Type: {{ bien.type_transaction.type_transaction }}
+                                                     </div>
+                                                 </div>
+                                                <div class="info-grid mt-3">
+                                                     {% if bien.type_bien == 'Maison' %}
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-home"></i>
+                                                             Chambres: {{ bien.maison.nbr_chambre|default:'N/A' }}
+                                                         </div>
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-up-arrow"></i>
+                                                             Étages: {{ bien.maison.nbr_etages|default:'N/A' }}
+                                                         </div>
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-star"></i>
+                                                             Pièce spéciale: {{ bien.maison.piece_speciale|default:'N/A' }}
+                                                         </div>
+                                                     {% endif %}
+                                                     {% if bien.type_bien == 'Appartement' %}
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-home"></i>
+                                                             Chambres: {{ bien.appartement.nbr_chambre|default:'N/A' }}
+                                                         </div>
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-up-arrow"></i>
+                                                             Étage: {{ bien.appartement.etage|default:'N/A' }}
+                                                         </div>
+                                                     {% endif %}
+                                                     {% if bien.type_bien == 'Terrain' %}
+                                                         <div class="info-item">
+                                                             <i class="pe-7s-map"></i>
+                                                             Parcelles: {{ bien.terrain.nbr_parcelles }}
+                                                         </div>
+                                                     {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ bien.superficie }} m²</td>
+                            <td>{{ bien.prix|floatformat:"2" }} €</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'modifier_publication' bien.id %}" class="btn btn-sm btn-primary">
+                                        <i class="pe-7s-edit"></i> Modifier
+                                    </a>
+                                    <a href="{% url 'supprimer_publication' bien.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
+                                        <i class="pe-7s-trash"></i> Supprimer
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                Aucun bien immobilier n'a été trouvé.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
                 </div>
             </div>
         </div>
@@ -211,9 +309,48 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/metismenu@3.0.7/dist/metisMenu.min.js"></script>
+    <script src="{% static 'comptes/js/dashboard.js' %}"></script>
 
     <script>
     $(document).ready(function() {
+        // Gestion de l'expansion des détails
+        $('.expand-details').click(function() {
+            const bienId = $(this).data('bien-id');
+            const container = $(this).closest('.description-container');
+            const shortDesc = container.find('.description-short');
+            const fullDesc = container.find('.description-full');
+            const icon = $(this).find('i');
+
+            if (fullDesc.hasClass('d-none')) {
+                // Afficher les détails
+                shortDesc.hide();
+                fullDesc.show();
+                icon.removeClass('pe-7s-angle-down').addClass('pe-7s-angle-up');
+            } else {
+                // Masquer les détails
+                fullDesc.hide();
+                shortDesc.show();
+                icon.removeClass('pe-7s-angle-up').addClass('pe-7s-angle-down');
+            }
+        });
+
+        // Gestion de l'expansion des détails spécifiques
+        $('.show-details').click(function() {
+            const bienId = $(this).data('bien-id');
+            const detailsContainer = $(this).closest('td').find('.details-container');
+            const icon = $(this).find('i');
+
+            if (detailsContainer.hasClass('show')) {
+                // Masquer les détails
+                detailsContainer.removeClass('show');
+                icon.removeClass('pe-7s-angle-up').addClass('pe-7s-angle-down');
+            } else {
+                // Afficher les détails
+                detailsContainer.addClass('show');
+                icon.removeClass('pe-7s-angle-down').addClass('pe-7s-angle-up');
+            }
+        });
+
         // Initialisation de MetisMenu
         $('.vertical-nav-menu').metisMenu();
 

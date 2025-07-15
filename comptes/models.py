@@ -38,21 +38,46 @@ class BienImmobilier(models.Model):
     superficie = models.FloatField()
     description = models.TextField(blank=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2)  # Ajout du champ prix
-    proprietaire = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, limit_choices_to={'profession': 'proprietaire'})
+    proprietaire = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'profession': 'proprietaire'})
     image = models.ImageField(upload_to='biens/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.type_bien} - {self.superficie}m²"
 
-class Maison(BienImmobilier):
-    nbr_chambre = models.IntegerField()
-    piece_speciale = models.CharField(max_length=255)
+class Maison(models.Model):
+    bien = models.OneToOneField(BienImmobilier, on_delete=models.CASCADE, related_name='maison')
+    nbr_chambre = models.IntegerField(null=True, blank=True)
+    piece_speciale = models.CharField(max_length=255, null=True, blank=True)
+    nbr_etages = models.IntegerField(null=True, blank=True)
 
-class Appartement(BienImmobilier):
-    etage = models.IntegerField()
+    class Meta:
+        db_table = 'comptes_maison'
 
-class Terrain(BienImmobilier):
+    def __str__(self):
+        return f"Maison {self.bien}"
+
+
+class Appartement(models.Model):
+    bien = models.OneToOneField(BienImmobilier, on_delete=models.CASCADE, related_name='appartement')
+    etage = models.IntegerField(null=True, blank=True)
+    nbr_chambre = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'comptes_appartement'
+
+    def __str__(self):
+        return f"Appartement {self.bien}"
+
+
+class Terrain(models.Model):
+    bien = models.OneToOneField(BienImmobilier, on_delete=models.CASCADE, related_name='terrain')
     nbr_parcelles = models.IntegerField()
+
+    class Meta:
+        db_table = 'comptes_terrain'
+
+    def __str__(self):
+        return f"Terrain {self.bien}"
 
 # ==================== TRANSACTIONS ====================
 

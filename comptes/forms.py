@@ -10,7 +10,10 @@ class CustomUserCreationForm(UserCreationForm):
 class PublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
-        fields = ['titre', 'description']
+        fields = ['description']
+        widgets = {
+            'description': forms.Textarea(attrs={'class': 'form-control'})
+        }
 
 class TransactionForm(forms.ModelForm):
     class Meta:
@@ -35,44 +38,26 @@ class PaiementForm(forms.ModelForm):
 class MaisonForm(forms.ModelForm):
     class Meta:
         model = Maison
-        fields = ['image', 'superficie', 'description', 'nbr_chambre', 'piece_speciale', 'prix']
+        fields = ['nbr_chambre', 'piece_speciale', 'nbr_etages']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'superficie': forms.NumberInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'nbr_chambre': forms.NumberInput(attrs={'class': 'form-control'}),
             'piece_speciale': forms.TextInput(attrs={'class': 'form-control'}),
-            'prix': forms.NumberInput(attrs={'class': 'form-control'})
+            'nbr_etages': forms.NumberInput(attrs={'class': 'form-control'})
         }
 
 class AppartementForm(forms.ModelForm):
-    prix = forms.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-    
     class Meta:
         model = Appartement
-        fields = ['image', 'superficie', 'etage', 'prix']
+        fields = ['etage', 'nbr_chambre']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'superficie': forms.NumberInput(attrs={'class': 'form-control'}),
-            'etage': forms.NumberInput(attrs={'class': 'form-control'})
+            'etage': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nbr_chambre': forms.NumberInput(attrs={'class': 'form-control'})
         }
 
 class TerrainForm(forms.ModelForm):
-    prix = forms.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-    
     class Meta:
         model = Terrain
-        fields = ['image', 'superficie', 'nbr_parcelles', 'prix']
+        fields = ['nbr_parcelles']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'superficie': forms.NumberInput(attrs={'class': 'form-control'}),
             'nbr_parcelles': forms.NumberInput(attrs={'class': 'form-control'})
         }

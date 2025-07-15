@@ -1,52 +1,93 @@
 {% extends 'comptes/index.html' %}
 {% block content %}
 {% load static %}
+<link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
 
 <div class="container" style="max-width:600px;">
     <h2 class="mb-4 mt-3">Nouvelle Publication</h2>
     
-    {% if form %}
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
     <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
         {% csrf_token %}
         
+        <!-- Champs communs à tous les types de biens -->
         <div class="mb-3">
             <label class="form-label">Image</label>
-            <input type="file" class="form-control" name="image" accept="image/*">
+            <input type="file" class="form-control" name="image" accept="image/*" required>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Superficie (m²)</label>
-            <input type="number" class="form-control" name="superficie" required>
+            <input type="number" class="form-control" name="superficie" required min="0.01" step="0.01" pattern="[0-9]+(\.[0-9]+)?">
+            <small class="form-text text-muted">Format : 120.5 (point pour la virgule)</small>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Description</label>
             <textarea class="form-control" name="description" rows="3" required></textarea>
         </div>
-
         <div class="mb-3">
-            <label class="form-label">Nombre de chambres</label>
-            <input type="number" class="form-control" name="nbr_chambre" required>
+            <label class="form-label">Prix </label>
+            <input type="number" class="form-control" name="prix" step="0.01" required min="0.01" pattern="[0-9]+(\.[0-9]+)?">
+            <small class="form-text text-muted">Format : 150000.00 (point pour la virgule)</small>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Pièce spéciale</label>
-            <input type="text" class="form-control" name="piece_speciale" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Prix (€)</label>
-            <input type="number" class="form-control" name="prix" step="0.01" required>
-        </div>
+        {% if bien == 'maison' %}
+            <!-- Champs spécifiques à une maison -->
+            <div class="mb-3">
+                <label class="form-label">Nombre de chambres</label>
+                {{ maison_form.nbr_chambre }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pièce spéciale</label>
+                {{ maison_form.piece_speciale }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nombre d'étages</label>
+                {{ maison_form.nbr_etages }}
+            </div>
+        {% elif bien == 'appartement' %}
+            <!-- Champs spécifiques à un appartement -->
+            <div class="mb-3">
+                <label class="form-label">Étage</label>
+                {{ appartement_form.etage }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nombre de chambres</label>
+                {{ appartement_form.nbr_chambre }}
+            </div>
+        {% elif bien == 'terrain' %}
+            <!-- Champs spécifiques à un terrain -->
+            <div class="mb-3">
+                <label class="form-label">Nombre de parcelles</label>
+                {{ terrain_form.nbr_parcelles }}
+            </div>
+        {% endif %}
 
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary">Enregistrer</button>
             <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
         </div>
     </form>
-    {% else %}
-    <div class="alert alert-warning">Aucun formulaire disponible pour ce type de bien.</div>
-    {% endif %}
 </div>
+
+<script>
+function validateForm() {
+    const superficie = document.querySelector('input[name="superficie"]').value;
+    const prix = document.querySelector('input[name="prix"]').value;
+    
+    if (superficie <= 0) {
+        alert('La superficie doit être supérieure à 0');
+        return false;
+    }
+    
+    if (prix <= 0) {
+        alert('Le prix doit être supérieur à 0');
+        return false;
+    }
+    
+    return true;
+}</script>
 
 {% endblock %}

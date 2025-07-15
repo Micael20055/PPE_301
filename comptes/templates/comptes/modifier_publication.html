@@ -1,43 +1,69 @@
 {% extends 'comptes/index.html' %}
 {% block content %}
 {% load static %}
+<link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
 {% load form_filters %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <div class="container" style="max-width:600px;">
     <h2 class="mb-4 mt-3">Modifier la Publication</h2>
+    
     <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
         {% csrf_token %}
+        
+        <!-- Champs communs à tous les types de biens -->
         <div class="mb-3">
-            <label for="id_titre" class="form-label">Titre :</label>
-            {{ form.titre|add_class:"form-control" }}
+            <label class="form-label">Image</label>
+            <input type="file" class="form-control" name="image" accept="image/*">
+            {% if bien.image %}
+                <div class="mt-2">
+                    <img src="{{ bien.image.url }}" alt="Image actuelle" style="max-width: 200px;">
+                </div>
+            {% endif %}
         </div>
         <div class="mb-3">
-            <label for="id_type_bien" class="form-label">Type bien :</label>
-            {{ form.type_bien|add_class:"form-control" }}
+            <label class="form-label">Superficie (m²)</label>
+            <input type="number" class="form-control" name="superficie" value="{{ bien.superficie }}" required min="0.01" step="0.01" pattern="[0-9]+(\.[0-9]+)?">
+            <small class="form-text text-muted">Format : 120.5 (point pour la virgule)</small>
         </div>
         <div class="mb-3">
-            <label for="id_description" class="form-label">Description :</label>
-            {{ form.description|add_class:"form-control" }}
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="3">{{ bien.description }}</textarea>
         </div>
         <div class="mb-3">
-            <label for="id_prix" class="form-label">Prix :</label>
-            {{ form.prix|add_class:"form-control" }}
+            <label class="form-label">Prix</label>
+            <input type="number" class="form-control" name="prix" value="{{ bien.prix }}" step="0.01" required min="0.01" pattern="[0-9]+(\.[0-9]+)?">
+            <small class="form-text text-muted">Format : 150000.00 (point pour la virgule)</small>
         </div>
-        <div class="mb-3">
-            <label for="id_adresse" class="form-label">Adresse :</label>
-            {{ form.adresse|add_class:"form-control" }}
+
+        <!-- Champs spécifiques selon le type de bien -->
+        {% if bien_form %}
+            {{ bien_form.as_p }}
+        {% endif %}
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
         </div>
-        <div class="mb-3">
-            <label for="id_image" class="form-label">Image :</label>
-            {{ form.image|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-            <label for="id_auteur" class="form-label">Auteur :</label>
-            {{ form.auteur|add_class:"form-select" }}
-        </div>
-        <button type="submit" class="btn btn-primary">Mettre à jour</button>
-        <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
+
+<script>
+function validateForm() {
+    const superficie = document.querySelector('input[name="superficie"]').value;
+    const prix = document.querySelector('input[name="prix"]').value;
+    
+    if (superficie <= 0) {
+        alert('La superficie doit être supérieure à 0');
+        return false;
+    }
+    
+    if (prix <= 0) {
+        alert('Le prix doit être supérieur à 0');
+        return false;
+    }
+    
+    return true;
+}
+</script>
 {% endblock %}
