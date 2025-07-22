@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImmoDash - Accueil Client</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0;
+        }
+
+        .welcome-section {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .property-card {
+            transition: transform 0.3s ease;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .property-image {
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .property-info {
+            padding: 20px;
+        }
+
+        .price-tag {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .property-grid {
+            gap: 30px;
+        }
+
+        .filter-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .visit-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .visit-card .date {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 60px 0;
+            }
+            .welcome-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'comptes:client_home' %}">
+                <i class="fas fa-home me-2"></i> ImmoDash
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'comptes:client_home' %}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'comptes:publications' %}">Annonces</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'comptes:visites' %}">Mes Réservations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'comptes:profil_view' %}">Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{% url 'comptes:logout' %}">Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Section -->
+    <div class="container mt-4">
+        <div class="welcome-section">
+            <h2>Bienvenue, {{ request.user.username }}</h2>
+            <p class="lead">Votre espace client ImmoDash</p>
+        </div>
+    </div>
+
+    <!-- Visites Programmées -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h3>Mes Visites Programmées</h3>
+                {% if visites %}
+                    {% for visite in visites %}
+                    <div class="visit-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5>{{ visite.bien }}</h5>
+                                <p class="date">{{ visite.date_visite|date:"d/m/Y H:i" }}</p>
+                                <p class="text-muted">{{ visite.statut }}</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{% url 'comptes:annuler_visite' visite.id %}" class="btn btn-danger btn-sm">Annuler</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Aucune visite programmée pour le moment</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Propriétés Disponibles -->
+    <div class="container mt-5">
+        <h3>Propriétés Disponibles</h3>
+        <div class="row property-grid mt-4">
+            {% for bien in biens %}
+            <div class="col-md-6 col-lg-4">
+                <div class="property-card">
+                    {% if bien.image %}
+                        <img src="{{ bien.image.url }}" alt="{{ bien }}" class="property-image">
+                    {% else %}
+                        <div class="property-image bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted">Aucune image disponible</span>
+                        </div>
+                    {% endif %}
+                    <div class="property-info">
+                        <h5>{{ bien.titre }}</h5>
+                        <p class="text-muted">{{ bien.type_bien }}</p>
+                        <p class="price-tag">{{ bien.prix }} €</p>
+                        <div class="mt-3">
+                            <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-outline-primary me-2">Voir détails</a>
+                            <a href="{% url 'comptes:programmer_visite' bien.id %}" class="btn btn-primary">Réserver une visite</a>
+                            <a href="{% url 'comptes:contacter_proprietaire' bien.id %}" class="btn btn-outline-secondary">Contacter</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" name="prix_min" placeholder="Prix minimum">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" name="prix_max" placeholder="Prix maximum">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Properties Grid -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Nos dernières propriétés</h2>
+        <div class="row property-grid">
+            {% for bien in biens %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="property-card">
+                    {% if bien.image %}
+                        <img src="{{ bien.image.url }}" 
+                             alt="{{ bien.description }}" 
+                             class="property-image">
+                    {% else %}
+                        <div class="property-image bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted">Aucune image disponible</span>
+                        </div>
+                    {% endif %}
+                    <div class="property-info">
+                        <div class="price-tag">{{ bien.prix|floatformat:"2" }} €</div>
+                        <h3 class="h5 mb-2">{{ bien.description|truncatewords:10 }}</h3>
+                        <p class="text-muted mb-3">{{ bien.type_bien }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-ruler-combined me-2"></i>{{ bien.superficie }} m²</span>
+                            <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-outline-primary btn-sm">Détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    Aucune propriété n'est actuellement disponible.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>ImmoDash</h5>
+                    <p>Votre partenaire immobilier de confiance.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'comptes:contact' %}" class="text-decoration-none text-muted me-3">
+                        <i class="fas fa-envelope me-1"></i>Contact
+                    </a>
+                    <a href="{% url 'comptes:about' %}" class="text-decoration-none text-muted">
+                        <i class="fas fa-info-circle me-1"></i>À propos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

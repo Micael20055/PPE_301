@@ -1,8 +1,126 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
-<h2>Mon Profil</h2>
-<p>Nom : {{ user.last_name }}</p>
-<p>Prénom : {{ user.first_name }}</p>
-<p>Email : {{ user.email }}</p>
-<a href="{% url 'modifier_profil' %}" class="btn">Modifier mon profil</a>
-{% endblock %}
+{% extends 'comptes/proprietaire_base.html' %}
+{% load static %}
+
+{% block main_content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Mon Profil</h2>
+            <p class="text-gray-600">Gérez vos informations personnelles et vos biens immobiliers</p>
+        </div>
+        <a href="{% url 'comptes:modifier_profil' %}" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center">
+            <i class="fas fa-edit mr-2"></i>Modifier le profil
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Carte de profil -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-center">
+                <div class="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                    <img src="{% static 'images/default-avatar.png' %}" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">{{ user.get_full_name|default:user.username }}</h3>
+                <p class="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mt-2">
+                    {{ user.get_profession_display|default:"Utilisateur" }}
+                </p>
+                
+                <div class="mt-4 space-y-2 text-left">
+                    <div class="flex items-center text-gray-600">
+                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    {% if user.telephone %}
+                    <div class="flex items-center text-gray-600">
+                        <i class="fas fa-phone mr-2 text-blue-500"></i>
+                        <span>{{ user.telephone }}</span>
+                    </div>
+                    {% endif %}
+                    {% if user.adresse %}
+                    <div class="flex items-start text-gray-600">
+                        <i class="fas fa-map-marker-alt mt-1 mr-2 text-blue-500"></i>
+                        <span>{{ user.adresse }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section des biens -->
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Mes Biens Immobiliers</h3>
+                </div>
+                <div class="p-6">
+                    {% if user.profession == 'proprietaire' %}
+                    <a href="{% url 'comptes:ajouter_publication' %}" class="mb-4 inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un bien
+                    </a>
+                    {% endif %}
+                    
+                    {% if biens %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {% for bien in biens %}
+                            <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                <div class="h-40 bg-gray-100 overflow-hidden">
+                                    {% if bien.image %}
+                                    <img src="{{ bien.image.url }}" alt="{{ bien.description|truncatechars:50 }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                        <i class="fas fa-home text-4xl"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-medium text-gray-900">{{ bien.get_type_bien_display|default:"Bien immobilier" }}</h4>
+                                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ bien.description|truncatechars:60 }}</p>
+                                    <p class="text-blue-600 font-medium mt-2">{{ bien.prix }} €</p>
+                                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+                                        <a href="{% url 'comptes:detail_bien' bien.id %}" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                                            <i class="fas fa-eye mr-1"></i> Voir
+                                        </a>
+                                        {% if user.profession == 'proprietaire' %}
+                                        <div class="flex space-x-2">
+                                            {% if bien.publication %}
+                                            <a href="{% url 'comptes:modifier_publication' bien.publication.id %}" class="text-yellow-500 hover:text-yellow-700" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{% url 'comptes:supprimer_publication' bien.publication.id %}" method="post" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="text-red-500 hover:text-red-700" 
+                                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')" 
+                                                        title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <span class="text-xs text-gray-500">Non publié</span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <div class="text-gray-400 mb-3">
+                                <i class="fas fa-home text-4xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium text-gray-900 mb-1">Aucun bien enregistré</h4>
+                            <p class="text-gray-500 mb-4">Vous n'avez pas encore de biens immobiliers enregistrés.</p>
+                            {% if user.profession == 'proprietaire' %}
+                                <a href="{% url 'comptes:ajouter_publication' %}" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md">
+                                    <i class="fas fa-plus mr-2"></i>Ajouter votre premier bien
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

@@ -1,0 +1,132 @@
+{% extends 'comptes/proprietaire_base.html' %}
+
+{% block main_content %}
+<!-- DEBUG: Début du bloc main_content -->
+<!-- DEBUG: total_publications = {{ total_publications|default:"non défini" }} -->
+<!-- DEBUG: biens_publications = {{ biens_publications|default:"non défini" }} -->
+<!-- DEBUG: total_vues = {{ total_vues|default:"non défini" }} -->
+<!-- DEBUG: total_commentaires = {{ total_commentaires|default:"non défini" }} -->
+<div class="container mx-auto px-6 py-8">
+    <!-- En-tête -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Tableau de bord</h2>
+        <a href="{% url 'comptes:ajouter_publication' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <i class="fas fa-plus mr-2"></i>Ajouter un bien
+        </a>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total des publications -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Publications</p>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ total_publications|default:0 }}</h3>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full text-blue-500">
+                    <i class="fas fa-newspaper text-xl"></i>
+                </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Nombre total de vos publications</p>
+        </div>
+
+        <!-- Biens en publication -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Biens publiés</p>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ biens_publications|default:0 }}</h3>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full text-green-500">
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Nombre de biens actuellement publiés</p>
+        </div>
+
+        <!-- Vues totales -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Vues totales</p>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ total_vues|default:0 }}</h3>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-full text-yellow-500">
+                    <i class="fas fa-eye text-xl"></i>
+                </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Nombre total de vues sur vos publications</p>
+        </div>
+
+        <!-- Commentaires -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Commentaires</p>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ total_commentaires|default:0 }}</h3>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-full text-purple-500">
+                    <i class="fas fa-comments text-xl"></i>
+                </div>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Commentaires reçus sur vos biens</p>
+        </div>
+    </div>
+
+    <!-- Liste des biens -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Mes biens immobiliers</h3>
+        </div>
+        
+        {% if biens %}
+            <div class="divide-y divide-gray-200">
+                {% for bien in biens %}
+                <div class="p-6 hover:bg-gray-50">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between">
+                        <div class="mb-4 md:mb-0">
+                            <h4 class="text-lg font-medium text-gray-900">{{ bien.get_type_bien_display }}</h4>
+                            <p class="text-sm text-gray-500">
+                                {{ bien.superficie }} m² • {{ bien.prix }} €
+                                {% if bien.ville %}
+                                    • {{ bien.ville }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'comptes:detail_bien' bien.id %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200">
+                                <i class="fas fa-eye mr-1"></i> Voir
+                            </a>
+                            {% if bien.annonce %}
+                                <a href="{% url 'comptes:modifier_publication' bien.annonce.id %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-yellow-700 bg-yellow-100 hover:bg-yellow-200">
+                                    <i class="fas fa-edit mr-1"></i> Modifier
+                                </a>
+                            {% else %}
+                                <a href="{% url 'comptes:ajouter_publication' %}?bien_id={{ bien.id }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200">
+                                    <i class="fas fa-bullhorn mr-1"></i> Publier
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun bien trouvé</h3>
+                <p class="mt-1 text-sm text-gray-500">Commencez par ajouter votre premier bien immobilier.</p>
+                <div class="mt-6">
+                    <a href="{% url 'comptes:ajouter_publication' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus -ml-1 mr-2 h-5 w-5"></i>
+                        Ajouter un bien
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

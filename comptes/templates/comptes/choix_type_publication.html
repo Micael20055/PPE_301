@@ -1,8 +1,93 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
-<div class="container">
-    <h2>Que souhaitez-vous faire ?</h2>
-    <a href="{% url 'choix_bien' %}?type=vente" class="btn btn-success">Vendre</a>
-    <a href="{% url 'choix_bien' %}?type=location" class="btn btn-primary">Louer</a>
+{% extends 'comptes/proprietaire_base.html' %}
+
+{% block main_content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- En-tête de la page -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Publier une nouvelle annonce
+        </h1>
+        <p class="mt-4 text-xl text-gray-600">
+            Commencez par choisir le type de transaction que vous souhaitez effectuer
+        </p>
+    </div>
+
+    <!-- Cartes de sélection -->
+    <div class="grid md:grid-cols-2 gap-8 mt-10">
+        <!-- Carte Vente -->
+        <a href="{% url 'comptes:choix_bien' %}?type=vente" 
+           class="group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="absolute top-4 right-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-tag mr-2"></i> Vente
+                </span>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300 mb-6">
+                    <i class="fas fa-home text-4xl text-blue-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Vendre un bien</h3>
+                <p class="text-gray-600 mb-6">
+                    Mettez en vente votre propriété et trouvez des acheteurs potentiels rapidement et facilement.
+                </p>
+                <div class="inline-flex items-center text-blue-600 font-medium group-hover:text-blue-800 transition-colors duration-300">
+                    Commencer la vente
+                    <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Carte Location -->
+        <a href="{% url 'comptes:choix_bien' %}?type=location" 
+           class="group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-green-500 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="absolute top-4 right-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-key mr-2"></i> Location
+                </span>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300 mb-6">
+                    <i class="fas fa-key text-4xl text-green-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Louer un bien</h3>
+                <p class="text-gray-600 mb-6">
+                    Proposez votre bien à la location et trouvez des locataires fiables en quelques clics.
+                </p>
+                <div class="inline-flex items-center text-green-600 font-medium group-hover:text-green-800 transition-colors duration-300">
+                    Commencer la location
+                    <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Section d'aide -->
+    <div class="mt-16 bg-blue-50 rounded-2xl p-6 md:p-8">
+        <div class="md:flex items-center">
+            <div class="md:w-3/4">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Besoin d'aide pour publier votre annonce ?</h3>
+                <p class="text-gray-600">
+                    Notre équipe est là pour vous accompagner à chaque étape de la publication de votre annonce.
+                </p>
+            </div>
+            <div class="mt-4 md:mt-0 md:w-1/4 text-right">
+                <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300">
+                    <i class="fas fa-headset mr-2"></i>
+                    Contactez-nous
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Styles personnalisés pour les animations -->
+<style>
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+</style>
 {% endblock %}

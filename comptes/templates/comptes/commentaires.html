@@ -1,69 +1,6 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
+{% extends 'comptes/proprietaire_base.html' %}
 
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="pe-7s-comment icon-gradient bg-mean-fruit"></i>
-            </div>
-            <div>Commentaires
-                <div class="page-title-subheading">Gérez les commentaires sur vos biens immobiliers</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="main-card mb-3 card">
-            <div class="card-body">
-                {% if commentaires %}
-                    {% for commentaire in commentaires %}
-                        <div class="comment-item mb-3 p-3 border-bottom">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="avatar mr-3">
-                                    {% if commentaire.utilisateur.photo %}
-                                        <img src="{{ commentaire.utilisateur.photo.url }}" alt="Avatar" class="rounded-circle" width="40">
-                                    {% else %}
-                                        <i class="pe-7s-user fa-2x text-muted"></i>
-                                    {% endif %}
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">{{ commentaire.utilisateur.get_full_name }}</h6>
-                                    <small class="text-muted">
-                                        <i class="pe-7s-clock"></i> 
-                                        {{ commentaire.date|date:"d/m/Y H:i" }}
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="comment-content ml-5 pl-2">
-                                <p class="mb-2">{{ commentaire.texte }}</p>
-                                <div class="comment-actions">
-                                    <a href="#" class="btn btn-sm btn-outline-primary mr-2">
-                                        <i class="fa fa-reply"></i> Répondre
-                                    </a>
-                                    {% if commentaire.utilisateur == request.user %}
-                                        <a href="#" class="btn btn-sm btn-outline-danger">
-                                            <i class="fa fa-trash"></i> Supprimer
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="pe-7s-comment fa-4x text-muted mb-3"></i>
-                        <h5>Aucun commentaire pour le moment</h5>
-                        <p class="text-muted">Les commentaires sur vos biens apparaîtront ici</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
+{% block extra_head %}
 <style>
 .comment-item:hover {
     background-color: rgba(0,0,0,0.02);
@@ -83,5 +20,61 @@
     min-width: 40px;
 }
 </style>
+{% endblock %}
 
+{% block main_content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Commentaires</h2>
+            <p class="text-gray-600">Gérez les commentaires sur vos biens immobiliers</p>
+        </div>
+    </div>
+
+    {% if commentaires %}
+    <div class="space-y-6">
+        {% for commentaire in commentaires %}
+        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-500"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-900">
+                            {{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}
+                            <span class="text-sm text-gray-500">• {{ commentaire.date_creation|timesince }}</span>
+                        </h4>
+                        <p class="text-sm text-gray-500">
+                            Sur {{ commentaire.bien.description|truncatewords:5|default:"un bien" }}
+                        </p>
+                    </div>
+                </div>
+                {% if commentaire.utilisateur == request.user %}
+                <form action="{% url 'comptes:supprimer_commentaire' commentaire.id %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="text-red-500 hover:text-red-700"
+                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="mt-3 pl-13">
+                <p class="text-gray-700">{{ commentaire.contenu }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <i class="fas fa-comments fa-4x"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">Aucun commentaire pour le moment</h3>
+        <p class="text-gray-500">Les commentaires sur vos biens apparaîtront ici.</p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

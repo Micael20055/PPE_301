@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ titre }}</h2>
+    
+    <div class="row">
+        {% for bien in biens %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{ bien.image.url }}" class="card-img-top" alt="{{ bien.description }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ bien.type_bien }}</h5>
+                    <p class="card-text">{{ bien.description }}</p>
+                    <p class="card-text"><strong>Prix:</strong> {{ bien.prix }} €</p>
+                    <p class="card-text"><strong>Superficie:</strong> {{ bien.superficie }} m²</p>
+                    
+                    {% if bien.type_bien == 'Maison' %}
+                        <p class="card-text"><strong>Chambres:</strong> {{ bien.maison.nbr_chambre }}</p>
+                        <p class="card-text"><strong>Étages:</strong> {{ bien.maison.nbr_etages }}</p>
+                    {% elif bien.type_bien == 'Appartement' %}
+                        <p class="card-text"><strong>Chambres:</strong> {{ bien.appartement.nbr_chambre }}</p>
+                        <p class="card-text"><strong>Étage:</strong> {{ bien.appartement.etage }}</p>
+                    {% elif bien.type_bien == 'Terrain' %}
+                        <p class="card-text"><strong>Parcelles:</strong> {{ bien.terrain.nbr_parcelles }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-info btn-sm">Détails</a>
+                        {% if request.user.profession == 'proprietaire' and bien.proprietaire == request.user %}
+                            <a href="{% url 'comptes:edit_bien' bien.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">Aucun bien trouvé dans cette catégorie.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

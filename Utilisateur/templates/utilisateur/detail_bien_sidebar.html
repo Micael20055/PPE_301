@@ -1,0 +1,175 @@
+<!-- Barre latérale (1/3 de la largeur) -->
+<div class="lg:w-1/3">
+    <div class="sticky-sidebar space-y-6">
+        <!-- Carte de l'agent -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-primary p-4 text-white">
+                <h3 class="text-lg font-semibold">Contactez l'agent</h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="h-16 w-16 rounded-full bg-gray-200 overflow-hidden mr-4">
+                        {% if bien.agent and bien.agent.photo %}
+                            <img src="{{ bien.agent.photo.url }}" alt="{{ bien.agent.nom_complet }}" class="h-full w-full object-cover">
+                        {% else %}
+                            <div class="h-full w-full bg-gray-300 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500 text-2xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">
+                            {% if bien.agent %}
+                                {{ bien.agent.nom_complet|default:"Agent non spécifié" }}
+                            {% else %}
+                                Équipe LuxuryHomes
+                            {% endif %}
+                        </h4>
+                        <p class="text-sm text-gray-500">
+                            {% if bien.agent %}
+                                {{ bien.agent.poste|default:"Conseiller immobilier" }}
+                            {% else %}
+                                Service client
+                            {% endif %}
+                        </p>
+                        {% if bien.agent %}
+                        <div class="flex items-center mt-1">
+                            {% for i in "12345"|make_list %}
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                            {% endfor %}
+                            <span class="text-xs text-gray-500 ml-1">(12 avis)</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    {% if bien.agent and bien.agent.telephone %}
+                    <a href="tel:{{ bien.agent.telephone }}" class="flex items-center text-gray-700 hover:text-primary transition-colors">
+                        <i class="fas fa-phone-alt w-5 mr-2 text-primary"></i>
+                        <span>{{ bien.agent.telephone }}</span>
+                    </a>
+                    {% else %}
+                    <a href="tel:+33123456789" class="flex items-center text-gray-700 hover:text-primary transition-colors">
+                        <i class="fas fa-phone-alt w-5 mr-2 text-primary"></i>
+                        <span>+33 1 23 45 67 89</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if bien.agent and bien.agent.email %}
+                    <a href="mailto:{{ bien.agent.email }}" class="flex items-center text-gray-700 hover:text-primary transition-colors">
+                        <i class="fas fa-envelope w-5 mr-2 text-primary"></i>
+                        <span class="truncate">{{ bien.agent.email }}</span>
+                    </a>
+                    {% else %}
+                    <a href="mailto:contact@luxuryhomes.fr" class="flex items-center text-gray-700 hover:text-primary transition-colors">
+                        <i class="fas fa-envelope w-5 mr-2 text-primary"></i>
+                        <span class="truncate">contact@luxuryhomes.fr</span>
+                    </a>
+                    {% endif %}
+                    
+                    <a href="#contact-form" class="block mt-4 w-full bg-primary hover:bg-primary/90 text-white text-center py-2 px-4 rounded-md transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>Contacter l'agent
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Formulaire de visite -->
+        <div id="rdv" class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-primary p-4 text-white">
+                <h3 class="text-lg font-semibold">Visite virtuelle</h3>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Réservez une visite virtuelle de ce bien avec un de nos conseillers.</p>
+                
+                <form id="rdv-form" class="space-y-4">
+                    <div>
+                        <label for="rdv-date" class="block text-sm font-medium text-gray-700 mb-1">Date souhaitée *</label>
+                        <input type="date" id="rdv-date" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                    </div>
+                    
+                    <div>
+                        <label for="rdv-heure" class="block text-sm font-medium text-gray-700 mb-1">Heure *</label>
+                        <select id="rdv-heure" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                            <option value="">Sélectionnez une heure</option>
+                            <option value="09:00">09:00 - 10:00</option>
+                            <option value="10:00">10:00 - 11:00</option>
+                            <option value="11:00">11:00 - 12:00</option>
+                            <option value="14:00">14:00 - 15:00</option>
+                            <option value="15:00">15:00 - 16:00</option>
+                            <option value="16:00">16:00 - 17:00</option>
+                            <option value="17:00">17:00 - 18:00</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="rdv-nom" class="block text-sm font-medium text-gray-700 mb-1">Votre nom *</label>
+                        <input type="text" id="rdv-nom" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                               value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}">
+                    </div>
+                    
+                    <div>
+                        <label for="rdv-email" class="block text-sm font-medium text-gray-700 mb-1">Votre email *</label>
+                        <input type="email" id="rdv-email" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                               value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
+                    </div>
+                    
+                    <div>
+                        <label for="rdv-telephone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
+                        <input type="tel" id="rdv-telephone" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                        <i class="fas fa-calendar-check mr-2"></i>Réserver la visite
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Biens similaires -->
+        {% if biens_similaires %}
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="bg-primary p-4 text-white">
+                <h3 class="text-lg font-semibold">Biens similaires</h3>
+            </div>
+            
+            <div class="p-4">
+                <div class="space-y-4">
+                    {% for similaire in biens_similaires|slice:":3" %}
+                    <a href="{% url 'utilisateur:detail_bien' similaire.id %}" class="group flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex-shrink-0 w-20 h-16 bg-gray-200 rounded-md overflow-hidden">
+                            {% if similaire.image %}
+                                <img src="{{ similaire.image.url }}" alt="{{ similaire.titre }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                    <i class="fas fa-home text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate group-hover:text-primary transition-colors">
+                                {{ similaire.titre|default:similaire.description|truncatechars:50 }}
+                            </p>
+                            <p class="text-sm text-gray-500">{{ similaire.ville|default:"" }}</p>
+                            <p class="text-sm font-medium text-primary">{{ similaire.prix|floatformat:0 }} €</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <a href="{% url 'utilisateur:biens' %}?type={{ bien.type_bien }}" class="mt-4 block text-center text-sm font-medium text-primary hover:underline">
+                    Voir plus de biens similaires <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

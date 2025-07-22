@@ -1,109 +1,44 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
+{% extends 'comptes/proprietaire_base.html' %}
 
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="pe-7s-date icon-gradient bg-mean-fruit"></i>
-            </div>
-            <div>Visites Programmées
-                <div class="page-title-subheading">Gérez vos rendez-vous de visites</div>
-            </div>
+{% block main_content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900">Gestion des Visites</h2>
+            <p class="text-gray-600">Suivez et gérez vos rendez-vous de visites</p>
         </div>
+        <a href="{% url 'comptes:programmer_visite' %}" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center">
+            <i class="fas fa-plus mr-2"></i>Nouvelle Visite
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bien</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for visite in visites %}
+                <tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-gray-500 py-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucune visite programmée</h3>
+                            <p class="text-gray-600">Utilisez le bouton "Nouvelle Visite" pour programmer votre première visite.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="main-card mb-3 card">
-            <div class="card-body">
-                {% if visites %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Bien</th>
-                                    <th>Date</th>
-                                    <th>Heure</th>
-                                    <th>Client</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for visite in visites %}
-                                <tr class="visite-row">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if visite.publication.image %}
-                                                <img src="{{ visite.publication.image.url }}" class="mr-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
-                                            {% else %}
-                                                <i class="pe-7s-home fa-2x mr-2 text-muted"></i>
-                                            {% endif %}
-                                            {{ visite.publication.titre }}
-                                        </div>
-                                    </td>
-                                    <td>{{ visite.date|date:"d/m/Y" }}</td>
-                                    <td>{{ visite.heure }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="pe-7s-user mr-2"></i>
-                                            {{ visite.client.nom }} {{ visite.client.prenom }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{% if visite.status == 'confirme' %}success{% elif visite.status == 'en_attente' %}warning{% else %}danger{% endif %}">
-                                            {{ visite.get_status_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-primary mr-2" data-toggle="tooltip" title="Confirmer">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger mr-2" data-toggle="tooltip" title="Annuler">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-info" data-toggle="tooltip" title="Détails">
-                                                <i class="fa fa-info-circle"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="pe-7s-date fa-4x text-muted mb-3"></i>
-                        <h5>Aucune visite programmée</h5>
-                        <p class="text-muted">Les visites programmées apparaîtront ici</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-.visite-row:hover {
-    background-color: rgba(0,0,0,0.02);
-    transition: background-color 0.3s ease;
-}
-
-.badge {
-    padding: 0.5em 1em;
-}
-
-.btn-group .btn {
-    transition: all 0.3s ease;
-}
-
-.btn-group .btn:hover {
-    transform: translateY(-2px);
-}
-</style>
-
-{% endblock %}
+{% endblock main_content %}

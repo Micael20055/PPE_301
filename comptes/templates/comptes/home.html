@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 mb-4">Bienvenue sur ImmoDash</h1>
+                <p class="lead mb-4">Votre plateforme immobilière complète pour la gestion de vos biens et la recherche de propriétés.</p>
+                <div class="search-box bg-white p-4 rounded shadow">
+                    <form action="{% url 'comptes:search' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <select name="type_bien" class="form-select">
+                                    <option value="">Type de bien</option>
+                                    <option value="Maison">Maison</option>
+                                    <option value="Appartement">Appartement</option>
+                                    <option value="Terrain">Terrain</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="prix_min" class="form-control" placeholder="Prix minimum" min="0">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="prix_max" class="form-control" placeholder="Prix maximum" min="0">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'images/hero-image.jpg' %}" alt="ImmoDash" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-properties py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Biens en Vedette</h2>
+        <div class="row g-4">
+            {% for bien in biens_en_vedette %}
+            <div class="col-md-6 col-lg-4">
+                <div class="property-card h-100">
+                    <div class="property-image position-relative overflow-hidden">
+                        <img src="{{ bien.image.url }}" alt="{{ bien.description }}" class="img-fluid">
+                        <div class="property-type bg-primary text-white p-2 rounded position-absolute top-0 start-0 m-3">
+                            {{ bien.type_bien }}
+                        </div>
+                    </div>
+                    <div class="property-details p-4">
+                        <h3 class="h5 mb-3">{{ bien.description }}</h3>
+                        <p class="text-muted mb-3">{{ bien.adresse }}</p>
+                        <div class="property-price mb-3">
+                            <span class="h4 text-primary">{{ bien.prix }} €</span>
+                        </div>
+                        <ul class="property-features list-unstyled d-flex mb-0">
+                            {% if bien.type_bien == 'Maison' %}
+                            <li class="me-3"><i class="fas fa-bed me-2"></i>{{ bien.maison.nbr_chambre }} chambres</li>
+                            <li><i class="fas fa-bath me-2"></i>{{ bien.maison.nbr_salle_bain }} salles de bain</li>
+                            {% elif bien.type_bien == 'Appartement' %}
+                            <li class="me-3"><i class="fas fa-bed me-2"></i>{{ bien.appartement.nbr_chambre }} chambres</li>
+                            <li><i class="fas fa-bath me-2"></i>{{ bien.appartement.nbr_salle_bain }} salles de bain</li>
+                            {% endif %}
+                        </ul>
+                        <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-outline-primary w-100">Voir plus</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation des cartes de propriétés
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__fadeIn');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.property-card').forEach((el) => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

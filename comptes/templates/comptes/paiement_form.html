@@ -1,0 +1,368 @@
+{% extends 'comptes/proprietaire_base.html' %}
+{% load widget_tweaks %}
+
+{% block main_content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- En-tête de la page -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Nouveau Paiement</h1>
+        <p class="mt-2 text-sm text-gray-600">Enregistrez un nouveau paiement pour suivre vos transactions financières.</p>
+    </div>
+
+    <!-- Carte du formulaire -->
+    <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <!-- En-tête de la carte -->
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-credit-card text-indigo-600 mr-2"></i> Détails du paiement
+            </h2>
+        </div>
+
+        <!-- Formulaire -->
+        <form method="post" class="p-6 space-y-8">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        {% for error in form.non_field_errors %}
+                        <p class="text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section Informations de paiement -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    <i class="fas fa-info-circle text-indigo-500 mr-2"></i>Informations de paiement
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Montant -->
+                    <div class="relative">
+                        <label for="{{ form.montant.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Montant <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">
+                                    €
+                                </span>
+                            </div>
+                            {% render_field form.montant class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-base border-gray-300 rounded-md h-12 px-4 py-2" placeholder="0.00" %}
+                        </div>
+                        {% if form.montant.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.montant.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date de paiement -->
+                    <div>
+                        <label for="{{ form.date_paiement.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Date de paiement <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar text-gray-400"></i>
+                            </div>
+                            {% render_field form.date_paiement type="date" class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 sm:text-base border-gray-300 rounded-md h-12 px-4 py-2" %}
+                        </div>
+                        {% if form.date_paiement.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.date_paiement.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Type de paiement -->
+                    <div>
+                        <label for="{{ form.type_paiement.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Type de paiement <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative">
+                            {% render_field form.type_paiement class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-10 py-2 sm:text-base border-gray-300 rounded-md h-12" %}
+                        </div>
+                        {% if form.type_paiement.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.type_paiement.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Statut du paiement -->
+                    <div>
+                        <label for="{{ form.statut.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Statut <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative">
+                            {% render_field form.statut class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-10 py-2 sm:text-base border-gray-300 rounded-md h-12" %}
+                        </div>
+                        {% if form.statut.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.statut.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Référence -->
+                <div class="mt-6">
+                    <label for="{{ form.reference.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Référence
+                    </label>
+                    <div class="mt-1">
+                        {% render_field form.reference class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-base border border-gray-300 rounded-md h-12 px-4 py-2" placeholder="Référence de la transaction" %}
+                    </div>
+                    {% if form.reference.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.reference.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Notes -->
+                <div class="mt-6">
+                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Notes
+                    </label>
+                    <div class="mt-1">
+                        {% render_field form.notes rows="4" class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-base border border-gray-300 rounded-md p-3" placeholder="Ajoutez des notes ou des détails supplémentaires..." %}
+                    </div>
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Section Informations supplémentaires -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    <i class="fas fa-file-invoice-dollar text-indigo-500 mr-2"></i>Informations supplémentaires
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Client -->
+                    <div>
+                        <label for="{{ form.client.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Client <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative">
+                            {% render_field form.client class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-10 py-2 sm:text-base border-gray-300 rounded-md h-12" %}
+                        </div>
+                        {% if form.client.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.client.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bien immobilier -->
+                    <div>
+                        <label for="{{ form.bien_immobilier.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Bien immobilier
+                        </label>
+                        <div class="mt-1 relative">
+                            {% render_field form.bien_immobilier class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-10 py-2 sm:text-base border-gray-300 rounded-md h-12" %}
+                        </div>
+                        {% if form.bien_immobilier.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.bien_immobilier.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pièces jointes -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    <i class="fas fa-paperclip text-indigo-500 mr-2"></i>Pièces jointes
+                </h3>
+                
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div class="space-y-1 text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mx-auto"></i>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="fichier" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                <span>Téléverser un fichier</span>
+                                <input id="fichier" name="fichier" type="file" class="sr-only">
+                            </label>
+                            <p class="pl-1">ou glisser-déposer</p>
+                        </div>
+                        <p class="text-xs text-gray-500">
+                            PDF, JPG, PNG jusqu'à 10MB
+                        </p>
+                    </div>
+                </div>
+                {% if form.fichier.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.fichier.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="pt-5 border-t border-gray-200">
+                <div class="flex justify-between">
+                    <div>
+                        <a href="{% url 'comptes:paiements' %}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-arrow-left mr-2"></i> Retour aux paiements
+                        </a>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="button" 
+                                class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-file-invoice mr-2"></i> Prévisualiser
+                        </button>
+                        <button type="submit" 
+                                class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
+                            <i class="fas fa-save mr-2"></i> Enregistrer le paiement
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Script pour améliorer l'expérience utilisateur -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mise en forme du champ de montant
+        const montantInput = document.getElementById('{{ form.montant.id_for_label }}');
+        if (montantInput) {
+            montantInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9.]/g, '');
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Gestion du glisser-déposer pour les fichiers
+        const fileInput = document.getElementById('fichier');
+        const fileUpload = document.querySelector('.border-2');
+        
+        if (fileInput && fileUpload) {
+            fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUpload.classList.add('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.remove('border-gray-300');
+            });
+            
+            fileUpload.addEventListener('dragleave', () => {
+                fileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.add('border-gray-300');
+            });
+            
+            fileUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.add('border-gray-300');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateFileList(e.dataTransfer.files);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (fileInput.files.length) {
+                    updateFileList(fileInput.files);
+                }
+            });
+            
+            function updateFileList(files) {
+                const fileList = document.createElement('div');
+                fileList.className = 'mt-2 space-y-1';
+                
+                Array.from(files).forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center truncate">
+                            <i class="${getFileIcon(file.name)} text-indigo-500 mr-2"></i>
+                            <span class="text-sm text-gray-700 truncate">${file.name}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${formatFileSize(file.size)}</span>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                
+                const existingFileList = fileUpload.querySelector('.file-list');
+                if (existingFileList) {
+                    existingFileList.remove();
+                }
+                
+                fileList.classList.add('file-list');
+                fileUpload.appendChild(fileList);
+            }
+            
+            function getFileIcon(filename) {
+                const extension = filename.split('.').pop().toLowerCase();
+                const icons = {
+                    'pdf': 'fas fa-file-pdf',
+                    'jpg': 'fas fa-file-image',
+                    'jpeg': 'fas fa-file-image',
+                    'png': 'fas fa-file-image',
+                    'doc': 'fas fa-file-word',
+                    'docx': 'fas fa-file-word',
+                    'xls': 'fas fa-file-excel',
+                    'xlsx': 'fas fa-file-excel',
+                    'txt': 'fas fa-file-alt'
+                };
+                return icons[extension] || 'fas fa-file';
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+    });
+</script>
+
+<!-- Styles personnalisés -->
+<style>
+    /* Animation pour les champs de formulaire */
+    input, select, textarea {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* Style pour les champs en erreur */
+    .error {
+        border-color: #EF4444 !important;
+    }
+    
+    /* Style pour les messages d'erreur */
+    .error-message {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Style pour la zone de dépôt de fichiers */
+    .file-upload-area {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #818CF8;
+        background-color: #F8FAFC;
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #4F46E5;
+        background-color: #EEF2FF;
+    }
+    
+    /* Style pour les sélecteurs */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+</style>
+{% endblock %}

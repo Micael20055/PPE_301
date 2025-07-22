@@ -1,93 +1,366 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
+{% extends 'comptes/proprietaire_base.html' %}
 {% load static %}
-<link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
 
-<div class="container" style="max-width:600px;">
-    <h2 class="mb-4 mt-3">Nouvelle Publication</h2>
-    
-    {% if error_message %}
-        <div class="alert alert-danger">{{ error_message }}</div>
-    {% endif %}
+{% block main_content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- En-tête de la page -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Nouvelle Publication</h1>
+        <p class="mt-2 text-sm text-gray-600">Remplissez les détails de votre bien immobilier pour le publier sur notre plateforme.</p>
+    </div>
 
-    <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
-        {% csrf_token %}
-        
-        <!-- Champs communs à tous les types de biens -->
-        <div class="mb-3">
-            <label class="form-label">Image</label>
-            <input type="file" class="form-control" name="image" accept="image/*" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Superficie (m²)</label>
-            <input type="number" class="form-control" name="superficie" required min="0.01" step="0.01" pattern="[0-9]+(\.[0-9]+)?">
-            <small class="form-text text-muted">Format : 120.5 (point pour la virgule)</small>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" name="description" rows="3" required></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Prix </label>
-            <input type="number" class="form-control" name="prix" step="0.01" required min="0.01" pattern="[0-9]+(\.[0-9]+)?">
-            <small class="form-text text-muted">Format : 150000.00 (point pour la virgule)</small>
+    <!-- Carte du formulaire -->
+    <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <!-- En-tête de la carte -->
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-lg font-medium text-gray-900">
+                {% if bien == 'maison' %}
+                <i class="fas fa-home text-indigo-600 mr-2"></i> Détails de la maison
+                {% elif bien == 'appartement' %}
+                <i class="fas fa-building text-indigo-600 mr-2"></i> Détails de l'appartement
+                {% elif bien == 'terrain' %}
+                <i class="fas fa-map-marked-alt text-indigo-600 mr-2"></i> Détails du terrain
+                {% endif %}
+            </h2>
         </div>
 
-        {% if bien == 'maison' %}
-            <!-- Champs spécifiques à une maison -->
-            <div class="mb-3">
-                <label class="form-label">Nombre de chambres</label>
-                {{ maison_form.nbr_chambre }}
+        <!-- Formulaire -->
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-8">
+            {% csrf_token %}
+            
+            {% if error_message %}
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">{{ error_message }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Pièce spéciale</label>
-                {{ maison_form.piece_speciale }}
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Nombre d'étages</label>
-                {{ maison_form.nbr_etages }}
-            </div>
-        {% elif bien == 'appartement' %}
-            <!-- Champs spécifiques à un appartement -->
-            <div class="mb-3">
-                <label class="form-label">Étage</label>
-                {{ appartement_form.etage }}
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Nombre de chambres</label>
-                {{ appartement_form.nbr_chambre }}
-            </div>
-        {% elif bien == 'terrain' %}
-            <!-- Champs spécifiques à un terrain -->
-            <div class="mb-3">
-                <label class="form-label">Nombre de parcelles</label>
-                {{ terrain_form.nbr_parcelles }}
-            </div>
-        {% endif %}
+            {% endif %}
 
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-            <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
-        </div>
-    </form>
+            <!-- Section Informations générales -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    <i class="fas fa-info-circle text-indigo-500 mr-2"></i>Informations générales
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Champ Image -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Images du bien <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mx-auto"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                        <span>Téléverser des fichiers</span>
+                                        <input id="file-upload" name="image" type="file" class="sr-only" accept="image/*" required>
+                                    </label>
+                                    <p class="pl-1">ou glisser-déposer</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    PNG, JPG, JPEG jusqu'à 10MB
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Champ Superficie -->
+                    <div>
+                        <label for="superficie" class="block text-sm font-medium text-gray-700">
+                            Superficie (m²) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="number" id="superficie" name="superficie" required
+                                   class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-4 pr-12 sm:text-base border-gray-300 rounded-md h-12 px-4 py-2"
+                                   placeholder="120.5" min="0.01" step="0.01" pattern="[0-9]+(\.[0-9]+)?">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">
+                                    m²
+                                </span>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Format : 120.5 (point pour la virgule)</p>
+                    </div>
+
+                    <!-- Champ Prix -->
+                    <div>
+                        <label for="prix" class="block text-sm font-medium text-gray-700">
+                            Prix <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">
+                                    €
+                                </span>
+                            </div>
+                            <input type="number" id="prix" name="prix" required
+                                   class="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-base border-gray-300 rounded-md h-12 px-4 py-2"
+                                   placeholder="150000.00" min="0.01" step="0.01" pattern="[0-9]+(\.[0-9]+)?">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Format : 150000.00 (point pour la virgule)</p>
+                    </div>
+                </div>
+
+                <!-- Champ Description -->
+                <div class="mt-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    <div class="mt-1">
+                        <textarea id="description" name="description" rows="6" 
+                            class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-base border border-gray-300 rounded-md p-3"
+                            placeholder="Décrivez votre bien en détail..." required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Détails spécifiques -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    <i class="fas fa-list-ul text-indigo-500 mr-2"></i>Détails spécifiques
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% if bien == 'maison' %}
+                        <!-- Champs spécifiques à une maison -->
+                        <div>
+                            <label for="id_nbr_chambre" class="block text-sm font-medium text-gray-700">
+                                Nombre de chambres
+                            </label>
+                            {{ maison_form.nbr_chambre }}
+                        </div>
+                        <div>
+                            <label for="id_piece_speciale" class="block text-sm font-medium text-gray-700">
+                                Pièce spéciale
+                            </label>
+                            {{ maison_form.piece_speciale }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="id_nbr_etages" class="block text-sm font-medium text-gray-700">
+                                Nombre d'étages
+                            </label>
+                            {{ maison_form.nbr_etages }}
+                        </div>
+                    {% elif bien == 'appartement' %}
+                        <!-- Champs spécifiques à un appartement -->
+                        <div>
+                            <label for="id_etage" class="block text-sm font-medium text-gray-700">
+                                Étage
+                            </label>
+                            {{ appartement_form.etage }}
+                        </div>
+                        <div>
+                            <label for="id_nbr_chambre" class="block text-sm font-medium text-gray-700">
+                                Nombre de chambres
+                            </label>
+                            {{ appartement_form.nbr_chambre }}
+                        </div>
+                    {% elif bien == 'terrain' %}
+                        <!-- Champs spécifiques à un terrain -->
+                        <div class="md:col-span-2">
+                            <label for="id_nbr_parcelles" class="block text-sm font-medium text-gray-700">
+                                Nombre de parcelles
+                            </label>
+                            {{ terrain_form.nbr_parcelles }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="pt-5 border-t border-gray-200">
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'comptes:mes_publications' %}" 
+                       class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Annuler
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
+                        <i class="fas fa-save mr-2"></i> Publier l'annonce
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
+<!-- Script pour la validation du formulaire -->
 <script>
-function validateForm() {
-    const superficie = document.querySelector('input[name="superficie"]').value;
-    const prix = document.querySelector('input[name="prix"]').value;
-    
-    if (superficie <= 0) {
-        alert('La superficie doit être supérieure à 0');
-        return false;
-    }
-    
-    if (prix <= 0) {
-        alert('Le prix doit être supérieur à 0');
-        return false;
-    }
-    
-    return true;
-}</script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(event) {
+            const superficie = document.getElementById('superficie').value;
+            const prix = document.getElementById('prix').value;
+            let isValid = true;
+            
+            // Validation de la superficie
+            if (superficie <= 0) {
+                showError('superficie', 'La superficie doit être supérieure à 0');
+                isValid = false;
+            } else {
+                clearError('superficie');
+            }
+            
+            // Validation du prix
+            if (precio <= 0) {
+                showError('prix', 'Le prix doit être supérieur à 0');
+                isValid = false;
+            } else {
+                clearError('prix');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+        
+        function showError(fieldId, message) {
+            let errorElement = document.getElementById(`${fieldId}-error`);
+            if (!errorElement) {
+                const input = document.getElementById(fieldId);
+                errorElement = document.createElement('p');
+                errorElement.id = `${fieldId}-error`;
+                errorElement.className = 'mt-1 text-sm text-red-600';
+                input.parentNode.insertBefore(errorElement, input.nextSibling);
+            }
+            errorElement.textContent = message;
+            
+            // Ajout de la classe d'erreur au champ
+            const input = document.getElementById(fieldId);
+            input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+            input.classList.remove('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+        }
+        
+        function clearError(fieldId) {
+            const errorElement = document.getElementById(`${fieldId}-error`);
+            if (errorElement) {
+                errorElement.remove();
+            }
+            
+            // Suppression de la classe d'erreur du champ
+            const input = document.getElementById(fieldId);
+            if (input) {
+                input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+                input.classList.add('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+            }
+        }
+        
+        // Amélioration de l'expérience utilisateur pour le téléversement de fichiers
+        const fileInput = document.getElementById('file-upload');
+        const fileUpload = document.querySelector('.border-2');
+        
+        if (fileInput && fileUpload) {
+            fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUpload.classList.add('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.remove('border-gray-300');
+            });
+            
+            fileUpload.addEventListener('dragleave', () => {
+                fileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.add('border-gray-300');
+            });
+            
+            fileUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+                fileUpload.classList.add('border-gray-300');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateFileList(e.dataTransfer.files);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (fileInput.files.length) {
+                    updateFileList(fileInput.files);
+                }
+            });
+            
+            function updateFileList(files) {
+                const fileList = document.createElement('div');
+                fileList.className = 'mt-2 space-y-1';
+                
+                Array.from(files).forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center truncate">
+                            <i class="fas fa-file-image text-indigo-500 mr-2"></i>
+                            <span class="text-sm text-gray-700 truncate">${file.name}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${formatFileSize(file.size)}</span>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                
+                const existingFileList = fileUpload.querySelector('.file-list');
+                if (existingFileList) {
+                    existingFileList.remove();
+                }
+                
+                fileList.classList.add('file-list');
+                fileUpload.appendChild(fileList);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+    });
+</script>
 
+<!-- Styles personnalisés -->
+<style>
+    /* Animation pour les champs de formulaire */
+    input, select, textarea {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* Style pour les champs en erreur */
+    .error {
+        border-color: #EF4444 !important;
+    }
+    
+    /* Style pour les onglets actifs */
+    .tab-active {
+        border-bottom: 2px solid #4F46E5;
+        color: #4F46E5;
+        font-weight: 500;
+    }
+    
+    /* Style pour les messages d'erreur */
+    .error-message {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Style pour la zone de dépôt de fichiers */
+    .file-upload-area {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #818CF8;
+        background-color: #F8FAFC;
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #4F46E5;
+        background-color: #EEF2FF;
+    }
+</style>
 {% endblock %}

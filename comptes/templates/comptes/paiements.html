@@ -1,129 +1,88 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
+{% extends 'comptes/proprietaire_base.html' %}
 
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="pe-7s-credit icon-gradient bg-mean-fruit"></i>
-            </div>
-            <div>Paiements
-                <div class="page-title-subheading">Gérez vos paiements et factures</div>
-            </div>
+{% block main_content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Gestion des Paiements</h2>
+            <p class="text-gray-600">Suivez et gérez vos transactions financières</p>
         </div>
+        <a href="{% url 'comptes:paiement_form' %}" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center">
+            <i class="fas fa-plus mr-2"></i>Nouveau Paiement
+        </a>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="main-card mb-3 card">
-            <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <h5 class="card-title mb-0">Historique des paiements</h5>
-                    <div class="ml-auto">
-                        <button class="btn btn-success mr-2">
-                            <i class="fa fa-plus mr-2"></i>Nouveau paiement
-                        </button>
-                        <button class="btn btn-primary">
-                            <i class="fa fa-file-pdf mr-2"></i>Exporter PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                {% if paiements %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Référence</th>
-                                    <th>Date</th>
-                                    <th>Montant</th>
-                                    <th>Méthode</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for paiement in paiements %}
-                                <tr class="paiement-row">
-                                    <td>
-                                        <span class="text-primary">#{{ paiement.reference }}</span>
-                                    </td>
-                                    <td>{{ paiement.date|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        <strong>{{ paiement.montant|floatformat:2 }} €</strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-info">
-                                            <i class="fa {% if paiement.methode == 'carte' %}fa-credit-card
-                                                      {% elif paiement.methode == 'virement' %}fa-university
-                                                      {% else %}fa-money-bill{% endif %} mr-1"></i>
-                                            {{ paiement.methode|title }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{% if paiement.statut == 'complete' %}success
-                                                              {% elif paiement.statut == 'en_cours' %}warning
-                                                              {% else %}danger{% endif %}">
-                                            {{ paiement.get_statut_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info mr-2" data-toggle="tooltip" title="Détails">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-primary mr-2" data-toggle="tooltip" title="Télécharger facture">
-                                                <i class="fa fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-warning" data-toggle="tooltip" title="Imprimer">
-                                                <i class="fa fa-print"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="pe-7s-credit fa-4x text-muted mb-3"></i>
-                        <h5>Aucun paiement</h5>
-                        <p class="text-muted">Vos paiements apparaîtront ici</p>
-                    </div>
-                {% endif %}
-            </div>
+    {% if paiements %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bien</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for paiement in paiements %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ paiement.bien.titre|default:"Non spécifié" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ paiement.montant }} €</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">{{ paiement.date|date:"d/m/Y" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if paiement.type_paiement == 'acompte' %}bg-blue-100 text-blue-800
+                            {% elif paiement.type_paiement == 'solde' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ paiement.get_type_paiement_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if paiement.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                            {% elif paiement.statut == 'valide' %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ paiement.get_statut_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'comptes:detail_paiement' paiement.id %}" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'comptes:modifier_paiement' paiement.id %}" class="text-yellow-600 hover:text-yellow-900">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{% url 'comptes:supprimer_paiement' paiement.id %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-900" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <i class="fas fa-receipt fa-4x"></i>
         </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">Aucun paiement enregistré</h3>
+        <p class="text-gray-500">Utilisez le bouton "Nouveau Paiement" pour enregistrer votre première transaction.</p>
     </div>
+    {% endif %}
 </div>
-
-<style>
-.paiement-row:hover {
-    background-color: rgba(0,0,0,0.02);
-    transition: background-color 0.3s ease;
-}
-
-.badge {
-    padding: 0.5em 1em;
-}
-
-.btn-group .btn {
-    transition: all 0.3s ease;
-}
-
-.btn-group .btn:hover {
-    transform: translateY(-2px);
-}
-
-.card-header {
-    background-color: #f8f9fa;
-}
-
-.badge i {
-    font-size: 0.9em;
-}
-</style>
-
-{% endblock %}
+{% endblock main_content %}

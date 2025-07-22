@@ -1,0 +1,244 @@
+{% extends 'comptes/proprietaire_base.html' %}
+
+{% block main_content %}
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900">Mes Biens</h2>
+        </a>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="space-y-8">
+        <!-- Première rangée -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Superficie totale -->
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Superficie Totale</h3>
+                        <p class="text-3xl font-bold text-blue-600">{{ superficie_totale }} m²</p>
+                    </div>
+                    <div class="p-3 bg-blue-200 rounded-full">
+                        <i class="fas fa-ruler-combined text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Total de la superficie de vos biens</p>
+                </div>
+            </div>
+
+            <!-- Superficie moyenne -->
+            <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Superficie Moyenne</h3>
+                        <p class="text-3xl font-bold text-green-600">{{ superficie_moyenne|floatformat:2 }} m²</p>
+                    </div>
+                    <div class="p-3 bg-green-200 rounded-full">
+                        <i class="fas fa-calculator text-green-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Moyenne par bien</p>
+                </div>
+            </div>
+
+            <!-- Types de Biens -->
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Types de Biens</h3>
+                        <p class="text-3xl font-bold text-purple-600">{{ nombre_types }}</p>
+                    </div>
+                    <div class="p-3 bg-purple-200 rounded-full">
+                        <i class="fas fa-tags text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Nombre de types différents</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deuxième rangée -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Publications -->
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Total Publications</h3>
+                        <p class="text-3xl font-bold text-blue-600">{{ total_publications }}</p>
+                    </div>
+                    <div class="p-3 bg-blue-200 rounded-full">
+                        <i class="fas fa-newspaper text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Nombre total de vos publications actives</p>
+                </div>
+            </div>
+
+            <!-- Biens en Publication -->
+            <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Biens en Publication</h3>
+                        <p class="text-3xl font-bold text-green-600">{{ biens_publications }}</p>
+                    </div>
+                    <div class="p-3 bg-green-200 rounded-full">
+                        <i class="fas fa-home text-green-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Nombre de biens actuellement en vente</p>
+                </div>
+            </div>
+
+            <!-- Vues Totales -->
+            <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Vues Totales</h3>
+                        <p class="text-3xl font-bold text-indigo-600">{{ total_vues }}</p>
+                    </div>
+                    <div class="p-3 bg-indigo-200 rounded-full">
+                        <i class="fas fa-eye text-indigo-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Total des vues sur vos publications</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troisième rangée -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Visites Planifiées -->
+            <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Visites Planifiées</h3>
+                        <p class="text-3xl font-bold text-yellow-600">{{ total_visites }}</p>
+                    </div>
+                    <div class="p-3 bg-yellow-200 rounded-full">
+                        <i class="fas fa-calendar-check text-yellow-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Nombre de visites planifiées pour vos biens</p>
+                </div>
+            </div>
+
+            <!-- Commentaires -->
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Commentaires</h3>
+                        <p class="text-3xl font-bold text-purple-600">{{ total_commentaires }}</p>
+                    </div>
+                    <div class="p-3 bg-purple-200 rounded-full">
+                        <i class="fas fa-comments text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Nombre total de commentaires reçus</p>
+                </div>
+            </div>
+
+            <!-- Paiements -->
+            <div class="bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-gray-600 text-sm font-medium">Paiements</h3>
+                        <p class="text-3xl font-bold text-pink-600">{{ total_paiements }}</p>
+                    </div>
+                    <div class="p-3 bg-pink-200 rounded-full">
+                        <i class="fas fa-money-bill-wave text-pink-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Total des paiements reçus</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Nombre de biens -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-gray-600 text-sm font-medium mb-2">Nombre de Biens</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ nombre_biens }}</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-building text-yellow-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nombre de types -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-gray-600 text-sm font-medium mb-2">Types de Biens</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ nombre_types }}</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-tags text-purple-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des publications -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for publication in publications %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2">{{ publication.titre }}</h3>
+                <p class="text-gray-600 mb-4">{{ publication.description|truncatewords:20 }}</p>
+                
+                <!-- Statistiques rapides -->
+                <div class="flex justify-between text-sm text-gray-600 mb-4">
+                    <span><i class="fas fa-eye mr-1"></i> {{ publication.visites.count }} visites</span>
+                    <span><i class="fas fa-comment mr-1"></i> {{ publication.commentaires.count }} commentaires</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between">
+                    <a href="{% url 'comptes:detail_publication' publication.id %}" class="text-blue-500 hover:text-blue-700">
+                        Voir les détails
+                    </a>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'comptes:modifier_publication' publication.id %}" class="text-green-500 hover:text-green-700">
+                            <i class="fas fa-edit"></i>
+                        <a href="{% url 'comptes:detail_publication' publication.id %}" class="text-blue-600 hover:text-blue-800 flex items-center">
+                            <i class="fas fa-eye mr-1"></i>Détails
+                        </a>
+                        <a href="{% url 'comptes:modifier_publication' publication.id %}" class="text-yellow-600 hover:text-yellow-800 flex items-center">
+                            <i class="fas fa-edit mr-1"></i>Modifier
+                        </a>
+                    </div>
+                    
+                    <form action="{% url 'comptes:supprimer_publication' publication.id %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-600 hover:text-red-800 flex items-center" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')">
+                            <i class="fas fa-trash mr-1"></i>Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-16">
+            <div class="space-y-4">
+                <i class="fas fa-newspaper text-4xl text-gray-400"></i>
+                <h3 class="text-xl font-semibold text-gray-900">Aucune publication trouvée</h3>
+
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

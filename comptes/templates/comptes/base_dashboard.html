@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - ImmoPro{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+            min-width: 16rem;
+            max-width: 16rem;
+        }
+        .sidebar-mini {
+            margin-left: -16rem;
+        }
+        .main-content {
+            transition: all 0.3s ease;
+            margin-left: 16rem;
+        }
+        .main-content-full {
+            margin-left: 0;
+        }
+        .nav-item {
+            @apply flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200;
+        }
+        .nav-item i {
+            @apply mr-3 w-5 text-center;
+        }
+        .nav-item.active {
+            @apply bg-indigo-50 text-indigo-600 font-medium;
+        }
+        .stat-card {
+            @apply bg-white rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md;
+        }
+        .stat-icon {
+            @apply w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl;
+        }
+        .btn-primary {
+            @apply bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center;
+        }
+        .btn-secondary {
+            @apply bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center;
+        }
+        .form-input {
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50;
+        }
+        .form-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-white shadow-lg fixed h-full z-20" id="sidebar">
+            <div class="p-6 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-indigo-600">ImmoPro</h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    {% if user.is_agence %}
+                        Tableau de bord agence
+                    {% else %}
+                        Tableau de bord propriétaire
+                    {% endif %}
+                </p>
+            </div>
+            
+            <nav class="p-4 space-y-1">
+                {% if user.is_agence %}
+                    <!-- Menu pour les agences -->
+                    <a href="{% url 'comptes:dashboard_agence' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard_agence' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="{% url 'comptes:liste_biens' %}" class="nav-item {% if 'biens' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        <span>Biens immobiliers</span>
+                    </a>
+                    <a href="{% url 'comptes:liste_visites' %}" class="nav-item {% if 'visites' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Visites</span>
+                    </a>
+                    <a href="{% url 'comptes:liste_paiements' %}" class="nav-item {% if 'paiements' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Paiements</span>
+                    </a>
+                    <a href="{% url 'comptes:liste_clients' %}" class="nav-item {% if 'clients' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </a>
+                {% else %}
+                    <!-- Menu pour les propriétaires -->
+                    <a href="{% url 'comptes:proprietaire_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'proprietaire_dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="{% url 'comptes:mes_publications' %}" class="nav-item {% if 'publications' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Mes publications</span>
+                    </a>
+                    <a href="{% url 'comptes:visites' %}" class="nav-item {% if 'visites' in request.resolver_match.url_name and 'mes_visites' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Visites</span>
+                    </a>
+                    <a href="{% url 'comptes:paiements' %}" class="nav-item {% if 'paiements' in request.resolver_match.url_name and 'mes_paiements' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Paiements</span>
+                    </a>
+                    <a href="{% url 'comptes:commentaires' %}" class="nav-item {% if 'commentaires' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-comments"></i>
+                        <span>Commentaires</span>
+                    </a>
+                {% endif %}
+
+                <!-- Section commune -->
+                <div class="pt-4 mt-4 border-t border-gray-200">
+                    <a href="{% url 'comptes:profil_view' %}" class="nav-item {% if 'profil' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-user"></i>
+                        <span>Mon profil</span>
+                    </a>
+                    <a href="{% url 'comptes:logout' %}" class="nav-item text-red-600 hover:bg-red-50">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 flex flex-col h-full overflow-hidden" id="main-content">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="ml-4 text-xl font-semibold text-gray-800">
+                            {% block page_title %}{% endblock %}
+                        </h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        {% if user.is_agence %}
+                            <span class="text-sm font-medium text-gray-600">
+                                <i class="fas fa-building mr-1"></i> {{ user.agence.nom }}
+                            </span>
+                        {% else %}
+                            <span class="text-sm font-medium text-gray-600">
+                                <i class="fas fa-user mr-1"></i> {{ user.get_full_name|default:user.username }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                            <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %} mb-4">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('main-content').classList.toggle('ml-0');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggleBtn.contains(event.target) &&
+                !sidebar.classList.contains('hidden')) {
+                sidebar.classList.add('hidden');
+                document.getElementById('main-content').classList.add('ml-0');
+            }
+        });
+
+        // Handle window resize
+        function handleResize() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('ml-0');
+            } else {
+                sidebar.classList.add('hidden');
+                mainContent.classList.add('ml-0');
+            }
+        }
+
+        // Initial check
+        handleResize();
+        
+        // Add event listener for window resize
+        window.addEventListener('resize', handleResize);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

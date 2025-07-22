@@ -1,0 +1,264 @@
+<!-- Section Équipements -->
+<div id="equipements" class="tab-content hidden">
+    <h3 class="text-xl font-bold text-gray-900 mb-6">Équipements et prestations</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% if bien.type_bien == 'Appartement' and bien.appartement %}
+            {% with appartement=bien.appartement %}
+                <!-- Équipements généraux -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Équipements</h4>
+                    <ul class="space-y-3">
+                        {% if appartement.ascenseur is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.ascenseur %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Ascenseur</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.cave is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.cave %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Cave</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.parking is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.parking %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Place de parking</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.balcon is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.balcon %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Balcon</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.terrasse is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.terrasse %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Terrasse</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Équipements intérieurs -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Intérieur</h4>
+                    <ul class="space-y-3">
+                        {% if appartement.cuisine_equipee is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.cuisine_equipee %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Cuisine équipée</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.meuble is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.meuble %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Meublé</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.cheminee is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.cheminee %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Cheminée</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if appartement.climatisation is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if appartement.climatisation %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Climatisation</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endwith %}
+            
+        {% elif bien.type_bien == 'Maison' and bien.maison %}
+            {% with maison=bien.maison %}
+                <!-- Équipements extérieurs -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Extérieur</h4>
+                    <ul class="space-y-3">
+                        {% if maison.surface_terrain %}
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            <span>Terrain de {{ maison.surface_terrain }} m²</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.piscine is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.piscine %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Piscine</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.jardin is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.jardin %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Jardin</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.terrasse is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.terrasse %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Terrasse</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.veranda is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.veranda %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Véranda</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Équipements intérieurs -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Intérieur</h4>
+                    <ul class="space-y-3">
+                        {% if maison.cuisine_equipee is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.cuisine_equipee %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Cuisine équipée</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.cheminee is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.cheminee %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Cheminée</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.climatisation is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.climatisation %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Climatisation</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if maison.alarme is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if maison.alarme %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Alarme</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endwith %}
+            
+        {% elif bien.type_bien == 'Terrain' and bien.terrain %}
+            {% with terrain=bien.terrain %}
+                <!-- Caractéristiques du terrain -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Caractéristiques</h4>
+                    <ul class="space-y-3">
+                        {% if terrain.type_terrain %}
+                        <li class="flex items-center">
+                            <i class="fas fa-mountain text-primary mr-2"></i>
+                            <span>Type : {{ terrain.get_type_terrain_display }}</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.pente %}
+                        <li class="flex items-center">
+                            <i class="fas fa-chart-line text-primary mr-2"></i>
+                            <span>Pente : {{ terrain.get_pente_display|default:"Non spécifiée" }}</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.viabilise is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.viabilise %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Viabilisé</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.cloture is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.cloture %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Clôturé</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Viabilisation -->
+                {% if terrain.eau or terrain.electricite or terrain.assainissement or terrain.gaz %}
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Réseaux</h4>
+                    <ul class="space-y-3">
+                        {% if terrain.eau is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.eau %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Eau</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.electricite is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.electricite %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Électricité</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.assainissement is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.assainissement %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Assainissement</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if terrain.gaz is not None %}
+                        <li class="flex items-center">
+                            <i class="fas {% if terrain.gaz %}fa-check-circle text-green-500{% else %}fa-times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span>Gaz</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <div class="col-span-2 text-center py-8">
+                <i class="fas fa-info-circle text-4xl text-gray-300 mb-3"></i>
+                <p class="text-gray-500">Aucune information sur les équipements n'est disponible pour ce bien.</p>
+            </div>
+        {% endif %}
+        
+        <!-- Équipements généraux pour tous les types de biens -->
+        {% if bien.equipements.exists %}
+        <div class="space-y-4">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-100">Équipements supplémentaires</h4>
+            <ul class="space-y-3">
+                {% for equipement in bien.equipements.all %}
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>{{ equipement.nom }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Légende -->
+    <div class="mt-8 pt-4 border-t border-gray-100">
+        <p class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1"></i> Cette liste est fournie à titre indicatif. Certains équipements peuvent différer. 
+            N'hésitez pas à nous contacter pour plus de précisions.
+        </p>
+    </div>
+</div>

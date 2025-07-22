@@ -1,0 +1,116 @@
+{% extends 'comptes/dashboard_base.html' %}
+
+{% block main_content %}
+    <div class="container mx-auto px-6 py-8">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-600 text-sm font-medium">Total Biens</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ total_biens }}</p>
+                            </div>
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="fas fa-home text-blue-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-600 text-sm font-medium">Transactions</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ total_transactions }}</p>
+                            </div>
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="fas fa-money-bill-wave text-green-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-600 text-sm font-medium">Commentaires</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ total_commentaires }}</p>
+                            </div>
+                            <div class="p-3 bg-indigo-100 rounded-full">
+                                <i class="fas fa-comments text-indigo-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-600 text-sm font-medium">Visites</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ total_visites }}</p>
+                            </div>
+                            <div class="p-3 bg-yellow-100 rounded-full">
+                                <i class="fas fa-calendar-alt text-yellow-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h5 class="text-xl font-semibold mb-4">Nouvelle Publication</h5>
+                        <div class="space-y-4">
+                <a href="{% url 'comptes:choix_type_publication' %}" 
+                   class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> Créer une Publication
+                </a>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h5 class="text-xl font-semibold mb-4">Actions Rapides</h5>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'comptes:publications' %}" 
+                   class="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-home text-blue-500 mb-3"></i>
+                    <h6 class="font-medium">Mes Publications</h6>
+                    <p class="text-gray-600">Gérer vos annonces immobilières</p>
+                </a>
+                <a href="{% url 'comptes:commentaires' %}" 
+                   class="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-comments text-indigo-500 mb-3"></i>
+                    <h6 class="font-medium">Commentaires</h6>
+                    <p class="text-gray-600">Gérer les commentaires des clients</p>
+                </a>
+                <a href="{% url 'comptes:transactions' %}" 
+                   class="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-money-bill-wave text-green-500 mb-3"></i>
+                    <h6 class="font-medium">Transactions</h6>
+                    <p class="text-gray-600">Suivre vos ventes et locations</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Récentes activités -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h5 class="text-xl font-semibold mb-4">Activités Récentes</h5>
+        <div class="space-y-4">
+            {% for activity in recent_activities %}
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h6 class="font-medium">{{ activity.type }}</h6>
+                        <p class="text-gray-600">{{ activity.description }}</p>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ activity.date|timesince }} ago</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-gray-500 py-8">
+                <p>Aucune activité récente</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+{% endblock %}

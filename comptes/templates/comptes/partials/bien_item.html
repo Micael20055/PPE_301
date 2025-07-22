@@ -1,0 +1,55 @@
+<li class="px-6 py-4">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <!-- Image du bien -->
+            <div class="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden bg-gray-200">
+                {% if bien.image %}
+                    <img class="h-full w-full object-cover" src="{{ bien.image.url }}" alt="{{ bien.get_type_bien_display }}">
+                {% else %}
+                    <div class="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400">
+                        <i class="fas fa-home text-2xl"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Détails du bien -->
+            <div class="ml-4">
+                <div class="flex items-center">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        {{ bien.get_type_bien_display }} - {{ bien.superficie }} m²
+                    </h3>
+                    {% if bien.publication_set.exists %}
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Publié
+                        </span>
+                    {% else %}
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Non publié
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="mt-1 text-sm text-gray-500">
+                    <p>{{ bien.description|truncatechars:100 }}</p>
+                </div>
+                <div class="mt-1">
+                    <span class="text-lg font-semibold text-indigo-600">{{ bien.prix }} €</span>
+                    {% if bien.type_bien.lower == 'appartement' and bien.appartement.etage %}
+                        <span class="ml-2 text-sm text-gray-500">Étage {{ bien.appartement.etage }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex space-x-2">
+            <a href="{% url 'comptes:modifier_publication' bien.id %}" 
+               class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-edit mr-1.5"></i> Modifier
+            </a>
+            <a href="{% url 'comptes:supprimer_publication' bien.id %}" 
+               class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <i class="fas fa-trash mr-1.5"></i> Supprimer
+            </a>
+        </div>
+    </div>
+</li>

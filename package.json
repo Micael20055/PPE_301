@@ -1,0 +1,13 @@
+{
+  "name": "ppe_301",
+  "version": "1.0.0",
+  "description": "Projet Django avec Tailwind CSS",
+  "scripts": {
+    "build": "tailwindcss -i ./static/src/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.0.0"
+  }
+}

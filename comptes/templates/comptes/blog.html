@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="blog-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Notre Blog</h2>
+        <div class="row g-4">
+            {% for article in articles %}
+            <div class="col-md-6 col-lg-4">
+                <div class="blog-card h-100">
+                    <div class="blog-image position-relative overflow-hidden">
+                        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="img-fluid">
+                        <span class="blog-date bg-primary text-white p-2 rounded position-absolute top-0 start-0 m-3">
+                            {{ article.date|date:"d M Y" }}
+                        </span>
+                    </div>
+                    <div class="blog-content p-4">
+                        <h3 class="h5 mb-3">{{ article.title }}</h3>
+                        <p class="text-muted mb-3">{{ article.excerpt }}</p>
+                        <a href="{% url 'comptes:blog_detail' article.slug %}" class="btn btn-outline-primary">Lire plus</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="newsletter-section py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="h4 mb-0">Abonnez-vous à notre newsletter</h3>
+                <p class="text-muted mb-0">Restez informé des dernières tendances immobilières.</p>
+            </div>
+            <div class="col-md-4">
+                <form class="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Votre email">
+                        <button class="btn btn-primary" type="submit">S'abonner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation des cartes blog
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__fadeIn');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.blog-card').forEach((el) => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

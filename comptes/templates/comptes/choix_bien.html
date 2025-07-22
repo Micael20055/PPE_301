@@ -1,53 +1,101 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
+{% extends 'comptes/proprietaire_base.html' %}
 
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="pe-7s-home icon-gradient bg-mean-fruit"></i>
-            </div>
-            <div>Choisir le type de bien
-                <div class="page-title-subheading">Sélectionnez le type de bien immobilier que vous souhaitez publier</div>
-            </div>
-        </div>
+{% block main_content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- En-tête de la page -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Type de bien immobilier
+        </h1>
+        <p class="mt-4 text-xl text-gray-600">
+            Sélectionnez le type de bien que vous souhaitez {% if type_action == 'vente' %}vendre{% else %}louer{% endif %}
+        </p>
     </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="main-card mb-3 card">
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-4 mb-3">
-                        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=maison" class="card card-hover-shadow p-4 text-decoration-none">
-                            <i class="pe-7s-home icon-gradient bg-mean-fruit fa-3x mb-3"></i>
-                            <h5 class="card-title">Maison</h5>
-                            <p class="text-muted">Publier une maison</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=appartement" class="card card-hover-shadow p-4 text-decoration-none">
-                            <i class="pe-7s-portfolio icon-gradient bg-happy-itmeo fa-3x mb-3"></i>
-                            <h5 class="card-title">Appartement</h5>
-                            <p class="text-muted">Publier un appartement</p>
-                        </a>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=terrain" class="card card-hover-shadow p-4 text-decoration-none">
-                            <i class="pe-7s-map icon-gradient bg-amy-crisp fa-3x mb-3"></i>
-                            <h5 class="card-title">Terrain</h5>
-                            <p class="text-muted">Publier un terrain</p>
-                        </a>
-                    </div>
+    <!-- Cartes de sélection -->
+    <div class="grid md:grid-cols-3 gap-8 mt-10">
+        <!-- Carte Maison -->
+        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=maison" 
+           class="group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-indigo-500 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="absolute top-4 right-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                    <i class="fas fa-home mr-2"></i> Maison
+                </span>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-indigo-50 group-hover:bg-indigo-100 transition-colors duration-300 mb-6">
+                    <i class="fas fa-home text-4xl text-indigo-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Maison</h3>
+                <p class="text-gray-600 mb-6">
+                    Publiez une maison individuelle, une villa ou une propriété de caractère.
+                </p>
+                <div class="inline-flex items-center text-indigo-600 font-medium group-hover:text-indigo-800 transition-colors duration-300">
+                    Sélectionner
+                    <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
                 </div>
             </div>
-        </div>
+        </a>
+
+        <!-- Carte Appartement -->
+        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=appartement" 
+           class="group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="absolute top-4 right-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                    <i class="fas fa-building mr-2"></i> Appartement
+                </span>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-purple-50 group-hover:bg-purple-100 transition-colors duration-300 mb-6">
+                    <i class="fas fa-building text-4xl text-purple-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Appartement</h3>
+                <p class="text-gray-600 mb-6">
+                    Proposez un appartement, un studio ou un loft à la location ou à la vente.
+                </p>
+                <div class="inline-flex items-center text-purple-600 font-medium group-hover:text-purple-800 transition-colors duration-300">
+                    Sélectionner
+                    <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Carte Terrain -->
+        <a href="/comptes/publications/ajouter/?type={{ type_action }}&bien=terrain" 
+           class="group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-green-500 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="absolute top-4 right-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-map-marked-alt mr-2"></i> Terrain
+                </span>
+            </div>
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors duration-300 mb-6">
+                    <i class="fas fa-map-marked-alt text-4xl text-green-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Terrain</h3>
+                <p class="text-gray-600 mb-6">
+                    Proposez un terrain constructible, agricole ou à bâtir aux futurs acquéreurs.
+                </p>
+                <div class="inline-flex items-center text-green-600 font-medium group-hover:text-green-800 transition-colors duration-300">
+                    Sélectionner
+                    <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Bouton de retour -->
+    <div class="mt-12 text-center">
+        <a href="{% url 'comptes:choix_type_publication' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Retour au choix de la transaction
+        </a>
     </div>
 </div>
 
+<!-- Styles personnalisés pour les animations -->
 <style>
-    .card-hover-shadow {
+    .card-hover {
         transition: all 0.3s ease;
     }
     

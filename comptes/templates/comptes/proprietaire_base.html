@@ -1,0 +1,62 @@
+{% extends 'comptes/base.html' %}
+
+{% block content %}
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg">
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-bold text-gray-800">ImmoDash</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="{% url 'comptes:proprietaire_dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-home mr-3"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{% url 'comptes:mes_publications' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-newspaper mr-3"></i>
+                    <span>Mes publications</span>
+                </a>
+                <a href="{% url 'comptes:visites' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-calendar-check mr-3"></i>
+                    <span>Visites</span>
+                </a>
+                <a href="{% url 'comptes:paiements' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-money-bill-wave mr-3"></i>
+                    <span>Paiements</span>
+                </a>
+                <a href="{% url 'comptes:commentaires' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-comments mr-3"></i>
+                    <span>Commentaires</span>
+                </a>
+                <a href="{% url 'comptes:profil_view' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-user mr-3"></i>
+                    <span>Mon profil</span>
+                </a>
+                <a href="{% url 'comptes:logout' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto">
+            <div class="container mx-auto px-6 py-8">
+                <!-- Affichage des messages -->
+                {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% block main_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+{% endblock %}

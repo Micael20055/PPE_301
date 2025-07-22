@@ -1,311 +1,147 @@
-{% load static %}
-<!doctype html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ImmoDash - Tableau de bord</title>
+{% extends 'comptes/dashboard_base.html' %}
 
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.5/css/perfect-scrollbar.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css" rel="stylesheet">
-    <link href="{% static 'assets/comptes/css/main.d810cf0ae7f39f28f336.css'%}" rel="stylesheet">
-
-    <link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
-</head>
-
-<body>
-    <div class="app-container app-theme-white body-tabs-shadow fixed-header fixed-sidebar">
-        <!-- Header -->
-        <div class="app-header header-shadow">
-            <div class="app-header__logo">
-                <div class="logo-src d-flex align-items-center">
-                    <i class="pe-7s-home text-primary mr-2"></i>
-                    <span class="logo-text">Home</span>
-                </div>
-            </div>
-
-            <div class="app-header__content">
-                <div class="app-header-right">
-                    <!-- Notifications -->
-                    <div class="header-btn-lg pr-0">
-                        <div class="dropdown">
-                            <button type="button" class="btn-icon btn-icon-only btn btn-link" data-bs-toggle="dropdown">
-                                <i class="pe-7s-bell btn-icon-wrapper font-size-xlg"></i>
-                                <span class="badge badge-pill badge-danger">3</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <h6 class="dropdown-header">Notifications</h6>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">
-                                    <i class="pe-7s-mail mr-2"></i> Nouveau message
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Settings -->
-                    <div class="header-btn-lg pr-0">
-                        <div class="dropdown">
-                            <button type="button" class="btn-icon btn-icon-only btn btn-link" data-bs-toggle="dropdown">
-                                <i class="pe-7s-config btn-icon-wrapper font-size-xlg"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <h6 class="dropdown-header">Paramètres</h6>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                                    <i class="pe-7s-config mr-2"></i> Configuration
-                                </a>
-                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                                    <i class="pe-7s-power mr-2"></i> Déconnexion
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- User Profile -->
-                    <div class="header-btn-lg pr-0">
-                        <div class="widget-content p-0">
-                            <div class="widget-content-wrapper">
-                                <div class="widget-content-left">
-                                    <div class="btn-group">
-                                        <a data-bs-toggle="dropdown" class="p-0 btn">
-                                            <img width="42" class="rounded-circle" 
-                                                 src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
-                                                 alt="{{ user.agence.nom_agence }}">
-                                            <span class="ml-2">{{ user.agence.nom_agence }}</span>
-                                            <i class="fa fa-angle-down ml-2 opacity-8"></i>
+{% block content %}
+    <div class="container mx-auto p-4 pt-6 mt-10">
+        <div class="flex flex-wrap -mx-4">
+            <div class="w-full xl:w-8/12 p-4">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-2xl font-semibold mb-4">Mes Biens</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Type</th>
+                                <th>Surface</th>
+                                <th>Prix</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bien in biens %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ bien.photo.url }}" alt="{{ bien.titre }}" class="w-20 h-20 object-cover">
+                                    </td>
+                                    <td>{{ bien.type_bien }}</td>
+                                    <td>{{ bien.surface }} m²</td>
+                                    <td>{{ bien.prix }} €</td>
+                                    <td>
+                                        <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Détails
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <h6 class="dropdown-header">{{ user.agence.nom }}</h6>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
-                                                <i class="pe-7s-id mr-2"></i> Profil Agence
-                                            </a>
-                                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                                                <i class="pe-7s-power mr-2"></i> Déconnexion
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        <a href="{% url 'comptes:modifier_bien' bien.id %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                        <a href="{% url 'comptes:supprimer_bien' bien.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </a>
+                                        {% if bien.publication %}
+                                            <span class="badge bg-success">Publié</span>
+                                        {% else %}
+                                            <button type="button" 
+                                                    class="btn btn-success btn-sm btn-publication" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#modal-publication"
+                                                    data-bien-id="{{ bien.id }}">
+                                                Publier
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        Aucun bien immobilier n'a été trouvé.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="w-full xl:w-4/12 p-4">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-2xl font-semibold mb-4">Statistiques</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h3 class="text-lg font-medium text-blue-800">Biens en vente</h3>
+                            <p class="text-2xl font-bold text-blue-600">{{ total_biens }}</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h3 class="text-lg font-medium text-green-800">Transactions</h3>
+                            <p class="text-2xl font-bold text-green-600">{{ total_transactions }}</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <h3 class="text-lg font-medium text-purple-800">Visites</h3>
+                            <p class="text-2xl font-bold text-purple-600">{{ total_visites }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="app-sidebar sidebar-shadow">
-            <div class="scrollbar-sidebar">
-                <div class="app-sidebar__inner">
-                    <ul class="vertical-nav-menu">
-                        <li class="app-sidebar__heading">Menu Principal</li>
-                        <li>
-                            <a href="{% url 'dashboard_home' %}" {% if request.resolver_match.url_name == 'dashboard_home' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-home"></i>
-                                Tableau de bord
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'mes_publications' %}" {% if request.resolver_match.url_name == 'mes_publications' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-display2"></i>
-                                Mes Publications
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'commentaires_proprietaire' %}" {% if request.resolver_match.url_name == 'commentaires_proprietaire' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-comment"></i>
-                                Commentaires
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'visites_programmees' %}" {% if request.resolver_match.url_name == 'visites_programmees' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-date"></i>
-                                Visites
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'transactions_proprietaire' %}" {% if request.resolver_match.url_name == 'transactions_proprietaire' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-cash"></i>
-                                Transactions
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'paiements_proprietaire' %}" {% if request.resolver_match.url_name == 'paiements_proprietaire' %}class="mm-active"{% endif %}>
-                                <i class="metismenu-icon pe-7s-credit"></i>
-                                Paiements
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="app-main">
-            <div class="app-main__outer">
-                <div class="app-main__inner">
-                    {% block content %}
-    <div class="row">
-        <!-- Statistiques -->
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Mes Biens</h5>
-                    <h2 class="display-4 mb-0">{{ biens_count }}</h2>
-                    <p class="text-muted">Biens immobiliers publiés</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Visites</h5>
-                    <h2 class="display-4 mb-0">{{ visites_count }}</h2>
-                    <p class="text-muted">Visites programmées</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Transactions</h5>
-                    <h2 class="display-4 mb-0">{{ transactions_count }}</h2>
-                    <p class="text-muted">Transactions conclues</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Liste des biens -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Mes Biens Immobiliers</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Photo</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Superficie (m²)</th>
-                            <th>Prix (€)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for bien in bien_list %}
-                        <tr>
-                            <td>
-                                <img src="{{ bien.image.url|default:'/static/assets/images/no-image.jpg' }}" 
-                                     alt="Photo du bien" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-primary me-2">{{ bien.type_bien }}</span>
-                                    <span class="badge bg-success">{{ bien.type_transaction.type_transaction }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="description-container">
-                                    <div class="description-short">
-                                        {{ bien.description|truncatewords:15 }}
-                                        <a href="#" class="btn btn-link btn-sm" data-bs-toggle="collapse" data-bs-target="#details-{{ bien.id }}">
-                                            <i class="pe-7s-angle-down"></i>
-                                            Voir plus
-                                        </a>
-                                    </div>
-                                    <div id="details-{{ bien.id }}" class="collapse">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                 <div class="info-grid">
-                                                     <div class="info-item">
-                                                         <i class="pe-7s-tag"></i>
-                                                         Superficie: {{ bien.superficie }} m²
-                                                     </div>
-                                                     <div class="info-item">
-                                                         <i class="pe-7s-wallet"></i>
-                                                         Prix: {{ bien.prix|floatformat:"2" }} FCFA
-                                                     </div>
-                                                     <div class="info-item">
-                                                         <i class="pe-7s-graph1"></i>
-                                                         Type: {{ bien.type_transaction.type_transaction }}
-                                                     </div>
-                                                 </div>
-                                                <div class="info-grid mt-3">
-                                                     {% if bien.type_bien == 'Maison' %}
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-home"></i>
-                                                             Chambres: {{ bien.maison.nbr_chambre|default:'N/A' }}
-                                                         </div>
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-up-arrow"></i>
-                                                             Étages: {{ bien.maison.nbr_etages|default:'N/A' }}
-                                                         </div>
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-star"></i>
-                                                             Pièce spéciale: {{ bien.maison.piece_speciale|default:'N/A' }}
-                                                         </div>
-                                                     {% endif %}
-                                                     {% if bien.type_bien == 'Appartement' %}
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-home"></i>
-                                                             Chambres: {{ bien.appartement.nbr_chambre|default:'N/A' }}
-                                                         </div>
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-up-arrow"></i>
-                                                             Étage: {{ bien.appartement.etage|default:'N/A' }}
-                                                         </div>
-                                                     {% endif %}
-                                                     {% if bien.type_bien == 'Terrain' %}
-                                                         <div class="info-item">
-                                                             <i class="pe-7s-map"></i>
-                                                             Parcelles: {{ bien.terrain.nbr_parcelles }}
-                                                         </div>
-                                                     {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ bien.superficie }} m²</td>
-                            <td>{{ bien.prix|floatformat:"2" }} €</td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'modifier_publication' bien.id %}" class="btn btn-sm btn-primary">
-                                        <i class="pe-7s-edit"></i> Modifier
-                                    </a>
-                                    <a href="{% url 'supprimer_publication' bien.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
-                                        <i class="pe-7s-trash"></i> Supprimer
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">
-                                Aucun bien immobilier n'a été trouvé.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 {% endblock %}
+
+{% block header %}
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
+            <div class="flex h-16 justify-between">
+                <!-- Logo -->
+                <div class="flex">
+                    <a href="{% url 'comptes:dashboard_home' %}" class="flex items-center">
+                        <i class="fas fa-home text-2xl text-primary mr-2"></i>
+                        <span class="font-semibold text-xl">ImmoDash</span>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <div class="hidden sm:flex sm:items-center sm:space-x-4">
+                    <a href="{% url 'comptes:publications' %}" class="nav-link">Publications</a>
+                    <a href="{% url 'comptes:commentaires' %}" class="nav-link">Commentaires</a>
+                    <a href="{% url 'comptes:visites' %}" class="nav-link">Visites</a>
+                    <a href="{% url 'comptes:transactions' %}" class="nav-link">Transactions</a>
+                    <a href="{% url 'comptes:paiements' %}" class="nav-link">Paiements</a>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <button class="relative nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                    </button>
+
+                    <!-- User Profile -->
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 nav-link" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                            <img src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
+                                 alt="{{ user.agence.nom_agence }}" class="w-8 h-8 rounded-full">
+                            <span>{{ user.agence.nom_agence }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <!-- User Menu Dropdown -->
+                        <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
+                            <div class="py-1" role="none">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                    <i class="fas fa-user-cog mr-2"></i> Profil
+                                </a>
+                                <a href="{% url 'comptes:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </nav>
+    </header>
+{% endblock %}
 
-    <!-- Scripts -->
+{% block scripts %}
+    {% load static %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/metismenu@3.0.7/dist/metisMenu.min.js"></script>
@@ -370,74 +206,4 @@
         });
     });
     </script>
-
-    <!-- Modal de profil -->
-    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="pe-7s-id mr-2"></i>
-                        {{ user.agence.nom_agence }}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <div class="position-relative d-inline-block">
-                            <img src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
-                                 class="rounded-circle border-primary mb-3" width="120" height="120" alt="Logo agence"
-                                 style="border: 3px solid;">
-                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2"
-                                  style="border: 2px solid white;"></span>
-                        </div>
-                        <h4 class="mb-1">{{ user.agence.nom_agence }}</h4>
-                        <span class="badge bg-primary">{{ user.agence.statut }}</span>
-                    </div>
-
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <i class="pe-7s-mail text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block">Email</small>
-                                <strong>{{ user.agence.email }}</strong>
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="pe-7s-call text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block">Téléphone</small>
-                                <strong>{{ user.agence.telephone }}</strong>
-                            </div>
-                        </div>
-
-                        <div class="info-item">
-                            <i class="pe-7s-map-marker text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block">Adresse</small>
-                                <strong>{{ user.agence.adresse }}</strong>
-                            </div>
-                        </div>
-
-                        <div class="info-item">
-                            <i class="pe-7s-id text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block">SIRET</small>
-                                <strong>{{ user.agence.siret }}</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if user.agence.description %}
-                    <div class="mt-4">
-                        <h6 class="mb-2">À propos de nous</h6>
-                        <p class="text-muted mb-0">{{ user.agence.description }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+{% endblock %}

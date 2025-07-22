@@ -1,0 +1,127 @@
+{% extends 'comptes/proprietaire_base.html' %}
+
+{% block page_title %}Mes publications{% endblock %}
+
+{% block main_content %}
+<div class="max-w-7xl mx-auto">
+    <!-- En-tête de la page -->
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-gray-900">
+                Mes publications
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                <i class="fas fa-home mr-1.5 text-indigo-500"></i>
+                Gestion de vos biens immobiliers
+            </p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="{% url 'comptes:choix_type_publication' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-plus mr-2"></i>Ajouter un bien
+            </a>
+        </div>
+    </div>
+
+    {% if error_message %}
+    <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+        <p class="font-bold">Erreur</p>
+        <p>{{ error_message }}</p>
+    </div>
+    {% endif %}
+
+    {% if info_message %}
+    <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+        <p class="font-bold">Information</p>
+        <p>{{ info_message }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Cartes de statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total des biens</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ biens|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Publiés</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ biens_publies|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">En attente</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ biens_non_publies|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                    <i class="fas fa-eye text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Vues totales</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_vues|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des biens -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Mes biens immobiliers
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Gestion complète de vos biens en ligne
+            </p>
+        </div>
+        
+        {% if biens %}
+            <div class="bg-white shadow overflow-hidden sm:rounded-b-lg">
+                <ul class="divide-y divide-gray-200">
+                    {% for bien in biens %}
+                        {% include 'comptes/partials/bien_item.html' with bien=bien %}
+                    {% empty %}
+                        <li class="px-6 py-4 text-center text-gray-500">
+                            Aucun bien enregistré pour le moment.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="px-6 py-12 text-center">
+                <i class="fas fa-home text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900">Aucun bien enregistré</h3>
+                <p class="mt-1 text-sm text-gray-500">Commencez par ajouter votre premier bien immobilier.</p>
+                <div class="mt-6">
+                    <a href="{% url 'comptes:choix_type_publication' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un bien
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock main_content %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="search-results-section py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="h4 mb-3">Résultats de recherche</h2>
+                <div class="filters mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Type de bien</label>
+                            <select name="type_bien" class="form-select">
+                                <option value="">Tous les types</option>
+                                <option value="Maison" {% if type_bien == 'Maison' %}selected{% endif %}>Maison</option>
+                                <option value="Appartement" {% if type_bien == 'Appartement' %}selected{% endif %}>Appartement</option>
+                                <option value="Terrain" {% if type_bien == 'Terrain' %}selected{% endif %}>Terrain</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Prix minimum</label>
+                            <input type="number" name="prix_min" class="form-control" value="{{ prix_min }}" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Prix maximum</label>
+                            <input type="number" name="prix_max" class="form-control" value="{{ prix_max }}" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'comptes:search' %}'">Réinitialiser</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if biens %}
+        <div class="row g-4">
+            {% for bien in biens %}
+            <div class="col-md-6 col-lg-4">
+                <div class="property-card h-100">
+                    <div class="property-image position-relative overflow-hidden">
+                        <img src="{{ bien.image.url }}" alt="{{ bien.description }}" class="img-fluid">
+                        <div class="property-type bg-primary text-white p-2 rounded position-absolute top-0 start-0 m-3">
+                            {{ bien.type_bien }}
+                        </div>
+                    </div>
+                    <div class="property-details p-4">
+                        <h3 class="h5 mb-3">{{ bien.description }}</h3>
+                        <p class="text-muted mb-3">{{ bien.adresse }}</p>
+                        <div class="property-price mb-3">
+                            <span class="h4 text-primary">{{ bien.prix }} €</span>
+                        </div>
+                        <ul class="property-features list-unstyled d-flex mb-0">
+                            {% if bien.type_bien == 'Maison' %}
+                            <li class="me-3"><i class="fas fa-bed me-2"></i>{{ bien.maison.nbr_chambre }} chambres</li>
+                            <li><i class="fas fa-bath me-2"></i>{{ bien.maison.nbr_salle_bain }} salles de bain</li>
+                            {% elif bien.type_bien == 'Appartement' %}
+                            <li class="me-3"><i class="fas fa-bed me-2"></i>{{ bien.appartement.nbr_chambre }} chambres</li>
+                            <li><i class="fas fa-bath me-2"></i>{{ bien.appartement.nbr_salle_bain }} salles de bain</li>
+                            {% endif %}
+                        </ul>
+                        <a href="{% url 'comptes:detail_bien' bien.id %}" class="btn btn-outline-primary w-100 mt-3">Voir plus</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="col-12 text-center">
+            <p class="text-muted">Aucun bien trouvé correspondant à vos critères de recherche.</p>
+            <a href="{% url 'comptes:home' %}" class="btn btn-primary">Retour à l'accueil</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation des cartes de propriétés
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__fadeIn');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.property-card').forEach((el) => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

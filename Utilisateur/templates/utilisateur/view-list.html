@@ -44,7 +44,7 @@
         <div class="container py-1">
           <div class="row align-items-center">
             <div class="col-8 col-md-8 col-lg-4">
-              <h1 class="mb-0"><a href="{% url 'index' %}" class="text-white h2 mb-0"><strong>Homeland<span class="text-danger">.</span></strong></a></h1>
+              <h1 class="mb-0"><a href="{% url 'comptes:home' %}" class="text-white h2 mb-0"><strong>Homeland<span class="text-danger">.</span></strong></a></h1>
             </div>
             <div class="col-4 col-md-4 col-lg-8">
               <nav class="site-navigation text-right text-md-right" role="navigation">
@@ -53,12 +53,12 @@
 
                 <ul class="site-menu js-clone-nav d-none d-lg-block">
                   <li class="active">
-                    <a href="{% url 'index' %}">Home</a>
+                    <a href="{% url 'comptes:home' %}">Home</a>
                   </li>
-                  <li><a href="{% url 'buy' %}">Buy</a></li>
-                  <li><a href="{% url 'rent' %}">Rent</a></li>
+                  <li><a href="{% url 'comptes:listings' %}">Buy</a></li>
+                  <li><a href="{% url 'comptes:rent' %}">Rent</a></li>
                   <li class="has-children">
-                    <a href="{% url 'properties' %}">Properties</a>
+                    <a href="{% url 'comptes:listings' %}">Properties</a>
                     <ul class="dropdown arrow-top">
                       <li><a href="#">Condo</a></li>
                       <li><a href="#">Property Land</a></li>
@@ -73,9 +73,9 @@
                       </li>
                     </ul>
                   </li>
-                  <li><a href="{% url 'blog' %}">Blog</a></li>
-                  <li><a href="{% url 'about' %}">About</a></li>
-                  <li><a href="{% url 'contact' %}">Contact</a></li>
+                  <li><a href="{% url 'comptes:blog' %}">Blog</a></li>
+                  <li><a href="{% url 'comptes:about' %}">About</a></li>
+                  <li><a href="{% url 'comptes:contact' %}">Contact</a></li>
                 </ul>
               </nav>
             </div>
@@ -167,7 +167,7 @@
           <div class="col-md-12">
             <div class="view-options bg-white py-3 px-3 d-md-flex align-items-center">
               <div class="mr-auto">
-                <a href="{% url 'index' %}" class="icon-view view-module"><span class="icon-view_module"></span></a>
+                <a href="{% url 'comptes:home' %}" class="icon-view view-module"><span class="icon-view_module"></span></a>
                 <a href="{% url 'view_list' %}" class="icon-view view-list active"><span class="icon-view_list"></span></a>
                 
               </div>

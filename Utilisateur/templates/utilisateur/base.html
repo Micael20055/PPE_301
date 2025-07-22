@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Immobilier Premium{% endblock %}</title>
+    <!-- Alpine.js pour les composants interactifs -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#1E293B',
+                        accent: '#F59E0B',
+                        light: '#F8FAFC',
+                        dark: '#0F172A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+    {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'utilisateur:index' %}" class="text-2xl font-bold text-primary">
+                <span class="flex items-center">
+                    <i class="fas fa-home mr-2"></i>
+                    <span>LuxuryHomes</span>
+                </span>
+            </a>
+
+            <!-- Navigation principale -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="{% url 'utilisateur:index' %}" class="font-medium hover:text-primary transition-colors">
+                    Accueil
+                </a>
+                <a href="{% url 'utilisateur:biens' %}" class="font-medium hover:text-primary transition-colors">
+                    Biens immobiliers
+                </a>
+                <a href="{% url 'utilisateur:contact' %}" class="font-medium hover:text-primary transition-colors">
+                    Contact
+                </a>
+            </nav>
+
+            <!-- Boutons d'action -->
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <!-- Menu utilisateur -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
+                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                <span class="font-semibold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                            </div>
+                            <span class="hidden md:inline text-gray-700">{{ user.first_name }}</span>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+                        
+                        <!-- Menu déroulant -->
+                        <div x-show="open" 
+                             @click.away="open = false"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="{% url 'comptes:dashboard_home' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-tachometer-alt mr-2 w-5"></i> Tableau de bord
+                            </a>
+                            <a href="{% url 'comptes:profil' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-circle mr-2 w-5"></i> Mon profil
+                            </a>
+                            <a href="{% url 'comptes:mes_favoris' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-heart mr-2 w-5"></i> Mes favoris
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="{% url 'comptes:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2 w-5"></i> Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'comptes:login' %}" class="text-gray-600 hover:text-primary transition-colors">
+                        Connexion
+                    </a>
+                    <a href="{% url 'comptes:register' %}" class="hidden md:flex bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+                        S'inscrire
+                    </a>
+                {% endif %}
+                
+                <!-- Menu mobile -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-primary focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu mobile déroulant -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200" x-data="{ open: false }">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                <a href="{% url 'utilisateur:index' %}" class="py-2 px-4 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-home mr-2 w-5 text-center"></i> Accueil
+                </a>
+                <a href="{% url 'utilisateur:biens' %}" class="py-2 px-4 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-building mr-2 w-5 text-center"></i> Biens immobiliers
+                </a>
+                <a href="{% url 'utilisateur:contact' %}" class="py-2 px-4 hover:bg-gray-50 rounded-md">
+                    <i class="fas fa-envelope mr-2 w-5 text-center"></i> Contact
+                </a>
+                
+                {% if user.is_authenticated %}
+                    <div class="border-t border-gray-200 my-2 pt-2">
+                        <a href="{% url 'comptes:dashboard_home' %}" class="block py-2 px-4 hover:bg-gray-50 rounded-md">
+                            <i class="fas fa-tachometer-alt mr-2 w-5 text-center"></i> Tableau de bord
+                        </a>
+                        <a href="{% url 'comptes:profil' %}" class="block py-2 px-4 hover:bg-gray-50 rounded-md">
+                            <i class="fas fa-user-circle mr-2 w-5 text-center"></i> Mon profil
+                        </a>
+                        <a href="{% url 'comptes:mes_favoris' %}" class="block py-2 px-4 hover:bg-gray-50 rounded-md">
+                            <i class="fas fa-heart mr-2 w-5 text-center"></i> Mes favoris
+                        </a>
+                        <a href="{% url 'comptes:logout' %}" class="block py-2 px-4 text-red-600 hover:bg-red-50 rounded-md">
+                            <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Déconnexion
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="border-t border-gray-200 my-2 pt-2">
+                        <a href="{% url 'comptes:login' %}" class="block py-2 px-4 hover:bg-gray-50 rounded-md">
+                            <i class="fas fa-sign-in-alt mr-2 w-5 text-center"></i> Connexion
+                        </a>
+                        <a href="{% url 'comptes:register' %}" class="block py-2 px-4 bg-primary text-white rounded-md text-center hover:bg-opacity-90">
+                            <i class="fas fa-user-plus mr-2"></i> S'inscrire
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="min-h-screen">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- À propos -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">LuxuryHomes</h3>
+                    <p class="text-gray-300">Votre partenaire de confiance pour trouver la propriété de vos rêves.</p>
+                </div>
+
+                <!-- Liens rapides -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Liens rapides</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'utilisateur:index' %}" class="text-gray-300 hover:text-white transition-colors">Accueil</a></li>
+                        <li><a href="{% url 'utilisateur:biens' %}" class="text-gray-300 hover:text-white transition-colors">Biens immobiliers</a></li>
+                        <li><a href="{% url 'utilisateur:contact' %}" class="text-gray-300 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="text-gray-300">123 Rue de l'Immobilier, 75000 Paris</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-phone"></i>
+                            <span class="text-gray-300">+33 1 23 45 67 89</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-envelope"></i>
+                            <span class="text-gray-300">contact@luxuryhomes.fr</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Newsletter</h4>
+                    <p class="text-gray-300 mb-2">Abonnez-vous pour recevoir nos offres exclusives</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Votre email" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="bg-accent text-white px-4 py-2 rounded-r-lg hover:bg-opacity-90 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; {% now "Y" %} LuxuryHomes. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Menu mobile avec Alpine.js
+        document.addEventListener('alpine:init', () => {
+            // Le menu mobile est maintenant géré par Alpine.js via x-data
+        });
+        
+        // Script pour le menu mobile (fallback si Alpine.js ne charge pas)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion du bouton de menu mobile
+            const menuButton = document.getElementById('mobile-menu-button');
+            if (menuButton) {
+                menuButton.addEventListener('click', function() {
+                    const menu = document.getElementById('mobile-menu');
+                    if (menu) {
+                        menu.classList.toggle('hidden');
+                    }
+                });
+            }
+            
+            // Fermer le menu au clic sur un lien
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    if (menu) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

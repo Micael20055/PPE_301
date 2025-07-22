@@ -1,12 +1,39 @@
-{% extends 'comptes/index.html' %}
-{% block content %}
-<h2>Supprimer la Publication</h2>
-<p>Voulez-vous vraiment supprimer la publication <strong>{{ publication.titre }}</strong> ?</p>
-<form method="post">
-    {% load static %}
-    <link href="{% static 'comptes/css/dashboard.css' %}" rel="stylesheet">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
-    <a href="{% url 'mes_publications' %}" class="btn btn-secondary">Annuler</a>
-</form>
+{% extends 'comptes/proprietaire_base.html' %}
+{% block main_content %}
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Supprimer le bien immobilier</h2>
+        <p class="mb-6">
+            Êtes-vous sûr de vouloir supprimer le bien <strong>{{ bien.get_type_bien_display }}</strong> ?
+            Cette action est irréversible et supprimera également toutes les données associées.
+        </p>
+        
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700">
+                        Attention : Cette action est irréversible. Toutes les données associées à ce bien seront définitivement supprimées.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'comptes:mes_publications' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-200">
+                    Annuler
+                </a>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+                    <i class="fas fa-trash mr-2"></i>Confirmer la suppression
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
