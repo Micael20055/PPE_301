@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.db.models import Q
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.urls import reverse
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -102,16 +102,31 @@ def paiement_form(request):
 @login_required
 @user_passes_test(lambda u: u.profession == 'agent')
 def dashboard_agence(request):
-    # Récupérer les statistiques
-    total_biens = BienImmobilier.objects.count()
-    total_clients = Utilisateur.objects.filter(profession='client').count()
-    total_transactions = Transaction.objects.count()
-    total_visites = Visite.objects.count()
+    # Vérifier si l'utilisateur est bien un agent et a une agence
+    if not hasattr(request.user, 'agence') or not request.user.agence:
+        messages.error(request, "Votre compte agent n'est pas associé à une agence.")
+        return redirect('comptes:home')
+    
+    agence = request.user.agence
+    
+    # Récupérer les statistiques filtrées par agence
+    total_biens = BienImmobilier.objects.filter(proprietaire__agence=agence).count()
+    total_clients = Utilisateur.objects.filter(profession='client', agence=agence).count()
+    
+    # Pour les transactions et visites, on suppose qu'elles sont liées aux biens de l'agence
+    total_transactions = Transaction.objects.filter(bien__proprietaire__agence=agence).count()
+    total_visites = Visite.objects.filter(
+        Q(bien__proprietaire__agence=agence) | 
+        Q(proprietaire__agence=agence)
+    ).distinct().count()
 
-    # Récupérer les biens de l'agence
-    biens = BienImmobilier.objects.all().order_by('-id')[:6]  # Les 6 derniers biens
+    # Récupérer les biens de l'agence (les 6 derniers)
+    biens = BienImmobilier.objects.filter(
+        proprietaire__agence=agence
+    ).order_by('-id')[:6]
 
     return render(request, 'comptes/dashboard_agence.html', {
+        'agence': agence,  # Ajout de l'agence au contexte
         'total_biens': total_biens,
         'total_clients': total_clients,
         'total_transactions': total_transactions,
@@ -133,140 +148,6 @@ def client_home(request):
         'visites': visites
     })
 
-# This function was removed to avoid conflict with the more general detail_bien function below
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'client')
-def programmer_visite(request, pk):
-    bien = get_object_or_404(BienImmobilier, pk=pk)
-    
-    if request.method == 'POST':
-        try:
-            date_str = request.POST.get('date_visite')
-            # Convertir la date en datetime naive
-            date_naive = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
-            # Ajouter le fuseau horaire actif
-            date_visite = timezone.make_aware(date_naive)
-            
-            # Vérifier si la date est dans le futur
-            now = timezone.now()
-            if date_visite <= now:
-                return JsonResponse({'success': False, 'message': 'Veuillez sélectionner une date future'})
-            
-            # Vérifier si le client a déjà une visite programmée pour ce bien
-            if Visite.objects.filter(bien=bien, client=request.user, statut='planifiee').exists():
-                return JsonResponse({'success': False, 'message': 'Vous avez déjà une visite programmée pour ce bien'})
-            
-            # Créer la nouvelle visite
-            visite = Visite.objects.create(
-                bien=bien,
-                client=request.user,
-                proprietaire=bien.proprietaire,  # Associer automatiquement le propriétaire
-                date_visite=date_visite,
-                statut='planifiee',
-                remarques=request.POST.get('remarques', '')
-            )
-            
-            # Envoyer une notification au propriétaire
-            try:
-                subject = f'Nouvelle visite programmée pour {bien.get_type_bien_display()}' 
-                message = f'''
-                Bonjour {bien.proprietaire.get_full_name() or bien.proprietaire.username},
-                
-                Une nouvelle visite a été programmée pour votre bien :
-                - Type: {bien.get_type_bien_display()}
-                - Adresse: {bien.adresse}
-                - Date: {date_visite.strftime('%d/%m/%Y à %H:%M')}
-                - Client: {request.user.get_full_name() or request.user.username}
-                - Téléphone: {request.user.telephone or 'Non renseigné'}
-                - Email: {request.user.email}
-                
-                Connectez-vous à votre espace pour plus de détails.
-                '''
-                
-                send_mail(
-                    subject=subject,
-                    message=message.strip(),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[bien.proprietaire.email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                # En cas d'erreur d'envoi d'email, on continue mais on log l'erreur
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Erreur lors de l'envoi de la notification de visite : {str(e)}")
-            
-            return JsonResponse({
-                'success': True, 
-                'message': 'Visite programmée avec succès. Le propriétaire a été notifié.'
-            })
-            
-        except ValueError as e:
-            return JsonResponse({'success': False, 'message': 'Format de date invalide'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Une erreur est survenue : {str(e)}'})
-    
-    return JsonResponse({'success': False, 'message': 'Méthode non autorisée'})
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'client')
-def annuler_visite(request, pk):
-    visite = get_object_or_404(Visite, pk=pk, client=request.user)
-    visite.statut = 'annulee'
-    visite.save()
-    return redirect('comptes:client_home')
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'client')
-def contacter_proprietaire(request, pk):
-    bien = get_object_or_404(BienImmobilier, pk=pk)
-    proprietaire = bien.proprietaire
-    
-    if request.method == 'POST':
-        message = request.POST.get('message')
-        
-        # Envoyer un email au propriétaire
-        subject = f'Nouveau message concernant {bien.type_bien} - {bien.titre}'
-        message_body = f"""Bonjour {proprietaire.username},
-
-Vous avez reçu un nouveau message concernant votre bien {bien.type_bien} - {bien.titre}:
-
-{message}
-
-Cordialement,
-L'équipe ImmoDash"""
-        
-        send_mail(
-            subject,
-            message_body,
-            settings.DEFAULT_FROM_EMAIL,
-            [proprietaire.email]
-        )
-        
-        return JsonResponse({'success': True, 'message': 'Message envoyé avec succès'})
-    
-    return JsonResponse({'success': False, 'message': 'Méthode non autorisée'})
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'client')
-def mes_favoris(request):
-    """Vue pour afficher les biens favoris de l'utilisateur"""
-    # Récupérer les favoris de l'utilisateur connecté
-    # Note: Implémentez cette logique selon votre modèle de données
-    favoris = []  # Remplacer par la logique de récupération des favoris
-    
-    context = {
-        'favoris': favoris,
-        'title': 'Mes favoris'
-    }
-    return render(request, 'comptes/mes_favoris.html', context)
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'client')
-def profil_view(request):
-    return render(request, 'comptes/profil.html')
-
 @login_required
 @user_passes_test(lambda u: u.profession == 'proprietaire')
 def proprietaire_dashboard(request):
@@ -279,10 +160,6 @@ def proprietaire_dashboard(request):
     # Calculer les statistiques
     total_biens = biens.count()
     
-    # Récupérer les visites pour les biens du propriétaire
-    visites = Visite.objects.filter(bien__proprietaire=request.user)
-    total_visites = visites.count()
-    
     # Récupérer les paiements via les transactions liées aux biens du propriétaire
     total_paiements = Paiement.objects.filter(
         bien__proprietaire=request.user
@@ -291,28 +168,19 @@ def proprietaire_dashboard(request):
     # Préparer les données pour le template
     context = {
         'total_biens': total_biens,
-        'total_visites': total_visites,
         'total_paiements': total_paiements,
         'biens': biens.order_by('-id')[:5],  # 5 biens les plus récents (par ID décroissant)
-        'visites_recentes': visites.order_by('-date_visite')[:5]  # 5 visites les plus récentes
+        'visites_recentes': []
     }
     
     # Ajouter des logs de débogage
     print("\n=== DÉBOGAGE TABLEAU DE BORD PROPRIÉTAIRE ===")
     print(f"Utilisateur: {request.user} (ID: {request.user.id})")
     print(f"Nombre de biens: {biens.count()}")
-    print(f"Nombre de visites: {visites.count()}")
     print("Contenu du contexte:", context)
     print("=== FIN DÉBOGAGE ===\n")
     
     return render(request, 'comptes/proprietaire_dashboard.html', context)
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'proprietaire')
-def visites(request):
-    # Récupérer toutes les visites du propriétaire
-    visites = Visite.objects.filter(bien__proprietaire=request.user).order_by('-date_visite')
-    return render(request, 'comptes/visites.html', {'visites': visites})
 
 @login_required
 @user_passes_test(lambda u: u.profession == 'proprietaire')
@@ -409,54 +277,6 @@ def logout_view(request):
     return redirect('comptes:register')
 
 @login_required
-@user_passes_test(lambda u: u.profession == 'agent')
-def agent_dashboard(request):
-    # Récupérer les données de l'agence
-    agence = request.user.agence
-    
-    # Récupérer les statistiques
-    total_biens = BienImmobilier.objects.filter(proprietaire__agence=agence).count()
-    total_clients = Utilisateur.objects.filter(profession='client').count()
-    total_transactions = Transaction.objects.filter(bien__proprietaire__agence=agence).count()
-    total_visites = Visite.objects.filter(bien__proprietaire__agence=agence).count()
-    
-    # Récupérer les dernières transactions
-    transactions = Transaction.objects.filter(bien__proprietaire__agence=agence).order_by('-date_transaction')[:5]
-    
-    # Récupérer les prochaines visites
-    visites = Visite.objects.filter(bien__proprietaire__agence=agence, date_visite__gte=timezone.now()).order_by('date_visite')[:5]
-    
-    context = {
-        'agence': agence,
-        'total_biens': total_biens,
-        'total_clients': total_clients,
-        'total_transactions': total_transactions,
-        'total_visites': total_visites,
-        'transactions': transactions,
-        'visites': visites
-    }
-    
-    return render(request, 'comptes/dashboard_agence.html', context)
-
-@login_required
-@user_passes_test(lambda u: u.profession == 'agent')
-def agent_index(request):
-    user = request.user
-    # Nombre de biens publiés par ce propriétaire/agent
-    biens_count = BienImmobilier.objects.filter(proprietaire=user).count()
-    # Nombre de visites à venir (exemple, adapte selon ton modèle)
-    visites_count = Visite.objects.filter(bien__proprietaire=user).count() if 'Visite' in globals() else 0
-    # Nombre de transactions conclues
-    transactions_count = Transaction.objects.filter(bien__proprietaire=user).count()
-    biens = BienImmobilier.objects.filter(proprietaire=user)
-    return render(request, 'comptes/index.html', {
-        'biens_count': biens_count,
-        'visites_count': visites_count,
-        'transactions_count': transactions_count,
-        'bien_list': biens,
-    })
-
-@login_required
 @user_passes_test(lambda u: u.profession == 'proprietaire')
 def proprietaire_index(request):
     # Récupérer les biens du propriétaire avec leurs publications
@@ -482,7 +302,7 @@ def dashboard_home(request):
     total_biens = BienImmobilier.objects.filter(proprietaire=request.user).count()
     total_transactions = Transaction.objects.filter(bien__proprietaire=request.user).count()
     total_commentaires = Commentaire.objects.filter(annonce__bien__proprietaire=request.user).count()
-    total_visites = Visite.objects.filter(bien__proprietaire=request.user).count()
+    total_visites = 0
     
     # Récupérer les activités récentes
     recent_activities = [
@@ -564,27 +384,79 @@ def contact(request):
 
 # Vue de recherche
 def search(request):
-    type_bien = request.GET.get('type_bien', '')
-    prix_min = request.GET.get('prix_min', '')
-    prix_max = request.GET.get('prix_max', '')
+    # Récupération des paramètres avec valeurs par défaut
+    type_bien = request.GET.get('type_bien', '').strip()
+    prix_min = request.GET.get('prix_min', '').strip()
+    prix_max = request.GET.get('prix_max', '').strip()
     
+    # Journalisation des paramètres reçus
+    print("\n" + "="*50)
+    print("=== DÉBUT DE LA RECHERCHE ===")
+    print(f"URL complète: {request.get_full_path()}")
+    print(f"Paramètres GET: {request.GET}")
+    print(f"Type de bien: '{type_bien}'")
+    print(f"Prix min: '{prix_min}'")
+    print(f"Prix max: '{prix_max}'")
+    
+    # Construction de la requête de base
     biens = BienImmobilier.objects.all()
+    print(f"\nRequête initiale: {biens.query}")
     
+    # Application des filtres
     if type_bien:
-        biens = biens.filter(type_bien=type_bien)
+        # Conversion en minuscules pour une comparaison insensible à la casse
+        type_bien_lower = type_bien.lower()
+        print(f"\nAvant filtrage par type - Nombre de biens: {biens.count()}")
+        print(f"Recherche de type de bien (insensible à la casse): '{type_bien_lower}'")
+        
+        # Méthode alternative avec une requête brute pour le débogage
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT id, type_bien, prix FROM comptes_bienimmobilier WHERE LOWER(type_bien) = %s", [type_bien_lower])
+            resultats = cursor.fetchall()
+            print(f"Résultats bruts de la requête SQL: {resultats}")
+        
+        biens = biens.filter(type_bien__iexact=type_bien_lower)
+        print(f"Après filtrage par type - Nombre de biens: {biens.count()}")
     
     if prix_min:
-        biens = biens.filter(prix__gte=prix_min)
+        try:
+            prix_min_int = int(prix_min)
+            print(f"\nAvant filtrage par prix min - Nombre de biens: {biens.count()}")
+            biens = biens.filter(prix__gte=prix_min_int)
+            print(f"Après filtrage par prix min ({prix_min_int}€) - Nombre de biens: {biens.count()}")
+        except (ValueError, TypeError) as e:
+            print(f"Erreur avec le prix min '{prix_min}': {str(e)}")
     
     if prix_max:
-        biens = biens.filter(prix__lte=prix_max)
+        try:
+            prix_max_int = int(prix_max)
+            print(f"\nAvant filtrage par prix max - Nombre de biens: {biens.count()}")
+            biens = biens.filter(prix__lte=prix_max_int)
+            print(f"Après filtrage par prix max ({prix_max_int}€) - Nombre de biens: {biens.count()}")
+        except (ValueError, TypeError) as e:
+            print(f"Erreur avec le prix max '{prix_max}': {str(e)}")
     
+    # Comptage des résultats
+    nombre_resultats = biens.count()
+    print("\n" + "="*50)
+    print(f"=== RÉSULTATS DE LA RECHERCHE ===")
+    print(f"Nombre total de résultats: {nombre_resultats}")
+    print("Premiers résultats:")
+    for bien in biens[:5]:  # Afficher les 5 premiers résultats pour le débogage
+        print(f"- ID: {bien.id}, Type: '{bien.type_bien}', Prix: {bien.prix}€")
+    
+    # Préparation du contexte
     context = {
         'biens': biens,
         'type_bien': type_bien,
-        'prix_min': prix_min,
-        'prix_max': prix_max
+        'prix_min': prix_min if prix_min else '',
+        'prix_max': prix_max if prix_max else '',
+        'nombre_resultats': nombre_resultats
     }
+    print("\nContexte envoyé au template:", context)
+    print("="*50 + "\n")
+    
     return render(request, 'comptes/search_results.html', context)
 
 def get_default_image_url():
@@ -593,7 +465,16 @@ def get_default_image_url():
 
 # Vue de détail du bien
 def detail_bien(request, pk):
+    # Log pour vérifier l'ID du bien demandé
+    print(f"\n=== DEBUT VUE DETAIL_BIEN ===")
+    print(f"ID du bien demandé: {pk}")
+    
+    # Récupérer le bien
     bien = get_object_or_404(BienImmobilier, pk=pk)
+    
+    # Log pour vérifier les détails du bien récupéré
+    print(f"Bien récupéré - ID: {bien.id}, Type: {bien.type_bien}, Description: {bien.description}")
+    print(f"Propriétaire: {bien.proprietaire} (ID: {bien.proprietaire_id if bien.proprietaire else 'Aucun'})")
     
     # Vérifier si le bien a une image, sinon utiliser une image par défaut
     image_url = get_default_image_url()
@@ -601,19 +482,28 @@ def detail_bien(request, pk):
         try:
             if bien.image.url:
                 image_url = bien.image.url
+                print(f"Image trouvée: {image_url}")
         except ValueError:
             # Si l'image n'existe pas sur le système de fichiers
-            pass
+            print("Avertissement: L'image référencée n'existe pas sur le système de fichiers")
+    else:
+        print("Aucune image associée à ce bien")
     
     # Déterminer le type de bien et récupérer les détails spécifiques
     details = None
     if hasattr(bien, 'maison'):
         details = bien.maison
+        print(f"Détails spécifiques: Maison - {details}")
     elif hasattr(bien, 'appartement'):
         details = bien.appartement
+        print(f"Détails spécifiques: Appartement - {details}")
     elif hasattr(bien, 'terrain'):
         details = bien.terrain
+        print(f"Détails spécifiques: Terrain - {details}")
+    else:
+        print("Aucun détail spécifique trouvé pour ce type de bien")
     
+    # Préparer le contexte
     context = {
         'bien': bien,
         'image_url': image_url,
@@ -621,15 +511,61 @@ def detail_bien(request, pk):
         'has_image': hasattr(bien, 'image') and bool(bien.image)
     }
     
+    print(f"=== FIN VUE DETAIL_BIEN ===\n")
+    
     return render(request, 'comptes/detail_bien.html', context)
 
 # Vues pour les types de biens
 def listings(request):
+    # Récupération des paramètres de filtre
+    type_bien = request.GET.get('type_bien', '').strip()
+    prix_min = request.GET.get('prix_min', '').strip()
+    prix_max = request.GET.get('prix_max', '').strip()
+    
+    # Journalisation des paramètres
+    print("\n=== PARAMÈTRES DE FILTRAGE (listings) ===")
+    print(f"Type de bien: '{type_bien}'")
+    print(f"Prix min: '{prix_min}'")
+    print(f"Prix max: '{prix_max}'")
+    
+    # Construction de la requête de base
     biens = BienImmobilier.objects.all()
+    
+    # Application des filtres
+    if type_bien:
+        type_bien_lower = type_bien.lower()
+        biens = biens.filter(type_bien__iexact=type_bien_lower)
+        print(f"Filtre type_bien appliqué: {type_bien_lower}")
+    
+    if prix_min:
+        try:
+            prix_min_int = int(prix_min)
+            biens = biens.filter(prix__gte=prix_min_int)
+            print(f"Filtre prix_min appliqué: {prix_min_int}€")
+        except (ValueError, TypeError) as e:
+            print(f"Erreur avec le prix min '{prix_min}': {str(e)}")
+    
+    if prix_max:
+        try:
+            prix_max_int = int(prix_max)
+            biens = biens.filter(prix__lte=prix_max_int)
+            print(f"Filtre prix_max appliqué: {prix_max_int}€")
+        except (ValueError, TypeError) as e:
+            print(f"Erreur avec le prix max '{prix_max}': {str(e)}")
+    
+    # Comptage des résultats
+    nombre_resultats = biens.count()
+    print(f"Nombre de résultats trouvés: {nombre_resultats}")
+    
     context = {
         'biens': biens,
+        'type_bien': type_bien,
+        'prix_min': prix_min if prix_min else '',
+        'prix_max': prix_max if prix_max else '',
+        'nombre_resultats': nombre_resultats,
         'titre': 'Tous les biens'
     }
+    
     return render(request, 'comptes/listings.html', context)
 
 def condos(request):
@@ -657,6 +593,60 @@ def lands(request):
     return render(request, 'comptes/listings.html', context)
 
 @login_required
+@user_passes_test(lambda u: u.profession == 'client')
+def mes_favoris(request):
+    """Vue pour afficher les biens favoris de l'utilisateur"""
+    # Récupérer les favoris de l'utilisateur connecté
+    # Note: Implémentez cette logique selon votre modèle de données
+    favoris = []  # Remplacer par la logique de récupération des favoris
+    
+    context = {
+        'favoris': favoris,
+        'title': 'Mes favoris'
+    }
+    return render(request, 'comptes/mes_favoris.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.profession == 'client')
+def profil_view(request):
+    return render(request, 'comptes/profil.html')
+
+@login_required
+@user_passes_test(lambda u: u.profession == 'proprietaire')
+def proprietaire_dashboard(request):
+    """
+    Affiche le tableau de bord du propriétaire avec les statistiques de ses biens immobiliers.
+    """
+    # Récupérer les biens du propriétaire
+    biens = BienImmobilier.objects.filter(proprietaire=request.user)
+    
+    # Calculer les statistiques
+    total_biens = biens.count()
+    
+    # Récupérer les paiements via les transactions liées aux biens du propriétaire
+    total_paiements = Paiement.objects.filter(
+        bien__proprietaire=request.user
+    ).count()
+    
+    # Préparer les données pour le template
+    context = {
+        'total_biens': total_biens,
+        'total_paiements': total_paiements,
+        'biens': biens.order_by('-id')[:5],  # 5 biens les plus récents (par ID décroissant)
+        'visites_recentes': []
+    }
+    
+    # Ajouter des logs de débogage
+    print("\n=== DÉBOGAGE TABLEAU DE BORD PROPRIÉTAIRE ===")
+    print(f"Utilisateur: {request.user} (ID: {request.user.id})")
+    print(f"Nombre de biens: {biens.count()}")
+    print("Contenu du contexte:", context)
+    print("=== FIN DÉBOGAGE ===\n")
+    
+    return render(request, 'comptes/proprietaire_dashboard.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.profession == 'proprietaire')
 def commentaires_view(request):
     # Si l'utilisateur est un propriétaire, afficher les commentaires sur ses biens
     if request.user.profession == 'proprietaire':
@@ -705,10 +695,6 @@ def ajouter_commentaire(request, bien_id):
     # Rediriger vers la page du bien dans tous les cas
     return redirect('comptes:detail_bien', pk=bien_id)
 
-"""def visites_view(request):
-    form = VisiteForm()
-    return render(request, 'comptes/visites.html', {'form': form})
-"""
 @login_required
 def transactions_view(request):
     """
@@ -750,21 +736,347 @@ def paiements_view(request):
         'total_recettes': total_recettes
     })
 
+@login_required
+def detail_visite(request, pk):
+    """Affiche les détails d'une visite spécifique"""
+    try:
+        visite = get_object_or_404(Visite, pk=pk)
+        
+        # Vérifier que l'utilisateur a le droit de voir cette visite
+        if request.user != visite.proprietaire and request.user != visite.client:
+            messages.error(request, "Vous n'avez pas la permission de voir cette visite.")
+            return redirect('comptes:visites')
+        
+        context = {
+            'visite': visite,
+            'user': request.user,
+            'is_proprietaire': request.user == visite.proprietaire,
+            'is_client': request.user == visite.client,
+        }
+        return render(request, 'comptes/detail_visite.html', context)
+    
+    except Exception as e:
+        messages.error(request, f"Une erreur est survenue : {str(e)}")
+        return redirect('comptes:visites')
+
+@login_required
+def confirmer_visite(request, pk):
+    """Confirme une visite planifiée"""
+    try:
+        visite = get_object_or_404(Visite, pk=pk)
+        
+        # Vérifier que l'utilisateur est bien le propriétaire
+        if request.user != visite.proprietaire:
+            messages.error(request, "Vous n'avez pas la permission de confirmer cette visite.")
+            return redirect('comptes:visites')
+        
+        # Vérifier que la visite est bien en attente
+        if visite.statut != 'planifiee':
+            messages.warning(request, "Cette visite ne peut pas être confirmée car elle n'est pas en attente.")
+            return redirect('comptes:visites')
+        
+        # Mettre à jour le statut
+        visite.statut = 'confirme'
+        visite.save()
+        
+        messages.success(request, "La visite a été confirmée avec succès.")
+        return redirect('comptes:visites')
+    
+    except Exception as e:
+        messages.error(request, f"Une erreur est survenue lors de la confirmation de la visite : {str(e)}")
+        return redirect('comptes:visites')
+
+@login_required
+def annuler_visite(request, pk):
+    """Annule une visite planifiée"""
+    try:
+        visite = get_object_or_404(Visite, pk=pk)
+        
+        # Vérifier que l'utilisateur a le droit d'annuler cette visite
+        if request.user not in [visite.proprietaire, visite.client]:
+            messages.error(request, "Vous n'avez pas la permission d'annuler cette visite.")
+            return redirect('comptes:visites')
+        
+        # Vérifier que la visite est bien en attente ou confirmée
+        if visite.statut not in ['planifiee', 'confirme']:
+            messages.warning(request, "Cette visite ne peut pas être annulée car elle n'est pas en attente ou confirmée.")
+            return redirect('comptes:visites')
+        
+        # Mettre à jour le statut
+        visite.statut = 'annulee'
+        visite.save()
+        
+        messages.success(request, "La visite a été annulée avec succès.")
+        return redirect('comptes:visites')
+    
+    except Exception as e:
+        messages.error(request, f"Une erreur est survenue lors de l'annulation de la visite : {str(e)}")
+        return redirect('comptes:visites')
+
+@login_required
+def programmer_visite(request, pk):
+    """Affiche le formulaire de programmation d'une visite pour un bien spécifique"""
+    try:
+        # Récupérer le bien ou renvoyer une 404
+        bien = get_object_or_404(BienImmobilier, pk=pk)
+        
+        # Vérifier que l'utilisateur est un client
+        if request.user.profession != 'client':
+            messages.error(request, "Seuls les clients peuvent programmer des visites.")
+            return redirect('comptes:detail_bien', pk=bien.id)
+            
+        # Vérifier que l'utilisateur n'est pas le propriétaire du bien
+        if request.user == bien.proprietaire:
+            messages.error(request, "Vous ne pouvez pas programmer de visite pour votre propre bien.")
+            return redirect('comptes:detail_bien', pk=bien.id)
+        
+        if request.method == 'POST':
+            form = VisiteForm(request.POST)
+            if form.is_valid():
+                try:
+                    # Créer la visite
+                    visite = form.save(commit=False)
+                    visite.bien = bien
+                    visite.client = request.user
+                    visite.proprietaire = bien.proprietaire
+                    visite.statut = 'planifiee'  # Définir le statut initial
+                    visite.save()
+                    
+                    # Envoyer une notification au propriétaire (à implémenter)
+                    # send_visite_notification(visite)
+                    
+                    messages.success(request, "Votre demande de visite a été enregistrée avec succès.")
+                    return redirect('comptes:detail_visite', pk=visite.id)
+                    
+                except Exception as e:
+                    messages.error(request, f"Une erreur est survenue lors de l'enregistrement de la visite : {str(e)}")
+                    logger.error(f"Erreur lors de la programmation d'une visite : {str(e)}", exc_info=True)
+        else:
+            # Pré-remplir la date avec demain à 14h par défaut
+            demain = timezone.now() + timezone.timedelta(days=1)
+            date_par_defaut = demain.replace(hour=14, minute=0, second=0, microsecond=0)
+            form = VisiteForm(initial={'date_visite': date_par_defaut})
+        
+        context = {
+            'form': form,
+            'bien': bien,
+        }
+        return render(request, 'comptes/programmer_visite.html', context)
+        
+    except Exception as e:
+        messages.error(request, "Une erreur inattendue s'est produite.")
+        logger.error(f"Erreur dans programmer_visite : {str(e)}", exc_info=True)
+        return redirect('comptes:home')
+
+import logging
+logger = logging.getLogger(__name__)
+
+@login_required
 def visites_view(request):
-    if not request.user.is_authenticated or request.user.profession != 'proprietaire':
-        return redirect('comptes:login')
+    """
+    Affiche la liste des visites pour un propriétaire ou un agent.
+    Pour les propriétaires : affiche les visites de leurs biens
+    Pour les agents : affiche les visites des biens de leur agence
+    """
+    logger.info("\n" + "="*80)
+    logger.info("=== DÉBUT VUE VISITES (NOUVELLE REQUÊTE) ===")
+    logger.info(f"Utilisateur: {request.user} (ID: {request.user.id}, Profession: {request.user.profession})")
     
-    visites = Visite.objects.filter(bien__proprietaire=request.user).order_by('-date_visite')
-    total_visites = visites.count()
-    visites_en_attente = visites.filter(statut='en_attente').count()
-    visites_confirmees = visites.filter(statut='confirme').count()
+    # Vérification des permissions
+    if request.user.profession not in ['proprietaire', 'agent']:
+        logger.error("Accès refusé : l'utilisateur n'est ni propriétaire ni agent")
+        messages.error(request, 'Accès non autorisé. Vous devez être propriétaire ou agent.')
+        return redirect('comptes:home')
     
-    return render(request, 'comptes/visites.html', {
-        'visites': visites,
-        'total_visites': total_visites,
-        'visites_en_attente': visites_en_attente,
-        'visites_confirmees': visites_confirmees
-    })
+    is_agent = request.user.profession == 'agent'
+    logger.info(f"Type d'utilisateur: {'Agent' if is_agent else 'Propriétaire'}")
+    
+    # Vérification de l'agence pour les agents
+    agence = None
+    if is_agent:
+        if not hasattr(request.user, 'agence') or not request.user.agence:
+            logger.error("L'agent n'est pas rattaché à une agence")
+            messages.error(request, 'Votre compte agent n\'est pas rattaché à une agence. Veuillez contacter l\'administrateur.')
+            return redirect('comptes:dashboard_agence')
+        agence = request.user.agence
+        logger.info(f"Agent rattaché à l'agence: {agence.nom_agence} (ID: {agence.id})")
+    else:
+        logger.info(f"Utilisateur propriétaire (ID: {request.user.id})")
+    
+    try:
+        logger.info("\n=== DÉBOGAGE VUE VISITES ===")
+        
+        # 1. Récupération des biens selon le type d'utilisateur
+        if is_agent:
+            # Pour un agent : récupérer les biens des propriétaires de l'agence
+            biens_utilisateur = BienImmobilier.objects.filter(
+                proprietaire__agence=agence
+            ).select_related('proprietaire')
+            logger.info(f"Agent {request.user} - {biens_utilisateur.count()} biens trouvés pour l'agence {agence.nom_agence}")
+        else:
+            # Pour un propriétaire : récupérer ses biens personnels
+            biens_utilisateur = BienImmobilier.objects.filter(proprietaire=request.user)
+            logger.info(f"Propriétaire {request.user} - {biens_utilisateur.count()} biens trouvés")
+        
+        # 2. Récupération des visites avec les relations nécessaires
+        logger.info("\nRécupération des visites...")
+        
+        if is_agent:
+            # Pour un agent : récupérer les visites des biens de l'agence
+            # Utilisation d'une seule requête plus simple et plus efficace
+            visites = []
+            
+            logger.info(f"Agent {request.user} - {visites.count()} visites trouvées pour l'agence {agence.nom_agence}")
+        else:
+            # Pour un propriétaire : récupérer les visites de ses biens
+            visites = []
+            
+            logger.info(f"Propriétaire {request.user} - {visites.count()} visites trouvées")
+        
+        # 3. Préparation du contexte pour le template
+        logger.info("\nPréparation du contexte...")
+        
+        # Compter les visites par statut pour les statistiques
+        if is_agent:
+            # Pour un agent : compter les visites de l'agence
+            visites_planifiees = 0
+            
+            visites_confirmees = 0
+            
+            visites_annulees = 0
+            
+        else:
+            # Pour un propriétaire : compter ses visites personnelles
+            visites_planifiees = 0
+            
+            visites_confirmees = 0
+            
+            visites_annulees = 0
+            
+        # Récupérer les 5 prochaines visites
+        prochaines_visites = []
+        
+        # Préparer le contexte
+        context = {
+            'visites': visites,
+            'prochaines_visites': prochaines_visites,
+            'statuts_visites': {
+                'Planifiées': visites_planifiees,
+                'Confirmées': visites_confirmees,
+                'Annulées': visites_annulees
+            },
+            'total_visites': visites.count(),
+            'is_agent': is_agent,
+            'agence': agence if is_agent else None,
+            'debug': settings.DEBUG,
+            'debug_user_info': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+                'profession': request.user.profession,
+                'agence': agence.nom_agence if is_agent and agence else None,
+                'date_joined': request.user.date_joined,
+            },
+            'debug_visites_count': visites.count(),
+            'debug_biens_count': biens_utilisateur.count(),
+            'debug_biens': list(biens_utilisateur.values('id', 'type_bien', 'adresse', 'proprietaire_id')),
+            'debug_visites_list': list(visites.values('id', 'bien_id', 'client_id', 'date_visite', 'statut')[:10]),
+            'debug_visites_query': str(visites.query),
+            'debug_biens_query': str(biens_utilisateur.query) if biens_utilisateur.exists() else "Aucun bien trouvé"
+        }
+        
+        # Ajouter les statistiques de visites
+        context.update({
+            'visites_planifiees': visites_planifiees,
+            'visites_confirmees': visites_confirmees,
+            'visites_annulees': visites_annulees,
+        })
+        
+        # Log des informations importantes
+        logger.info("Contexte préparé avec succès")
+        logger.info(f"- Nombre total de visites: {visites.count()}")
+        logger.info(f"- Visites planifiées: {visites_planifiees}")
+        logger.info(f"- Visites confirmées: {visites_confirmees}")
+        logger.info(f"- Visites annulées: {visites_annulees}")
+        
+        if not visites.exists():
+            logger.warning("Aucune visite trouvée pour cet utilisateur/agence")
+            if is_agent:
+                logger.info("Raisons possibles:")
+                logger.info(f"1. Aucun bien n'est associé à l'agence {agence.nom_agence}")
+                logger.info(f"2. Aucune visite n'est associée aux biens de l'agence {agence.nom_agence}")
+            else:
+                logger.info("Raisons possibles:")
+                logger.info(f"1. Aucun bien n'est associé à l'utilisateur {request.user}")
+                logger.info(f"2. Aucune visite n'est associée aux biens de l'utilisateur {request.user}")
+        
+        logger.info("\n=== FIN DÉBOGAGE VUE VISITES ===\n" + "="*50 + "\n")
+        
+        # Rendu du template
+        return render(request, 'comptes/visites.html', context)
+        
+    except Exception as e:
+        import traceback
+        import sys
+        error_traceback = traceback.format_exc()
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        
+        # Afficher des informations détaillées sur l'erreur
+        print("\n" + "!"*80)
+        print("=== ERREUR DANS VUE VISITES ===")
+        print(f"Type d'erreur: {type(e).__name__}")
+        print(f"Message: {str(e)}")
+        print(f"Fichier: {exc_traceback.tb_frame.f_code.co_filename}")
+        print(f"Ligne: {exc_traceback.tb_lineno}")
+        print("\nContexte de l'erreur:")
+        print(f"- Utilisateur: {request.user} (ID: {request.user.id}, Profession: {request.user.profession})")
+        
+        # Afficher les variables locales au moment de l'erreur
+        print("\nVariables locales:")
+        for name, value in exc_traceback.tb_frame.f_locals.items():
+            print(f"  {name} = {value}")
+        
+        # Afficher des informations sur les visites
+        try:
+            from comptes.models import Visite, BienImmobilier
+            
+            # Vérifier si l'utilisateur a des biens
+            biens_count = BienImmobilier.objects.filter(proprietaire=request.user).count()
+            print(f"\n- Nombre de biens pour ce propriétaire: {biens_count}")
+            
+            # Compter les visites par propriétaire
+            visites_par_proprio = Visite.objects.filter(proprietaire=request.user).count()
+            print(f"- Nombre de visites (par propriétaire): {visites_par_proprio}")
+            
+            # Compter les visites par biens du propriétaire
+            biens_utilisateur = BienImmobilier.objects.filter(proprietaire=request.user)
+            visites_par_biens = Visite.objects.filter(bien__in=biens_utilisateur).count()
+            print(f"- Nombre de visites (par biens): {visites_par_biens}")
+            
+            # Afficher les 5 premières visites pour débogage
+            visites = Visite.objects.filter(proprietaire=request.user).select_related('bien', 'client')[:5]
+            print("\nDétail des visites:")
+            for i, v in enumerate(visites, 1):
+                print(f"  {i}. Visite ID: {v.id}, Bien: {v.bien_id} ({v.bien.type_bien if v.bien else 'N/A'}), "
+                      f"Client: {v.client_id}, Statut: {v.statut}")
+                
+        except Exception as inner_e:
+            print(f"\nErreur lors de la récupération des informations de débogage: {str(inner_e)}")
+            print(f"Type d'erreur: {type(inner_e).__name__}")
+            print(f"Message: {str(inner_e)}")
+        
+        print("\nTraceback complet:")
+        print(error_traceback)
+        print("!"*80 + "\n")
+        
+        # En environnement de production, ne pas afficher les détails de l'erreur à l'utilisateur
+        messages.error(request, "Une erreur est survenue lors du chargement des visites. L'équipe technique a été informée.")
+        
+        # Pour le débogage en développement, vous pouvez décommenter la ligne ci-dessous
+        # pour voir les détails de l'erreur dans l'interface d'administration
+        # messages.error(request, f"Erreur: {str(e)}")
+        
+        return redirect('comptes:proprietaire_dashboard')
 
 def choix_type_publication(request):
     return render(request, 'comptes/choix_type_publication.html')
@@ -1004,17 +1316,11 @@ def publications_view(request):
         if request.user.profession == 'agent':
             # Vérifier si l'agent a une agence associée
             if not hasattr(request.user, 'agence') or not request.user.agence:
-                logger.error(f"L'agent {request.user.username} n'a pas d'agence associée")
-                # Si l'agent n'a pas d'agence, on ne peut pas afficher de publications
-                return render(request, 'comptes/mes_publications.html', {
-                    'publications': [],
-                    'total_publications': 0,
-                    'biens_publications': 0,
-                    'total_visites': 0,
-                    'total_commentaires': 0,
-                    'is_agent': True,
-                    'error_message': "Votre compte agent n'est associé à aucune agence. Veuillez contacter l'administrateur."
-                })
+                logger.warning(f"L'agent {request.user.username} n'a pas d'agence associée - Affichage des biens sans filtre d'agence")
+                # Modification: Au lieu de bloquer, on continue avec une liste vide de propriétaires
+                # L'agent pourra voir les biens mais ne pourra pas en ajouter/modifier
+                proprietaires = Utilisateur.objects.none()
+                bien_ids = []
                 
             # Récupérer les propriétaires de l'agence
             proprietaires = Utilisateur.objects.filter(
@@ -1073,9 +1379,13 @@ def publications_view(request):
         ).values('bien').annotate(total=Count('id')).values_list('bien', 'total'))
         
         # Récupérer les statistiques de commentaires
-        commentaires_par_bien = dict(Commentaire.objects.filter(
-            annonce__bien_id__in=bien_ids
-        ).values('annonce__bien').annotate(total=Count('id')).values_list('annonce__bien', 'total'))
+        try:
+            commentaires_par_bien = dict(Commentaire.objects.filter(
+                annonce__bien_id__in=bien_ids
+            ).values('annonce__bien').annotate(total=Count('id')).values_list('annonce__bien', 'total'))
+        except Exception as e:
+            logger.warning(f"Erreur lors de la récupération des commentaires: {str(e)}")
+            commentaires_par_bien = {}
         
         # Préparer les données pour le template
         for publication in publications:
@@ -1098,9 +1408,20 @@ def publications_view(request):
         
     except Exception as e:
         import traceback
-        error_msg = f"Erreur dans publications_view: {str(e)}\n{traceback.format_exc()}"
+        error_details = traceback.format_exc()
+        error_msg = f"Erreur dans publications_view: {str(e)}\n{error_details}"
         logger.error(error_msg)
-        return HttpResponseServerError("Une erreur est survenue lors du chargement des publications. Veuillez réessayer plus tard.")
+        
+        # Afficher plus de détails dans la réponse en mode debug
+        if settings.DEBUG:
+            return HttpResponse(f"""
+                <h1>Erreur lors du chargement des publications</h1>
+                <p>Message d'erreur: {str(e)}</p>
+                <pre>{error_details}</pre>
+                <p>Veuillez rafraîchir la page ou réessayer plus tard.</p>
+            """, status=500)
+        else:
+            return HttpResponseServerError("Une erreur est survenue lors du chargement des publications. Veuillez réessayer plus tard.")
 
 
 def contacter_proprietaire(request, pk):

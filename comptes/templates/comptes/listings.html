@@ -5,6 +5,42 @@
 <div class="container mt-5">
     <h2 class="mb-4">{{ titre }}</h2>
     
+    <!-- Formulaire de filtrage -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="searchForm" method="get" action="{% url 'comptes:listings' %}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="type_bien" class="form-label">Type de bien</label>
+                    <select name="type_bien" id="type_bien" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="maison" {% if type_bien == 'maison' %}selected{% endif %}>Maison</option>
+                        <option value="appartement" {% if type_bien == 'appartement' %}selected{% endif %}>Appartement</option>
+                        <option value="terrain" {% if type_bien == 'terrain' %}selected{% endif %}>Terrain</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="prix_min" class="form-label">Prix minimum (€)</label>
+                    <input type="number" id="prix_min" name="prix_min" class="form-control" value="{{ prix_min }}" min="0" step="10000">
+                </div>
+                <div class="col-md-3">
+                    <label for="prix_max" class="form-label">Prix maximum (€)</label>
+                    <input type="number" id="prix_max" name="prix_max" class="form-control" value="{{ prix_max }}" min="0" step="10000">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Affichage du nombre de résultats -->
+    {% if nombre_resultats is not None %}
+    <div class="alert alert-info mb-4">
+        {{ nombre_resultats }} résultat(s) trouvé(s)
+        <a href="{% url 'comptes:listings' %}" class="float-end">Réinitialiser les filtres</a>
+    </div>
+    {% endif %}
+    
     <div class="row">
         {% for bien in biens %}
         <div class="col-md-4 mb-4">
@@ -37,7 +73,10 @@
         </div>
         {% empty %}
         <div class="col-12 text-center">
-            <p class="text-muted">Aucun bien trouvé dans cette catégorie.</p>
+            <div class="alert alert-warning">
+                <p class="mb-0">Aucun bien trouvé correspondant à vos critères de recherche.</p>
+                <a href="{% url 'comptes:listings' %}" class="btn btn-link p-0">Réinitialiser les filtres</a>
+            </div>
         </div>
         {% endfor %}
     </div>

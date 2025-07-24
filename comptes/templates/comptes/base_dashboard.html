@@ -60,51 +60,35 @@
             <div class="p-6 border-b border-gray-200">
                 <h1 class="text-2xl font-bold text-indigo-600">ImmoPro</h1>
                 <p class="text-sm text-gray-500 mt-1">
-                    {% if user.is_agence %}
-                        Tableau de bord agence
-                    {% else %}
-                        Tableau de bord propriétaire
-                    {% endif %}
+                    Tableau de bord propriétaire
                 </p>
             </div>
             
             <nav class="p-4 space-y-1">
-                {% if user.is_agence %}
-                    <!-- Menu pour les agences -->
-                    <a href="{% url 'comptes:dashboard_agence' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard_agence' %}active{% endif %}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Tableau de bord</span>
-                    </a>
-                    <a href="{% url 'comptes:liste_biens' %}" class="nav-item {% if 'biens' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-home"></i>
-                        <span>Biens immobiliers</span>
-                    </a>
-                    <a href="{% url 'comptes:liste_visites' %}" class="nav-item {% if 'visites' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Visites</span>
-                    </a>
-                    <a href="{% url 'comptes:liste_paiements' %}" class="nav-item {% if 'paiements' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Paiements</span>
-                    </a>
-                    <a href="{% url 'comptes:liste_clients' %}" class="nav-item {% if 'clients' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-users"></i>
-                        <span>Clients</span>
-                    </a>
-                {% else %}
-                    <!-- Menu pour les propriétaires -->
-                    <a href="{% url 'comptes:proprietaire_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'proprietaire_dashboard' %}active{% endif %}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Tableau de bord</span>
-                    </a>
+                <!-- Menu pour les propriétaires -->
+                <a href="{% url 'comptes:proprietaire_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'proprietaire_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="{% url 'comptes:liste_biens' %}" class="nav-item {% if 'biens' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span>Biens immobiliers</span>
+                </a>
+
+                <a href="{% url 'comptes:liste_paiements' %}" class="nav-item {% if 'paiements' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Paiements</span>
+                </a>
+                <!-- Menu pour les propriétaires -->
+                <a href="{% url 'comptes:proprietaire_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'proprietaire_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tableau de bord</span>
+                </a>
                     <a href="{% url 'comptes:mes_publications' %}" class="nav-item {% if 'publications' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-newspaper"></i>
                         <span>Mes publications</span>
                     </a>
-                    <a href="{% url 'comptes:visites' %}" class="nav-item {% if 'visites' in request.resolver_match.url_name and 'mes_visites' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>Visites</span>
-                    </a>
+
                     <a href="{% url 'comptes:paiements' %}" class="nav-item {% if 'paiements' in request.resolver_match.url_name and 'mes_paiements' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-money-bill-wave"></i>
                         <span>Paiements</span>

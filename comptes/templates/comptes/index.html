@@ -73,10 +73,6 @@
                             <h3 class="text-lg font-medium text-green-800">Transactions</h3>
                             <p class="text-2xl font-bold text-green-600">{{ total_transactions }}</p>
                         </div>
-                        <div class="p-4 bg-purple-50 rounded-lg">
-                            <h3 class="text-lg font-medium text-purple-800">Visites</h3>
-                            <p class="text-2xl font-bold text-purple-600">{{ total_visites }}</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -100,7 +96,7 @@
                 <div class="hidden sm:flex sm:items-center sm:space-x-4">
                     <a href="{% url 'comptes:publications' %}" class="nav-link">Publications</a>
                     <a href="{% url 'comptes:commentaires' %}" class="nav-link">Commentaires</a>
-                    <a href="{% url 'comptes:visites' %}" class="nav-link">Visites</a>
+
                     <a href="{% url 'comptes:transactions' %}" class="nav-link">Transactions</a>
                     <a href="{% url 'comptes:paiements' %}" class="nav-link">Paiements</a>
                 </div>
@@ -116,9 +112,9 @@
                     <!-- User Profile -->
                     <div class="relative">
                         <button class="flex items-center space-x-2 nav-link" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                            <img src="{{ user.agence.logo.url|default:'/static/assets/images/avatars/agency-default.jpg' }}" 
-                                 alt="{{ user.agence.nom_agence }}" class="w-8 h-8 rounded-full">
-                            <span>{{ user.agence.nom_agence }}</span>
+                            <img src="/static/assets/images/avatars/agency-default.jpg" 
+                                 alt="Profil" class="w-8 h-8 rounded-full">
+                            <span>Profil</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
 

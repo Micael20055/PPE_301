@@ -7,19 +7,6 @@ def upload_to_bien(instance, filename):
     """Génère un chemin de fichier pour les images des biens"""
     return os.path.join('biens', str(instance.bien.id), filename)
 
-class Agence(models.Model):
-    nom_agence = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    telephone = models.CharField(max_length=15)
-    adresse = models.TextField()
-    siret = models.CharField(max_length=14)
-    logo = models.ImageField(upload_to='agences/logos/', null=True, blank=True)
-    description = models.TextField(blank=True)
-    statut = models.CharField(max_length=50, default='Active')
-
-    def __str__(self):
-        return self.nom_agence
-
 class Utilisateur(AbstractUser):
     PROFESSION_CHOICES = [
         ('client', 'Client'),
@@ -27,7 +14,7 @@ class Utilisateur(AbstractUser):
         ('proprietaire', 'Propriétaire'),
     ]
     profession = models.CharField(max_length=20, choices=PROFESSION_CHOICES, null=True, blank=True)
-    agence = models.OneToOneField(Agence, on_delete=models.CASCADE, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.username} ({self.profession})"

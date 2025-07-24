@@ -1,0 +1,244 @@
+{% extends 'utilisateur/base.html' %}
+{% load static %}
+{% load static %}
+
+{% block title %}Contactez-nous - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-section {
+        background-color: #f8f9fa;
+        padding: 5rem 0;
+    }
+    .contact-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        height: 100%;
+    }
+    .contact-info {
+        margin-bottom: 2rem;
+    }
+    .contact-info i {
+        color: #4f46e5;
+        margin-right: 1rem;
+    }
+    .form-control:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+    }
+    .btn-primary {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+    }
+    .btn-primary:hover {
+        background-color: #4338ca;
+        border-color: #4338ca;
+    }
+    .map-container {
+        height: 100%;
+        min-height: 300px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold">Contactez-nous</h1>
+            <p class="lead text-muted">Nous sommes à votre écoute pour répondre à toutes vos questions</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Formulaire de contact -->
+            <div class="col-lg-7">
+                <div class="contact-card">
+                    <h2 class="h4 mb-4">Envoyez-nous un message</h2>
+                    
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="id_nom" class="form-label">Nom complet *</label>
+                                {{ form.nom }}
+                                <div class="invalid-feedback">
+                                    Veuillez entrer votre nom complet.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_email" class="form-label">Email *</label>
+                                {{ form.email }}
+                                <div class="invalid-feedback">
+                                    Veuillez entrer une adresse email valide.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="id_sujet" class="form-label">Sujet *</label>
+                                {{ form.sujet }}
+                                <div class="invalid-feedback">
+                                    Veuillez entrer un sujet.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="id_message" class="form-label">Message *</label>
+                                {{ form.message }}
+                                <div class="invalid-feedback">
+                                    Veuillez entrer votre message.
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_accepte_politique" required>
+                                    <label class="form-check-label" for="id_accepte_politique">
+                                        J'accepte la politique de confidentialité *
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Vous devez accepter notre politique de confidentialité.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button class="btn btn-primary px-4 py-2" type="submit">
+                                    <i class="fas fa-paper-plane me-2"></i>Envoyer le message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Informations de contact -->
+            <div class="col-lg-5">
+                <div class="contact-card">
+                    <h2 class="h4 mb-4">Nos coordonnées</h2>
+                    
+                    <div class="contact-info">
+                        <div class="d-flex align-items-start mb-4">
+                            <i class="fas fa-map-marker-alt fa-2x mt-1"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Siège social</h3>
+                                <p class="mb-0">Avenue du 24 Janvier<br>Lomé, Togo</p>
+                                <p class="mt-2 mb-0">
+                                    <strong>Bureau secondaire :</strong><br>
+                                    Quartier Administratif<br>
+                                    Kara, Togo
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start mb-4">
+                            <i class="fas fa-phone-alt fa-2x mt-1"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Téléphone</h3>
+                                <p class="mb-0">
+                                    <a href="tel:+22870123456" class="text-decoration-none">+228 70 12 34 56</a> (Lomé)<br>
+                                    <a href="tel:+22890012345" class="text-decoration-none">+228 90 01 23 45</a> (Kara)<br>
+                                    <small class="text-muted">Lun-Sam: 8h-19h</small>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start mb-4">
+                            <i class="fas fa-envelope fa-2x mt-1"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Email</h3>
+                                <p class="mb-0">
+                                    <a href="mailto:contact@luxuryhomes.tg" class="text-decoration-none">contact@luxuryhomes.tg</a><br>
+                                    <a href="mailto:ventes@luxuryhomes.tg" class="text-decoration-none small">ventes@luxuryhomes.tg</a>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-clock fa-2x mt-1"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Horaires d'ouverture</h3>
+                                <ul class="list-unstyled mb-0">
+                                    <li>Lundi-Vendredi: 8h-19h</li>
+                                    <li>Samedi: 9h-16h</li>
+                                    <li>Dimanche: Sur rendez-vous</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h3 class="h6 mb-3">Suivez-nous</h3>
+                    <div class="social-links">
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carte Google Maps -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="contact-card p-0">
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253840.4878971008!2d1.048076!3d8.619543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1023b1bc7c0c7f0f%3A0x2e5f3a5b9f9a6b0f!2sTogo!5e0!3m2!1sfr!2stg!4v1620000000000!5m2!1sfr!2stg" 
+                            width="100%" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Exemple de validation du formulaire côté client
+(function () {
+    'use strict'
+    
+    // Récupérer tous les formulaires auxquels nous voulons appliquer les styles de validation Bootstrap
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Boucler dessus et empêcher la soumission
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}

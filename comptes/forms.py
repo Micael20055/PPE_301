@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm, TextInput, NumberInput, Select, Textarea
 from django.core.validators import EmailValidator
+from django.utils import timezone
 
 class RechercheForm(forms.Form):
     """Formulaire de recherche de biens immobiliers"""
@@ -97,12 +98,46 @@ class ContactForm(forms.Form):
         'rows': 5
     }))
 from django.contrib.auth.forms import UserCreationForm
-from .models import Utilisateur, Publication, Transaction, Paiement, Maison, Appartement, Terrain, Commentaire
+from .models import Utilisateur, Publication, Transaction, Paiement, Maison, Appartement, Terrain, Commentaire, Visite
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = Utilisateur
         fields = ['username', 'email', 'password1', 'password2', 'profession']
+
+class VisiteForm(forms.ModelForm):
+    """Formulaire pour la programmation d'une visite"""
+    date_visite = forms.DateTimeField(
+        label="Date et heure de la visite",
+        widget=forms.DateTimeInput(
+            attrs={
+                'type': 'datetime-local',
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+            },
+            format='%Y-%m-%dT%H:%M'
+        ),
+        input_formats=['%Y-%m-%dT%H:%M']
+    )
+    
+    remarques = forms.CharField(
+        label="Remarques (facultatif)",
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+            'rows': 3,
+            'placeholder': 'Précisez vos disponibilités ou demandes particulières...'
+        })
+    )
+    
+    class Meta:
+        model = Visite
+        fields = ['date_visite', 'remarques']
+        
+    def clean_date_visite(self):
+        date_visite = self.cleaned_data.get('date_visite')
+        if date_visite and date_visite < timezone.now():
+            raise forms.ValidationError("La date de visite ne peut pas être dans le passé.")
+        return date_visite
 
 class PublicationForm(forms.ModelForm):
     class Meta:

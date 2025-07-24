@@ -1,0 +1,385 @@
+INFO 2025-07-23 21:10:19,927 autoreload Watching for file changes with StatReloader
+ERROR 2025-07-23 21:10:24,499 log Internal Server Error: /comptes/mes-publications/
+Traceback (most recent call last):
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\comptes\views.py", line 228, in mes_publications
+    return render(request, 'comptes/mes_publications.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alaba\PPE_301\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'visites' not found. 'visites' is not a valid view function or pattern name.
+ERROR 2025-07-23 21:10:24,507 basehttp "GET /comptes/mes-publications/ HTTP/1.1" 500 191271
+INFO 2025-07-23 21:19:54,899 basehttp "GET /comptes/mes-publications/ HTTP/1.1" 200 8389
+INFO 2025-07-23 21:19:54,918 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-23 21:19:57,981 basehttp "GET /comptes/mes-publications/ HTTP/1.1" 200 8389
+INFO 2025-07-23 21:19:59,263 basehttp "GET /comptes/paiements/ HTTP/1.1" 200 3533
+INFO 2025-07-23 21:20:00,388 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:01,708 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:01,720 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:01,728 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:01,745 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:03,462 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:03,469 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:03,476 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:03,488 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:04,053 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,061 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,069 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,082 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:04,438 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,446 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,454 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,470 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:04,807 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,814 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,822 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:04,841 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:05,235 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,242 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,251 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,272 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:05,734 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,743 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,752 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:05,767 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:10,139 basehttp "GET /comptes/commentaires/ HTTP/1.1" 200 4027
+INFO 2025-07-23 21:20:11,337 basehttp "GET /comptes/paiements/ HTTP/1.1" 200 3533
+INFO 2025-07-23 21:20:12,695 basehttp "GET /comptes/mes-publications/ HTTP/1.1" 200 8389
+INFO 2025-07-23 21:20:15,655 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:16,780 basehttp "GET /comptes/mes-publications/ HTTP/1.1" 200 8389
+INFO 2025-07-23 21:20:18,350 basehttp "GET /comptes/paiements/ HTTP/1.1" 200 3533
+INFO 2025-07-23 21:20:19,376 basehttp "GET /comptes/commentaires/ HTTP/1.1" 200 4027
+INFO 2025-07-23 21:20:20,680 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:20,687 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:20,693 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:20:20,710 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:20:24,442 basehttp "GET /comptes/commentaires/ HTTP/1.1" 200 4027
+INFO 2025-07-23 21:27:31,919 basehttp "GET /comptes/commentaires/ HTTP/1.1" 200 4027
+INFO 2025-07-23 21:27:33,052 basehttp "GET /comptes/paiements/ HTTP/1.1" 200 3533
+INFO 2025-07-23 21:27:34,489 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:34,496 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:34,501 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:34,512 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:27:35,436 basehttp "GET /comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:35,443 basehttp "GET /comptes/login/?next=/comptes/profil/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:35,449 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-23 21:27:35,460 basehttp "GET /comptes/proprietaire/dashboard/ HTTP/1.1" 200 7777
+INFO 2025-07-23 21:31:40,128 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-23 21:51:22,166 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-23 21:51:22,181 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-23 21:51:22,989 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-23 21:51:23,004 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-23 21:51:23,199 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-23 21:51:23,208 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-23 21:51:25,053 basehttp "GET /biens/ HTTP/1.1" 200 29785
+INFO 2025-07-23 21:51:25,060 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-23 21:51:55,912 basehttp "GET /biens/?type_bien=Terrain&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 21:52:05,491 basehttp "GET /biens/?type_bien=Terrain&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 21:52:12,777 basehttp "GET /biens/?type_bien=Appartement&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 21:52:30,827 basehttp "GET /biens/?prix_min=100&prix_max=1000&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 21:52:36,164 basehttp "GET /biens/?prix_min=100&prix_max=1000&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 21:55:25,285 autoreload C:\Users\alaba\PPE_301\comptes\views.py changed, reloading.
+INFO 2025-07-23 21:55:25,930 autoreload Watching for file changes with StatReloader
+INFO 2025-07-23 22:07:21,360 basehttp "GET /biens/?prix_min=100&prix_max=1000&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 22:07:21,369 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-23 22:07:22,228 basehttp "GET /biens/?prix_min=100&prix_max=1000&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 22:07:42,933 basehttp "GET /biens/?prix_min=100&prix_max=1000&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 22:07:56,575 basehttp "GET /biens/?prix_min=10&prix_max=10&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:09,292 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&chambres=5 HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:15,654 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:22,218 basehttp "GET /comptes/register/ HTTP/1.1" 200 4992
+WARNING 2025-07-23 22:08:22,242 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-23 22:08:26,524 basehttp "GET /contact/ HTTP/1.1" 200 23768
+INFO 2025-07-23 22:08:40,806 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:41,589 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:41,757 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:41,920 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,081 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,220 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,367 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,534 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,690 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,834 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:42,992 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:43,141 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:43,292 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:43,477 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:43,630 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:08:43,860 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 22:38:07,522 autoreload C:\Users\alaba\PPE_301\comptes\views.py changed, reloading.
+INFO 2025-07-23 22:38:08,101 autoreload Watching for file changes with StatReloader
+INFO 2025-07-23 23:15:12,652 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:12,665 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-23 23:15:12,931 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:13,105 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:13,397 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:13,612 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:19,854 basehttp "GET /biens/?type_bien=Appartement&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:24,116 basehttp "GET /biens/?type_bien=Appartement&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:26,688 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:38,069 basehttp "GET /biens/?type_bien=Appartement&type_bien=Terrain&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:45,298 basehttp "GET /biens/?type_bien=Terrain&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-23 23:15:50,510 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-23 23:15:50,541 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-23 23:15:54,765 basehttp "GET /biens/ HTTP/1.1" 200 29785
+INFO 2025-07-23 23:27:08,266 autoreload C:\Users\alaba\PPE_301\comptes\views.py changed, reloading.
+INFO 2025-07-23 23:27:09,067 autoreload Watching for file changes with StatReloader
+INFO 2025-07-23 23:28:10,977 basehttp "GET /biens/ HTTP/1.1" 200 29785
+INFO 2025-07-23 23:40:07,617 basehttp "GET /biens/ HTTP/1.1" 200 29785
+INFO 2025-07-23 23:40:07,626 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-23 23:43:02,485 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-23 23:54:55,369 autoreload C:\Users\alaba\PPE_301\comptes\views.py changed, reloading.
+INFO 2025-07-23 23:54:55,899 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 00:15:32,663 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:32,677 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-24 00:15:33,181 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:33,396 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:33,670 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:33,838 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:34,078 basehttp "GET /biens/?type_bien=Terrain&prix_min=10&prix_max=100&surface_min=1&surface_max=10&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:40,207 basehttp "GET /biens/?type_bien=Appartement&type_bien=Terrain&prix_min=&prix_max=&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-24 00:15:57,045 basehttp "GET /biens/?prix_min=&prix_max=&surface_min=&surface_max=&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 00:16:16,346 basehttp "GET /biens/?prix_min=10&prix_max=100&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-24 20:53:21,642 basehttp "GET /biens/?prix_min=10&prix_max=100&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-24 20:53:21,655 basehttp "GET /media/biens/rr1.jpg HTTP/1.1" 304 0
+INFO 2025-07-24 20:53:23,403 basehttp "GET /biens/?prix_min=10&prix_max=100&surface_min=&surface_max= HTTP/1.1" 200 29785
+INFO 2025-07-24 20:54:03,623 basehttp "GET /biens/?type_bien=Appartement&type_bien=Terrain&prix_min=10&prix_max=110&surface_min=10&surface_max=15&chambres=5&transaction=location HTTP/1.1" 200 29785
+INFO 2025-07-24 20:54:09,528 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-24 20:54:09,566 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-24 20:54:11,562 basehttp "GET /biens/ HTTP/1.1" 200 29785
+INFO 2025-07-24 20:54:13,107 basehttp "GET /contact/ HTTP/1.1" 200 22220
+INFO 2025-07-24 20:54:14,240 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-24 20:54:14,259 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-24 20:57:20,606 basehttp "GET / HTTP/1.1" 200 34790
+WARNING 2025-07-24 20:57:20,662 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-24 20:57:25,622 basehttp "GET /comptes/logout/ HTTP/1.1" 302 0
+INFO 2025-07-24 20:57:25,742 basehttp "GET /comptes/register/ HTTP/1.1" 200 4992
+WARNING 2025-07-24 20:57:25,781 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 20:57:27,610 basehttp "GET /comptes/login/ HTTP/1.1" 200 3768
+WARNING 2025-07-24 20:57:27,656 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 20:57:42,692 basehttp "POST /comptes/login/ HTTP/1.1" 200 3914
+WARNING 2025-07-24 20:57:42,745 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 20:58:53,421 basehttp "POST /comptes/login/ HTTP/1.1" 200 3914
+WARNING 2025-07-24 20:58:53,458 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 20:59:00,664 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:00:22,513 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:00:37,664 autoreload C:\Users\alaba\PPE_301\comptes\admin.py changed, reloading.
+INFO 2025-07-24 21:00:38,698 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 21:01:51,717 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:02,297 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:02,519 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:02,828 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:03,000 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:03,149 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:03,314 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:03,472 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:02:03,668 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:03:13,768 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:03:14,225 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:03:14,493 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:16:59,406 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 21:20:21,743 basehttp "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-07-24 21:20:21,946 basehttp "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4173
+INFO 2025-07-24 21:20:22,115 basehttp "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+INFO 2025-07-24 21:20:22,119 basehttp "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+INFO 2025-07-24 21:20:22,126 basehttp "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+INFO 2025-07-24 21:20:22,127 basehttp "GET /static/admin/css/login.css HTTP/1.1" 200 951
+INFO 2025-07-24 21:20:22,129 basehttp "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-07-24 21:20:22,135 basehttp "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+INFO 2025-07-24 21:20:22,148 basehttp "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+WARNING 2025-07-24 21:20:22,251 log Not Found: /favicon.ico
+WARNING 2025-07-24 21:20:22,252 basehttp "GET /favicon.ico HTTP/1.1" 404 6001
+INFO 2025-07-24 21:20:59,842 basehttp "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-07-24 21:20:59,853 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:23:10,543 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 21:23:15,398 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:23:20,941 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:23:23,000 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:23:24,023 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 21:36:09,447 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:26,445 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:27,042 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:39,317 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:39,539 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:39,998 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:40,141 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:47:40,370 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 22:50:01,487 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 22:50:29,963 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:03:00,831 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:03:01,497 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:03:01,794 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:03:01,977 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:04:35,393 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 23:04:40,178 basehttp "GET / HTTP/1.1" 200 32204
+WARNING 2025-07-24 23:04:40,270 basehttp "GET /static/images/hero-image.jpg HTTP/1.1" 404 1877
+INFO 2025-07-24 23:04:45,135 basehttp "GET /comptes/register/ HTTP/1.1" 200 4992
+WARNING 2025-07-24 23:04:45,155 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 23:04:48,284 basehttp "GET /comptes/login/ HTTP/1.1" 200 3768
+WARNING 2025-07-24 23:04:48,308 basehttp "GET /static/assets/images/img1.jpg HTTP/1.1" 404 1880
+INFO 2025-07-24 23:05:04,313 basehttp "POST /comptes/login/ HTTP/1.1" 302 0
+INFO 2025-07-24 23:05:04,321 basehttp "GET /comptes/redirect_user/ HTTP/1.1" 302 0
+INFO 2025-07-24 23:05:04,328 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:09:23,738 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 23:09:37,928 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 23:09:43,564 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:10:25,534 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:10:26,256 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:10:26,624 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:10:29,018 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:10:52,743 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:11:23,997 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 23:11:28,216 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:11:28,970 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-24 23:57:07,011 autoreload C:\Users\alaba\PPE_301\PPE_301\settings.py changed, reloading.
+INFO 2025-07-24 23:57:07,015 autoreload C:\Users\alaba\PPE_301\PPE_301\settings.py changed, reloading.
+INFO 2025-07-24 23:57:07,677 autoreload Watching for file changes with StatReloader
+INFO 2025-07-24 23:57:07,703 autoreload Watching for file changes with StatReloader
+INFO 2025-07-25 00:02:08,109 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:09,390 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:09,771 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:10,230 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:16,385 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:17,064 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:17,424 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:17,706 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:18,014 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:18,163 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:18,339 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:18,619 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:02:18,757 basehttp "GET /admin/ HTTP/1.1" 200 11926
+INFO 2025-07-25 00:17:04,118 autoreload C:\Users\alaba\PPE_301\comptes\admin.py changed, reloading.
+INFO 2025-07-25 00:17:04,228 autoreload C:\Users\alaba\PPE_301\comptes\admin.py changed, reloading.
+INFO 2025-07-25 00:17:04,940 autoreload Watching for file changes with StatReloader
+INFO 2025-07-25 00:17:05,000 autoreload Watching for file changes with StatReloader
+INFO 2025-07-25 00:29:01,250 autoreload Watching for file changes with StatReloader
+INFO 2025-07-25 00:29:26,818 basehttp "GET /admin/ HTTP/1.1" 200 12845
+INFO 2025-07-25 00:29:26,903 basehttp "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-07-25 00:29:26,923 basehttp "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2025-07-25 00:29:26,923 basehttp "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-07-25 00:29:32,554 basehttp "GET /admin/ HTTP/1.1" 200 12845
+INFO 2025-07-25 00:29:44,234 basehttp "GET /admin/comptes/utilisateur/add/ HTTP/1.1" 200 16261
+INFO 2025-07-25 00:29:44,267 basehttp "GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+INFO 2025-07-25 00:29:44,270 basehttp "GET /static/admin/css/unusable_password_field.css HTTP/1.1" 200 663
+INFO 2025-07-25 00:29:44,274 basehttp "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-07-25 00:29:44,285 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:29:44,287 basehttp "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2025-07-25 00:29:44,288 basehttp "GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+INFO 2025-07-25 00:29:44,297 basehttp "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+INFO 2025-07-25 00:29:44,306 basehttp "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+INFO 2025-07-25 00:29:44,309 basehttp "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-07-25 00:29:44,310 basehttp "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-07-25 00:29:44,320 basehttp "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2025-07-25 00:29:44,374 basehttp "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2025-07-25 00:29:44,390 basehttp "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2025-07-25 00:29:44,398 basehttp "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2025-07-25 00:29:44,423 basehttp "GET /static/admin/js/unusable_password_field.js HTTP/1.1" 200 1480
+INFO 2025-07-25 00:31:49,855 basehttp "POST /admin/comptes/utilisateur/add/ HTTP/1.1" 200 16652
+INFO 2025-07-25 00:31:49,873 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:31:58,128 basehttp "GET /admin/comptes/utilisateur/ HTTP/1.1" 200 18502
+INFO 2025-07-25 00:31:58,149 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:31:58,159 basehttp "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+INFO 2025-07-25 00:31:58,159 basehttp "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2025-07-25 00:31:58,160 basehttp "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2025-07-25 00:31:58,182 basehttp "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-07-25 00:31:58,193 basehttp "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-07-25 00:31:58,193 basehttp "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2025-07-25 00:32:20,483 basehttp "GET /admin/comptes/utilisateur/1/ HTTP/1.1" 302 0
+INFO 2025-07-25 00:32:20,607 basehttp "GET /admin/comptes/utilisateur/1/change/ HTTP/1.1" 200 30292
+INFO 2025-07-25 00:32:20,627 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:32:20,646 basehttp "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+INFO 2025-07-25 00:32:20,647 basehttp "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 200 15845
+INFO 2025-07-25 00:32:20,648 basehttp "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+INFO 2025-07-25 00:32:20,651 basehttp "GET /static/admin/js/SelectBox.js HTTP/1.1" 200 4530
+INFO 2025-07-25 00:32:20,720 basehttp "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+INFO 2025-07-25 00:32:20,721 basehttp "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+INFO 2025-07-25 00:32:20,721 basehttp "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+INFO 2025-07-25 00:32:42,720 basehttp "GET /admin/comptes/maison/ HTTP/1.1" 200 14400
+INFO 2025-07-25 00:32:42,740 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:32:46,138 basehttp "GET /admin/comptes/document/ HTTP/1.1" 200 12343
+INFO 2025-07-25 00:32:46,156 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:32:48,016 basehttp "GET /admin/comptes/bienimmobilier/ HTTP/1.1" 200 15563
+INFO 2025-07-25 00:32:48,036 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:00,051 basehttp "GET /admin/comptes/utilisateur/ HTTP/1.1" 200 18502
+INFO 2025-07-25 00:33:00,071 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:04,207 basehttp "GET /admin/comptes/visite/ HTTP/1.1" 200 17085
+INFO 2025-07-25 00:33:04,225 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:16,415 basehttp "GET /admin/comptes/maison/ HTTP/1.1" 200 14400
+INFO 2025-07-25 00:33:16,434 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:20,443 basehttp "GET /admin/comptes/appartement/ HTTP/1.1" 200 12689
+INFO 2025-07-25 00:33:20,463 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:41,764 basehttp "GET /admin/auth/group/ HTTP/1.1" 200 12663
+INFO 2025-07-25 00:33:41,781 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-25 00:33:45,595 basehttp "GET /admin/auth/ HTTP/1.1" 200 5558
+INFO 2025-07-25 00:33:47,546 basehttp "GET /admin/ HTTP/1.1" 200 12845

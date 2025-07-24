@@ -1,13 +1,115 @@
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
+from comptes.models import BienImmobilier, Visite, Paiement, Transaction
+from django.db.models import Count, Q
 
 def home(request):
-    return render(request, 'admin/index.html')
+    # Récupérer tous les utilisateurs avec leurs informations détaillées
+    User = get_user_model()
+    
+    # Récupérer les utilisateurs connectés (simplifié pour l'exemple)
+    # En production, utilisez une logique plus sophistiquée avec les sessions
+    connected_users = User.objects.select_related('profile').all()
+    
+    # Ajouter un attribut is_online à chaque utilisateur (simulé pour l'exemple)
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    for user in connected_users:
+        # Simuler des utilisateurs en ligne (dernière connexion < 15 minutes)
+        user.is_online = user.last_login and \
+                        (timezone.now() - user.last_login) < timedelta(minutes=15)
+    
+    # Compter les utilisateurs par type
+    user_stats = {
+        'total': connected_users.count(),
+        'online': sum(1 for u in connected_users if hasattr(u, 'is_online') and u.is_online),
+        'clients': connected_users.filter(is_client=True).count(),
+        'proprietaires': connected_users.filter(est_proprietaire=True).count(),
+        'agents': connected_users.filter(est_agent=True).count(),
+        'agences': connected_users.filter(est_agence=True).count(),
+        'admins': connected_users.filter(is_superuser=True).count()
+    }
+    
+    # Statistiques des biens
+    total_properties = BienImmobilier.objects.count()
+    
+    # Biens ajoutés ce mois-ci
+    start_of_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    monthly_properties = BienImmobilier.objects.filter(
+        date_creation__gte=start_of_month
+    ).count()
+    
+    # Visites à venir (dans les 30 prochains jours)
+    upcoming_visits = Visite.objects.filter(
+        date_visite__gte=timezone.now(),
+        date_visite__lte=timezone.now() + timedelta(days=30)
+    ).count()
+    
+    # Transactions récentes
+    recent_transactions = Transaction.objects.select_related('bien', 'client', 'agent').order_by('-date_transaction')[:5]
+    
+    # Répartition des biens par type
+    property_types = BienImmobilier.objects.values('type_bien').annotate(
+        count=Count('type_bien')
+    )
+    
+    # Préparer les données pour le graphique des biens par type
+    property_type_data = {pt['type_bien']: pt['count'] for pt in property_types}
+    
+    # Données pour le graphique des inscriptions (30 derniers jours)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    registrations = User.objects.filter(
+        date_joined__gte=thirty_days_ago
+    ).extra({
+        'date': "date(date_joined)"
+    }).values('date').annotate(
+        count=Count('id')
+    ).order_by('date')
+    
+    # Préparer les données pour le graphique des inscriptions
+    registration_dates = [str(reg['date']) for reg in registrations]
+    registration_counts = [reg['count'] for reg in registrations]
+    
+    # Préparer les données pour les graphiques
+    property_type_data = list(property_type_data.items())
+    
+    # Préparer les données pour le graphique d'activité des utilisateurs
+    activity_data = {
+        'labels': registration_dates,
+        'datasets': [{
+            'label': 'Inscriptions',
+            'data': registration_counts,
+            'borderColor': '#4f46e5',
+            'tension': 0.4,
+            'fill': False
+        }]
+    }
+    
+    return render(request, 'admin/index.html', {
+        'connected_users': connected_users,
+        'user_stats': user_stats,
+        'total_properties': total_properties,
+        'monthly_properties': monthly_properties,
+        'upcoming_visits': upcoming_visits,
+        'recent_transactions': recent_transactions,
+        'property_type_data': property_type_data,
+        'activity_data': activity_data,
+        'registration_dates': registration_dates,
+        'registration_counts': registration_counts
+    })
+
 def analytics_variation (request):
     return render(request, 'admin/analytics-variation.html')
+
 def apps_chat (request):
     return render(request, 'admin/apps-chat.html')
+
 def apps_faq_section (request):
     return render(request, 'admin/apps-faq-section.html')
+
 def apps_forum_discussion (request):
     return render(request, 'admin/apps-forum-discussion.html')
 def apps_forum_list (request):

@@ -15,7 +15,6 @@ urlpatterns = [
     path('proprietaire/dashboard/', views.proprietaire_dashboard, name='proprietaire_dashboard'),
     path('dashboard/', views.dashboard_home, name='dashboard_home'),
     path('client-dashboard/', views.client_dashboard, name='client_dashboard'),
-    path('dashboard-agence/', views.dashboard_agence, name='dashboard_agence'),
     
     # Pages principales
     path('', views.home, name='home'),
@@ -30,7 +29,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('search/', views.search, name='search'),
     path('index/', views.register, name='index'),
-    path('agent-index/', views.agent_index, name='agent_index'),
+
     
     # Gestion des biens
     path('biens/', views.listings, name='listings'),
@@ -48,10 +47,7 @@ urlpatterns = [
     path('publications/modifier/<int:pk>/', views.modifier_publication, name='modifier_publication'),
     path('publications/supprimer/<int:pk>/', views.supprimer_publication, name='supprimer_publication'),
     
-    # Gestion des visites et contacts
-    path('visites/', views.visites_view, name='visites'),
-    path('visites/programmer/<int:pk>/', views.programmer_visite, name='programmer_visite'),
-    path('visites/annuler/<int:pk>/', views.annuler_visite, name='annuler_visite'),
+    # Gestion des contacts
     path('bien/<int:pk>/contacter/', views.contacter_proprietaire, name='contacter_proprietaire'),
     
     # Gestion des transactions

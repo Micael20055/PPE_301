@@ -1,0 +1,62 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block result_list %}
+    {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+    
+    <div class="results">
+        <table id="result_list" class="table table-striped table-bordered table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th scope="col" class="sortable column-username">
+                        <div class="text">{% trans 'Username' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                    <th scope="col" class="sortable column-email">
+                        <div class="text">{% trans 'Email' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                    <th scope="col" class="sortable column-first_name">
+                        <div class="text">{% trans 'First name' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                    <th scope="col" class="sortable column-last_name">
+                        <div class="text">{% trans 'Last name' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                    <th scope="col" class="sortable column-profession">
+                        <div class="text">{% trans 'Profession' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                    <th scope="col" class="sortable column-is_staff">
+                        <div class="text">{% trans 'Staff status' %}</div>
+                        <div class="clear"></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in cl.result_list %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <th class="field-username">
+                            <a href="{{ user.id }}/">{{ user.username }}</a>
+                        </th>
+                        <td class="field-email">{{ user.email|default:"-" }}</td>
+                        <td class="field-first_name">{{ user.first_name|default:"-" }}</td>
+                        <td class="field-last_name">{{ user.last_name|default:"-" }}</td>
+                        <td class="field-profession">{{ user.get_profession_display|default:"-" }}</td>
+                        <td class="field-is_staff">
+                            {% if user.is_staff %}
+                                <img src="{% static 'admin/img/icon-yes.svg' %}" alt="True">
+                            {% else %}
+                                <img src="{% static 'admin/img/icon-no.svg' %}" alt="False">
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+    {% pagination cl %}
+{% endblock %}

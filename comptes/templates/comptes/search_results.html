@@ -7,31 +7,30 @@
         <div class="row mb-4">
             <div class="col-12">
                 <h2 class="h4 mb-3">Résultats de recherche</h2>
-                <div class="filters mb-4">
+                <form id="searchForm" method="get" action="{% url 'comptes:search' %}" class="filters mb-4">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Type de bien</label>
-                            <select name="type_bien" class="form-select">
+                            <select name="type_bien" id="type_bien" class="form-select">
                                 <option value="">Tous les types</option>
-                                <option value="Maison" {% if type_bien == 'Maison' %}selected{% endif %}>Maison</option>
-                                <option value="Appartement" {% if type_bien == 'Appartement' %}selected{% endif %}>Appartement</option>
-                                <option value="Terrain" {% if type_bien == 'Terrain' %}selected{% endif %}>Terrain</option>
+                                <option value="maison" {% if type_bien|lower == 'maison' %}selected{% endif %}>Maison</option>
+                                <option value="appartement" {% if type_bien|lower == 'appartement' %}selected{% endif %}>Appartement</option>
+                                <option value="terrain" {% if type_bien|lower == 'terrain' %}selected{% endif %}>Terrain</option>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Prix minimum</label>
-                            <input type="number" name="prix_min" class="form-control" value="{{ prix_min }}" min="0">
+                            <input type="number" id="prix_min" name="prix_min" class="form-control" value="{{ prix_min }}" min="0" step="10000">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Prix maximum</label>
-                            <input type="number" name="prix_max" class="form-control" value="{{ prix_max }}" min="0">
+                            <input type="number" id="prix_max" name="prix_max" class="form-control" value="{{ prix_max }}" min="0" step="10000">
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">&nbsp;</label>
-                            <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'comptes:search' %}'">Réinitialiser</button>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" id="resetFilters" class="btn btn-secondary w-100">Réinitialiser</button>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
 
@@ -78,7 +77,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+$(document).ready(function() {
     // Animation des cartes de propriétés
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -90,8 +91,41 @@
         threshold: 0.1
     });
 
-    document.querySelectorAll('.property-card').forEach((el) => {
-        observer.observe(el);
+    $('.property-card').each(function() {
+        observer.observe(this);
     });
+
+    // Fonction pour soumettre le formulaire
+    function submitSearchForm() {
+        const form = $('#searchForm');
+        const url = form.attr('action');
+        const formData = form.serialize();
+        
+        // Recharger la page avec les nouveaux paramètres
+        window.location.href = url + '?' + formData;
+    }
+
+    // Gestion des changements sur les champs de filtre
+    $('#type_bien, #prix_min, #prix_max').on('change', function() {
+        submitSearchForm();
+    });
+
+    // Gestion du bouton de réinitialisation
+    $('#resetFilters').on('click', function() {
+        window.location.href = "{% url 'comptes:search' %}";
+    });
+
+    // Validation des champs de prix
+    $('#prix_min, #prix_max').on('input', function() {
+        let min = parseInt($('#prix_min').val()) || 0;
+        let max = parseInt($('#prix_max').val()) || 0;
+        
+        if (min && max && min > max) {
+            // Si le prix min est supérieur au prix max, on échange les valeurs
+            $('#prix_min').val(max);
+            $('#prix_max').val(min);
+        }
+    });
+});
 </script>
 {% endblock %}
