@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Admin - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% load static %}
+    <style>
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .sidebar.collapsed {
+            margin-left: -16rem;
+        }
+        .main-content {
+            transition: all 0.3s;
+            margin-left: 16rem;
+            width: calc(100% - 16rem);
+        }
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -16rem;
+                position: fixed;
+                z-index: 40;
+                height: 100%;
+            }
+            .sidebar.show {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div class="sidebar fixed h-full w-64 bg-indigo-700 text-white shadow-lg">
+        <div class="p-4">
+            <h1 class="text-2xl font-bold">Admin Panel</h1>
+            <p class="text-indigo-200 text-sm">Gestion Immobilière</p>
+        </div>
+        <nav class="mt-6">
+            <div class="px-6 py-2 text-indigo-200 uppercase text-xs font-semibold">Menu Principal</div>
+            <a href="{% url 'admin_dashboard:admin_dashboard' %}" class="block px-6 py-3 text-white hover:bg-indigo-600 {% if active_dashboard %}bg-indigo-800{% endif %}">
+                <i class="fas fa-tachometer-alt mr-3"></i> Tableau de bord
+            </a>
+            <a href="{% url 'admin_dashboard:user_list' %}" class="block px-6 py-3 text-white hover:bg-indigo-600 {% if active_users %}bg-indigo-800{% endif %}">
+                <i class="fas fa-users mr-3"></i> Utilisateurs
+            </a>
+            <a href="#biens" class="block px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-home mr-3"></i> Biens immobiliers
+            </a>
+            <a href="#transactions" class="block px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-exchange-alt mr-3"></i> Transactions
+            </a>
+            <a href="#statistiques" class="block px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-chart-bar mr-3"></i> Statistiques
+            </a>
+            <div class="absolute bottom-0 w-full p-4 border-t border-indigo-600">
+                <a href="{% url 'logout' %}" class="flex items-center text-white hover:text-indigo-200">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Mobile menu button -->
+    <button id="sidebarToggle" class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-indigo-600 text-white">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="main-content min-h-screen">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex-1">
+                    <div class="relative max-w-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Rechercher...">
+                    </div>
+                </div>
+                <div class="ml-4 flex items-center space-x-4 md:ml-6">
+                    <!-- Bouton de basculement de thème -->
+                    <button id="themeToggle" class="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <i id="themeIcon" class="fas fa-moon text-xl"></i>
+                    </button>
+                    
+                    <!-- Bouton de notification -->
+                    <div class="relative">
+                        <button id="notificationButton" class="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500"></span>
+                        </button>
+                        <!-- Panneau de notifications -->
+                        <div id="notificationPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Notifications</p>
+                            </div>
+                            <div class="max-h-96 overflow-y-auto">
+                                {% for notification in notifications|slice:":5" %}
+                                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas {{ notification.icon }} text-{{ notification.color }}-500"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ notification.title }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ notification.message }}</p>
+                                            <p class="text-xs text-gray-400 mt-1">{{ notification.time }}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                {% empty %}
+                                <div class="px-4 py-3 text-sm text-center text-gray-500 dark:text-gray-400">
+                                    Aucune nouvelle notification
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-center">
+                                <a href="#" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
+                                    Voir toutes les notifications
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Menu utilisateur -->
+                    <div class="relative ml-3">
+                        <div>
+                            <button type="button" class="flex items-center max-w-xs rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu" aria-expanded="false" aria-haspopup="true">
+                                <span class="sr-only">Ouvrir le menu utilisateur</span>
+                                <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
+                                    {{ user.get_initials }}
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ user.get_full_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-gray-400 text-xs"></i>
+                            </button>
+                        </div>
+                        <!-- Menu déroulant utilisateur -->
+                        <div id="userMenu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                            <a href="{% url 'comptes:profil' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                                <i class="fas fa-user-circle mr-2"></i> Mon profil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                                <i class="fas fa-cog mr-2"></i> Paramètres
+                            </a>
+                            <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                            <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ml-3 relative">
+                        <div class="flex items-center">
+                            <div class="text-right mr-3 hidden md:block">
+                                <p class="text-sm font-medium text-gray-700">{{ request.user.get_full_name|default:request.user.username }}</p>
+                                <p class="text-xs text-gray-500">Administrateur</p>
+                            </div>
+                            <div class="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper|default:request.user.username|first|upper }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %}">
+                        <p>{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+    
+    <!-- Conteneur des notifications -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-4" style="max-width: 24rem;">
+        <!-- Les notifications seront ajoutées ici dynamiquement par JavaScript -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/commentaires.js' %}"></script>
+    <script>
+        // Toggle sidebar on mobile
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        // Gestion du thème clair/sombre
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Vérifier le thème sauvegardé ou utiliser les préférences système
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+        } else {
+            html.classList.remove('dark');
+            document.getElementById('themeIcon').classList.replace('fa-sun', 'fa-moon');
+        }
+        
+        // Basculement du thème
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            document.getElementById('themeIcon').classList.toggle('fa-sun', isDark);
+            document.getElementById('themeIcon').classList.toggle('fa-moon', !isDark);
+        });
+        
+        // Notifications
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationPanel = document.getElementById('notificationPanel');
+        
+        if (notificationButton && notificationPanel) {
+            notificationButton.addEventListener('click', () => {
+                notificationPanel.classList.toggle('hidden');
+            });
+            
+            // Fermer le panneau de notification en cliquant à l'extérieur
+            document.addEventListener('click', (e) => {
+                if (!notificationButton.contains(e.target) && !notificationPanel.contains(e.target)) {
+                    notificationPanel.classList.add('hidden');
+                }
+            });
+        }
+        
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+            document.body.classList.toggle('overflow-hidden');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                sidebar.classList.remove('show');
+                document.body.classList.remove('overflow-hidden');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

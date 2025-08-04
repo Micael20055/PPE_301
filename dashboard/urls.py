@@ -1,7 +1,25 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth.decorators import login_required, user_passes_test
 from . import views
 
+# Vérifie si l'utilisateur est un administrateur
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+# Applique le décorateur admin_required à toutes les vues du dashboard admin
+admin_patterns = [
+    path('', views.dashboard_home, name='admin_home'),
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path('users/<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
+    path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='user_edit'),
+    path('biens/', views.BienImmobilierListView.as_view(), name='bien_list'),
+]
+
 urlpatterns = [
+    # Tableau de bord d'administration personnalisé
+    path('admin/', include((admin_patterns, 'admin_dashboard'), namespace='admin_dashboard')),
+    
+    # Anciennes vues (à supprimer progressivement)
     path('', views.home, name='home'),
     path('analytics-variation/', views.analytics_variation, name='analytics_variation'),
     path('apps-chat/', views.apps_chat, name='apps_chat'),

@@ -1,374 +1,838 @@
 {% extends 'utilisateur/base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    @keyframes float-slow {
+        0%, 100% {
+            transform: translateY(0) translateX(0);
+        }
+        50% {
+            transform: translateY(-15px) translateX(5px);
+        }
+    }
+    
+    @keyframes float-delayed {
+        0%, 100% {
+            transform: translateY(0) translateX(0);
+        }
+        50% {
+            transform: translateY(-8px) translateX(-3px);
+        }
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .search-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .featured-property {
+        transition: all 0.3s ease;
+    }
+    
+    .featured-property:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-slow {
+        animation: float-slow 8s ease-in-out infinite;
+        animation-delay: 0.5s;
+    }
+    
+    .animate-float-delayed {
+        animation: float-delayed 7s ease-in-out infinite;
+        animation-delay: 1s;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-r from-primary/5 to-secondary/5 py-20 md:py-32">
-    <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row items-center">
+<section class="hero-section py-20 md:py-28 relative">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5"></div>
+        <div class="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-secondary/5 rounded-full filter blur-3xl"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center">
             <!-- Hero Content -->
-            <div class="md:w-1/2 mb-12 md:mb-0 md:pr-10">
+            <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-10">
+                <span class="inline-block px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary rounded-full mb-4">
+                    Votre avenir immobilier commence ici
+                </span>
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                    Votre nouveau <span class="text-primary">chez-vous</span> vous attend
+                    Trouvez la <span class="text-primary">maison de vos rêves</span> en quelques clics
                 </h1>
-                <p class="text-lg text-gray-600 mb-8">
-                    Découvrez des biens d'exception soigneusement sélectionnés pour répondre à vos attentes les plus exigeantes.
+                <p class="text-lg text-gray-600 mb-8 max-w-lg">
+                    Découvrez des biens d'exception soigneusement sélectionnés pour répondre à vos attentes les plus exigeantes. Notre équipe d'experts est là pour vous guider à chaque étape.
                 </p>
                 
                 <!-- Search Form -->
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="search-card p-6 mb-10">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Rechercher un bien</h3>
                     <form action="{% url 'comptes:search' %}" method="GET" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="relative">
-                                <select name="type_bien" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent">
-                                    <option value="">Type de bien</option>
-                                    <option value="Maison">Maison</option>
-                                    <option value="Appartement">Appartement</option>
-                                    <option value="Terrain">Terrain</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type de bien</label>
+                                <div class="relative">
+                                    <select name="type_bien" class="w-full pl-4 pr-10 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+                                        <option value="">Tous les types</option>
+                                        <option value="Maison">Maison</option>
+                                        <option value="Appartement">Appartement</option>
+                                        <option value="Villa">Villa</option>
+                                        <option value="Bureau">Bureau</option>
+                                        <option value="Terrain">Terrain</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
                                 </div>
                             </div>
+                            
                             <div>
-                                <input type="number" name="prix_min" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Prix min">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget min</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                                    <input type="number" name="prix_min" class="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Min">
+                                </div>
                             </div>
+                            
                             <div>
-                                <input type="number" name="prix_max" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Prix max">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Budget max</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                                    <input type="number" name="prix_max" class="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Max">
+                                </div>
                             </div>
-                            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
-                                Rechercher
-                            </button>
+                            
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                                    <i class="fas fa-search mr-2"></i>
+                                    <span>Rechercher</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
                 
                 <!-- Trust Indicators -->
-                <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                <div class="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                    <div class="flex items-center bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                            <i class="fas fa-check text-green-500"></i>
+                        </div>
                         <span>+500 biens disponibles</span>
                     </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-star text-yellow-400 mr-2"></i>
-                        <span>4.9/5 sur Trustpilot</span>
+                    <div class="flex items-center bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <div class="flex items-center mr-2">
+                            {% for i in "12345" %}
+                                <i class="fas fa-star text-yellow-400 mr-0.5"></i>
+                            {% endfor %}
+                        </div>
+                        <span>4.9/5 (128 avis)</span>
                     </div>
                 </div>
             </div>
             
             <!-- Hero Image -->
-            <div class="md:w-1/2 relative">
-                <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                    <img src="{% static 'images/hero-image.jpg' %}" alt="Luxueux bien immobilier" class="w-full h-auto object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 p-6 text-white">
-                        <div class="bg-primary/90 backdrop-blur-sm inline-block px-4 py-2 rounded-full text-sm font-medium mb-2">
-                            Nouveauté
+            <div class="lg:w-1/2 relative">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-[1.02]">
+                    <div class="aspect-w-16 aspect-h-9">
+                        <img src="{% static 'images/hero-image.jpg' %}" alt="Luxueux bien immobilier" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div class="bg-primary/90 backdrop-blur-sm inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium mb-3">
+                            <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                            <span>Nouveauté</span>
                         </div>
-                        <h3 class="text-2xl font-bold">Résidence Les Jardins du Lac</h3>
-                        <p class="text-gray-200">À partir de 350 000 €</p>
+                        <h3 class="text-2xl font-bold mb-1">Résidence Les Jardins du Lac</h3>
+                        <div class="flex items-center text-gray-200 text-sm">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>Lomé, Togo</span>
+                            <span class="mx-2">•</span>
+                            <span>À partir de <span class="font-bold text-white">350 000 €</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Badges -->
+                    <div class="absolute top-4 right-4 flex flex-col space-y-2">
+                        <span class="inline-flex items-center bg-white/90 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
+                            <i class="fas fa-fire text-red-500 mr-1"></i>
+                            Populaire
+                        </span>
+                        <span class="inline-flex items-center bg-white/90 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
+                            <i class="fas fa-tag text-primary mr-1"></i>
+                            Promotion
+                        </span>
                     </div>
                 </div>
                 
-                <!-- Decorative Elements -->
-                <div class="hidden lg:block absolute -bottom-10 -left-10 w-40 h-40 bg-accent/20 rounded-full -z-10"></div>
-                <div class="hidden lg:block absolute top-1/2 -right-10 w-20 h-20 bg-primary/10 rounded-full -z-10"></div>
+                <!-- Stats Cards -->
+                <div class="hidden md:flex space-x-4 mt-8">
+                    <div class="bg-white p-4 rounded-xl shadow-md flex-1">
+                        <div class="text-2xl font-bold text-primary">10+</div>
+                        <div class="text-sm text-gray-500">Années d'expérience</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md flex-1">
+                        <div class="text-2xl font-bold text-primary">500+</div>
+                        <div class="text-sm text-gray-500">Biens vendus</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md flex-1">
+                        <div class="text-2xl font-bold text-primary">98%</div>
+                        <div class="text-sm text-gray-500">Clients satisfaits</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Featured Properties -->
-<section class="py-16 md:py-24 bg-gray-50">
+<section class="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
     <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-            <span class="inline-block px-3 py-1 text-sm font-semibold text-primary bg-primary/10 rounded-full mb-3">Nos biens</span>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Biens en vedette</h2>
-            <div class="w-20 h-1 bg-primary mx-auto"></div>
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-full mb-4">
+                Nos sélections
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Biens d'exception à découvrir</h2>
+            <p class="text-lg text-gray-600">Explorez notre sélection de biens soigneusement choisis pour leur qualité et leur emplacement exceptionnel.</p>
+            <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mt-6 rounded-full"></div>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for bien in biens %}
-            <div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+            <div class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                 <!-- Property Image -->
                 <div class="relative overflow-hidden h-64">
                     {% if bien.bien.image %}
-                    <img src="{{ bien.bien.image.url }}" alt="{{ bien.description }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <img src="{{ bien.bien.image.url }}" alt="{{ bien.description }}" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                     {% else %}
-                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-400">Aucune image disponible</span>
+                    <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <div class="text-center p-6">
+                            <i class="fas fa-home text-4xl text-gray-300 mb-2"></i>
+                            <p class="text-gray-400">Aucune image disponible</p>
+                        </div>
                     </div>
                     {% endif %}
-                    <div class="absolute top-4 left-4">
-                        <span class="inline-block px-3 py-1 text-sm font-medium text-white bg-primary rounded-full">
+                    
+                    <!-- Property Badges -->
+                    <div class="absolute top-4 left-4 flex flex-col space-y-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/90 text-white">
                             {{ bien.type_bien }}
                         </span>
+                        {% if forloop.counter <= 2 %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-500/90 text-white">
+                            <i class="fas fa-bolt mr-1"></i> Nouveau
+                        </span>
+                        {% endif %}
                     </div>
-                    <div class="absolute top-4 right-4">
-                        <button class="p-2 bg-white/90 rounded-full text-gray-600 hover:text-primary transition-colors">
-                            <i class="far fa-heart"></i>
-                        </button>
+                    
+                    <!-- Favorite Button -->
+                    <button class="absolute top-4 right-4 p-2.5 bg-white/90 rounded-full text-gray-500 hover:text-red-500 transition-colors shadow-md hover:shadow-lg">
+                        <i class="far fa-heart text-lg"></i>
+                    </button>
+                    
+                    <!-- Price Tag -->
+                    <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold text-gray-900 shadow-sm">
+                        {{ bien.prix|floatformat:0 }} €
                     </div>
                 </div>
                 
                 <!-- Property Details -->
                 <div class="p-6">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-xl font-bold text-gray-900 line-clamp-1">{{ bien.description }}</h3>
-                        <span class="text-primary text-xl font-bold">{{ bien.prix|floatformat:0 }} €</span>
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-gray-900 line-clamp-1">{{ bien.description|truncatechars:30 }}</h3>
                     </div>
                     
                     <p class="text-gray-500 mb-4 flex items-center">
                         <i class="fas fa-map-marker-alt text-primary mr-2"></i>
-                        <span class="line-clamp-1">{{ bien.adresse }}</span>
+                        <span class="line-clamp-1">{{ bien.adresse|truncatechars:30 }}</span>
                     </p>
                     
                     <div class="flex items-center justify-between border-t border-gray-100 pt-4 mt-4">
                         <div class="flex space-x-4">
                             {% if bien.type_bien == 'Maison' %}
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-bed text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.maison.nbr_chambre }} ch.</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Chambres">
+                                <i class="fas fa-bed text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.maison.nbr_chambre }}</span>
                             </span>
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-bath text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.maison.nbr_salle_bain }} sdb</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Salles de bain">
+                                <i class="fas fa-bath text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.maison.nbr_salle_bain }}</span>
                             </span>
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-vector-square text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.maison.superficie }} m²</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Surface">
+                                <i class="fas fa-vector-square text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.maison.superficie }} m²</span>
                             </span>
                             {% elif bien.type_bien == 'Appartement' %}
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-bed text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.appartement.nbr_chambre }} ch.</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Chambres">
+                                <i class="fas fa-bed text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.appartement.nbr_chambre }}</span>
                             </span>
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-bath text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.appartement.nbr_salle_bain }} sdb</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Salles de bain">
+                                <i class="fas fa-bath text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.appartement.nbr_salle_bain }}</span>
                             </span>
-                            <span class="flex items-center text-gray-500">
-                                <i class="fas fa-vector-square text-primary mr-1"></i>
-                                <span class="text-sm">{{ bien.appartement.superficie }} m²</span>
+                            <span class="flex flex-col items-center text-gray-600" data-tooltip="Surface">
+                                <i class="fas fa-vector-square text-primary text-lg"></i>
+                                <span class="text-xs mt-1">{{ bien.appartement.superficie }} m²</span>
                             </span>
                             {% endif %}
                         </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
                     </div>
                     
-                    <a href="{% url 'comptes:detail_bien' bien.id %}" class="mt-6 inline-flex items-center justify-center w-full py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    <a href="{% url 'comptes:detail_bien' bien.id %}" 
+                       class="mt-6 inline-flex items-center justify-center w-full py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md">
                         Voir les détails
-                        <i class="fas fa-arrow-right ml-2"></i>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                     </a>
                 </div>
             </div>
             {% endfor %}
         </div>
         
-        <div class="text-center mt-12">
-            <a href="{% url 'utilisateur:biens' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
-                Voir tous les biens
-                <i class="fas fa-arrow-right ml-2"></i>
+        <div class="text-center mt-16">
+            <a href="{% url 'utilisateur:biens' %}" 
+               class="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-base font-medium rounded-full text-white bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg group">
+                <span>Explorer tous nos biens</span>
+                <i class="fas fa-arrow-right ml-3 transition-transform group-hover:translate-x-2"></i>
             </a>
+            
+            <p class="mt-4 text-sm text-gray-500">Plus de 500 biens disponibles dans notre catalogue</p>
         </div>
     </div>
 </section>
 
 <!-- Why Choose Us -->
-<section class="py-16 md:py-24 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-            <span class="inline-block px-3 py-1 text-sm font-semibold text-primary bg-primary/10 rounded-full mb-3">Pourquoi nous choisir</span>
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Notre engagement envers vous</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto">Nous mettons tout en œuvre pour rendre votre expérience immobilière la plus simple et la plus agréable possible.</p>
+<section class="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-br from-primary/5 to-transparent -z-10"></div>
+    <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-secondary/5 blur-3xl"></div>
+    
+    <div class="container mx-auto px-4 relative">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-full mb-4">
+                Notre valeur ajoutée
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Pourquoi nous choisir ?</h2>
+            <p class="text-lg text-gray-600">Nous combinons expertise, innovation et engagement pour vous offrir une expérience immobilière exceptionnelle.</p>
+            <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mt-6 rounded-full"></div>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <!-- Service 1 -->
-            <div class="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 group">
-                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                    <i class="fas fa-home text-3xl text-primary"></i>
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 group-hover:rotate-6">
+                    <i class="fas fa-home text-2xl text-primary"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Achat</h3>
-                <p class="text-gray-600">Trouvez votre bien idéal parmi notre sélection exclusive de propriétés soigneusement sélectionnées.</p>
-                <a href="#" class="mt-4 inline-flex items-center text-primary font-medium group-hover:underline">
-                    En savoir plus
-                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-                </a>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Large sélection</h3>
+                <p class="text-gray-600 mb-4">Accédez à des milliers de biens exclusifs soigneusement sélectionnés pour leur qualité et leur emplacement stratégique.</p>
+                <div class="h-px w-12 bg-gradient-to-r from-primary/30 to-transparent my-4"></div>
+                <ul class="space-y-2 text-left">
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Biens vérifiés</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Visites virtuelles</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Fiches détaillées</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- Service 2 -->
-            <div class="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 group">
-                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                    <i class="fas fa-key text-3xl text-primary"></i>
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="w-16 h-16 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 group-hover:rotate-6">
+                    <i class="fas fa-hand-holding-usd text-2xl text-secondary"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Location</h3>
-                <p class="text-gray-600">Des biens de qualité pour vos projets de location, avec des contrats clairs et sécurisés.</p>
-                <a href="#" class="mt-4 inline-flex items-center text-primary font-medium group-hover:underline">
-                    En savoir plus
-                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-                </a>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Meilleur prix garanti</h3>
+                <p class="text-gray-600 mb-4">Bénéficiez des meilleures offres du marché grâce à notre réseau étendu et nos négociations expertes.</p>
+                <div class="h-px w-12 bg-gradient-to-r from-secondary/30 to-transparent my-4"></div>
+                <ul class="space-y-2 text-left">
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Étude de marché</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Optimisation fiscale</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Négociation sur mesure</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- Service 3 -->
-            <div class="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 group">
-                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                    <i class="fas fa-handshake text-3xl text-primary"></i>
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="w-16 h-16 bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 group-hover:rotate-6">
+                    <i class="fas fa-user-tie text-2xl text-accent"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Vente</h3>
-                <p class="text-gray-600">Vendez votre bien au meilleur prix grâce à notre expertise et notre large réseau d'acheteurs.</p>
-                <a href="#" class="mt-4 inline-flex items-center text-primary font-medium group-hover:underline">
-                    En savoir plus
-                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-                </a>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Experts dédiés</h3>
+                <p class="text-gray-600 mb-4">Profitez d'un accompagnement personnalisé par nos conseillers immobiliers expérimentés et certifiés.</p>
+                <div class="h-px w-12 bg-gradient-to-r from-accent/30 to-transparent my-4"></div>
+                <ul class="space-y-2 text-left">
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Conseil personnalisé</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Disponibilité 7j/7</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Suivi personnalisé</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- Service 4 -->
-            <div class="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 group">
-                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                    <i class="fas fa-chart-line text-3xl text-primary"></i>
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 group-hover:rotate-6">
+                    <i class="fas fa-shield-alt text-2xl text-primary"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Investissement</h3>
-                <p class="text-gray-600">Conseils personnalisés pour des investissements immobiliers rentables et sécurisés.</p>
-                <a href="#" class="mt-4 inline-flex items-center text-primary font-medium group-hover:underline">
-                    En savoir plus
-                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Additional Info -->
-        <div class="mt-16 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 md:p-12 text-white">
-            <div class="max-w-3xl mx-auto text-center">
-                <h3 class="text-2xl md:text-3xl font-bold mb-4">Un accompagnement sur mesure</h3>
-                <p class="text-white/90 mb-6">Notre équipe d'experts est à votre écoute pour vous guider à chaque étape de votre projet immobilier, de la recherche à la signature en passant par le financement.</p>
-                <a href="{% url 'utilisateur:contact' %}" class="inline-flex items-center px-6 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors">
-                    Prendre rendez-vous
-                    <i class="fas fa-calendar-alt ml-2"></i>
-                </a>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Sécurité & confiance</h3>
+                <p class="text-gray-600 mb-4">Transaction sécurisée et accompagnement juridique pour une expérience sans souci.</p>
+                <div class="h-px w-12 bg-gradient-to-r from-primary/30 to-transparent my-4"></div>
+                <ul class="space-y-2 text-left">
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Paiement sécurisé</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Garantie de conformité</span>
+                    </li>
+                    <li class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Protection des données</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Testimonials & CTA -->
-<section class="py-16 md:py-24 bg-gray-50">
+<!-- CTA Section -->
+<section class="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">
     <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <!-- Testimonials -->
-            <div class="lg:col-span-7">
-                <div class="text-center lg:text-left mb-10 lg:mb-0">
-                    <span class="inline-block px-3 py-1 text-sm font-semibold text-primary bg-primary/10 rounded-full mb-3">Témoignages</span>
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ce que disent nos clients</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto lg:mx-0">Découvrez les expériences de nos clients satisfaits qui ont trouvé leur bien idéal grâce à nos services.</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                    <!-- Testimonial 1 -->
-                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <div class="text-yellow-400 mr-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+        <div class="relative bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 md:p-12 text-white overflow-hidden transform transition-all duration-700 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1">
+            <!-- Decorative Elements -->
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10 animate-pulse"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/5"></div>
+                <div class="absolute top-1/2 -right-10 w-40 h-40 rounded-full bg-white/5 animate-float"></div>
+            </div>
+            
+            <div class="relative z-10">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <div class="lg:w-2/3 mb-8 lg:mb-0">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-200">Prêt à trouver la propriété de vos rêves ?</h3>
+                        <p class="text-white/90 text-lg max-w-2xl">Notre équipe d'experts est là pour vous guider à chaque étape de votre projet immobilier. Réservez une consultation gratuite dès aujourd'hui.</p>
+                        
+                        <div class="mt-6 flex flex-wrap items-center gap-4">
+                            <div class="flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                </div>
+                                <span class="text-sm font-medium">Conseils personnalisés</span>
                             </div>
-                            <span class="text-sm text-gray-500">5.0</span>
-                        </div>
-                        <p class="text-gray-600 mb-4">"Service exceptionnel ! J'ai trouvé la maison de mes rêves en seulement 2 semaines. L'équipe a été d'une grande aide à chaque étape."</p>
-                        <div class="flex items-center">
-                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Marie D." class="w-12 h-12 rounded-full object-cover mr-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-900">Marie D.</h4>
-                                <p class="text-sm text-gray-500">Acheteuse d'une maison</p>
+                            <div class="flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                </div>
+                                <span class="text-sm font-medium">Accès exclusif aux offres</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Testimonial 2 -->
-                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="flex items-center mb-4">
-                            <div class="text-yellow-400 mr-2">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">4.8</span>
-                        </div>
-                        <p class="text-gray-600 mb-4">"Très professionnel. J'ai vendu mon appartement au-dessus du prix du marché grâce à leur expertise et leur réseau de clients."</p>
+                    <div class="lg:w-1/3 flex flex-col sm:flex-row lg:flex-col gap-4">
+                        <a href="{% url 'utilisateur:contact' %}" class="inline-flex items-center justify-center px-6 py-3 border-2 border-transparent text-base font-medium rounded-full text-primary bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:scale-[1.02] text-center">
+                            Nous contacter
+                            <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                        <a href="{% url 'utilisateur:biens' %}" class="inline-flex items-center justify-center px-6 py-3 border-2 border-white/20 text-base font-medium rounded-full text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:scale-[1.02] text-center">
+                            Voir nos biens
+                            <i class="fas fa-home ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Floating Elements -->
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-white/5 animate-float-slow"></div>
+            <div class="absolute top-1/4 -left-10 w-16 h-16 rounded-full bg-white/5 animate-float-delayed"></div>
+        </div>
+        
+        <!-- Trust Badges -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-6 opacity-90">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-white text-xl mr-2"></i>
+                <span class="text-sm text-white/90">Sécurisé et fiable</span>
+            </div>
+            <div class="h-6 w-px bg-white/30"></div>
+            <div class="flex items-center">
+                <i class="fas fa-star text-amber-300 text-xl mr-2"></i>
+                <span class="text-sm text-white/90">4.9/5 sur 250+ avis</span>
+            </div>
+            <div class="h-6 w-px bg-white/30"></div>
+            <div class="flex items-center">
+                <i class="fas fa-headset text-white text-xl mr-2"></i>
+                <span class="text-sm text-white/90">Support 7j/7</span>
+            </div>
+        </div>
+    </div>
+</section>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-1/2 left-0 w-full h-1/2 bg-gradient-to-r from-primary/5 to-secondary/5 -z-10"></div>
+        <div class="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-primary/5 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-secondary/5 blur-3xl"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 relative">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-full mb-4">
+                Témoignages clients
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Ils nous ont fait confiance</h2>
+            <p class="text-lg text-gray-600">Découvrez ce que nos clients disent de leur expérience avec notre agence immobilière.</p>
+            <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mt-6 rounded-full"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="group relative bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500 -z-10"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Thomas L." class="w-12 h-12 rounded-full object-cover mr-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary text-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-semibold text-gray-900 group-hover:text-primary transition-colors duration-300">Amélie Martin</h4>
+                                <p class="text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">Acheteuse à Lomé</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-amber-400">
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.1s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.2s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.3s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.4s"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 relative before:content-['"'] before:absolute before:-top-4 before:left-0 before:text-6xl before:text-gray-100 before:font-serif before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500 before:z-0">
+                        <span class="relative z-10">Service exceptionnel ! L'équipe m'a accompagnée à chaque étape de mon achat immobilier. Je recommande vivement !</span>
+                    </p>
+                    <div class="flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>12 Mars 2023</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="group relative bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-secondary/10">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-secondary/5 to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500 -z-10"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 flex items-center justify-center text-secondary text-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-semibold text-gray-900 group-hover:text-secondary transition-colors duration-300">Thomas Dubois</h4>
+                                <p class="text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">Investisseur</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-amber-400">
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.1s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.2s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.3s"></i>
+                            <i class="fas fa-star-half-alt transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.4s"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 relative before:content-['"'] before:absolute before:-top-4 before:left-0 before:text-6xl before:text-gray-100 before:font-serif before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500 before:z-0">
+                        <span class="relative z-10">Une équipe professionnelle qui connaît parfaitement le marché local. Ils ont su me trouver la perle rare pour mon investissement.</span>
+                    </p>
+                    <div class="flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>28 Février 2023</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="group relative bg-white p-8 rounded-2xl border border-gray-100 hover:border-transparent transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/10">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-accent/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500 -z-10"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 flex items-center justify-center text-accent text-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-semibold text-gray-900 group-hover:text-accent transition-colors duration-300">Sophie Leroy</h4>
+                                <p class="text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">Propriétaire</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 text-amber-400">
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.1s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.2s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.3s"></i>
+                            <i class="fas fa-star transition-transform duration-300 group-hover:scale-125" style="transition-delay: 0.4s"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 relative before:content-['"'] before:absolute before:-top-4 before:left-0 before:text-6xl before:text-gray-100 before:font-serif before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500 before:z-0">
+                        <span class="relative z-10">J'ai vendu mon appartement en moins d'une semaine grâce à leur réseau de clients qualifiés. Un service rapide et efficace !</span>
+                    </p>
+                    <div class="flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>15 Janvier 2023</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-full mb-4">
+                    Prenez contact
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Planifiez une visite</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Notre équipe est à votre disposition pour répondre à toutes vos questions et organiser des visites.</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="md:flex">
+                    <!-- Formulaire -->
+                    <div class="p-8 md:p-10 md:w-1/2">
+                        <form class="space-y-6">
                             <div>
-                                <h4 class="font-semibold text-gray-900">Thomas L.</h4>
-                                <p class="text-sm text-gray-500">Vendeur d'un appartement</p>
+                                <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Votre nom</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="nom" name="nom" required
+                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                        placeholder="Votre nom complet">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Votre email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" required
+                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                        placeholder="votre@email.com">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-phone-alt text-gray-400"></i>
+                                    </div>
+                                    <input type="tel" id="telephone" name="telephone"
+                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                        placeholder="Votre numéro de téléphone">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="sujet" class="block text-sm font-medium text-gray-700 mb-1">Sujet</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-tag text-gray-400"></i>
+                                    </div>
+                                    <select id="sujet" name="sujet" class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white">
+                                        <option value="Question générale">Question générale</option>
+                                        <option value="Visite d'un bien">Visite d'un bien</option>
+                                        <option value="Estimation gratuite">Estimation gratuite</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Votre message</label>
+                                <div class="relative">
+                                    <div class="absolute top-3 left-3">
+                                        <i class="fas fa-comment text-gray-400"></i>
+                                    </div>
+                                    <textarea id="message" name="message" rows="4" required
+                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                        placeholder="Décrivez-nous votre projet..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-medium py-3 px-6 rounded-lg transition duration-200 transform hover:scale-[1.02] shadow-lg">
+                                Envoyer le message
+                                <i class="fas fa-paper-plane ml-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Informations de contact -->
+                    <div class="bg-gray-50 p-8 md:p-10 md:w-1/2">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6">Nos coordonnées</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-900">Adresse</h4>
+                                    <p class="mt-1 text-gray-600">123 Avenue des Champs-Élysées<br>75008 Paris, France</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-900">Téléphone</h4>
+                                    <p class="mt-1 text-gray-600">+33 1 23 45 67 89</p>
+                                    <p class="text-xs text-gray-500 mt-1">Lun-Ven: 9h-19h</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-900">Email</h4>
+                                    <p class="mt-1 text-gray-600">contact@immobilier.fr</p>
+                                    <p class="text-xs text-gray-500 mt-1">Réponse sous 24h</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">Suivez-nous</h4>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 mt-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-headset text-2xl text-primary"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-gray-900">Service client</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Besoin d'aide ? Notre équipe est disponible pour vous répondre.</p>
+                                        <a href="tel:+33123456789" class="inline-flex items-center mt-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                                            <i class="fas fa-phone-alt mr-1"></i> 01 23 45 67 89
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Contact Form -->
-            <div class="lg:col-span-5">
-                <div class="bg-white rounded-2xl shadow-xl p-8 lg:p-10">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Contactez-nous</h3>
-                    <p class="text-gray-600 mb-8">Une question ? Notre équipe vous répond sous 24h.</p>
-                    
-                    <form action="{% url 'comptes:contact' %}" method="POST" class="space-y-6">
-                        {% csrf_token %}
-                        <div>
-                            <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Votre nom</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-user text-gray-400"></i>
-                                </div>
-                                <input type="text" id="nom" name="nom" required
-                                    class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                                    placeholder="Jean Dupont">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Votre email</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-envelope text-gray-400"></i>
-                                </div>
-                                <input type="email" id="email" name="email" required
-                                    class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                                    placeholder="votre@email.com">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label for="sujet" class="block text-sm font-medium text-gray-700 mb-1">Sujet</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-tag text-gray-400"></i>
-                                </div>
-                                <select id="sujet" name="sujet" class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none bg-white">
-                                    <option value="Question générale">Question générale</option>
-                                    <option value="Visite d'un bien">Visite d'un bien</option>
-                                    <option value="Estimation gratuite">Estimation gratuite</option>
-                                    <option value="Autre">Autre</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-chevron-down text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Votre message</label>
-                            <div class="relative">
-                                <div class="absolute top-3 left-3">
-                                    <i class="fas fa-comment text-gray-400"></i>
-                                </div>
-                                <textarea id="message" name="message" rows="4" required
-                                    class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                                    placeholder="Décrivez-nous votre projet..."></textarea>
-                            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-primary to-secondary">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-6">Prêt à trouver la propriété de vos rêves ?</h2>
+        <p class="text-white/90 max-w-2xl mx-auto mb-8">Rejoignez des milliers de personnes qui ont déjà trouvé leur bonheur immobilier avec nous.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'utilisateur:biens' %}" class="px-8 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors duration-200 transform hover:-translate-y-0.5">
+                Voir nos biens
+            </a>
+            <a href="#contact" class="px-8 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors duration-200 transform hover:-translate-y-0.5">
+                Nous contacter
+            </a>
+        </div>
+    </div>
+</section>
+
                         </div>
                         
                         <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition duration-200 transform hover:scale-[1.02]">

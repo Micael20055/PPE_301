@@ -40,7 +40,13 @@
             <div class="col-md-6 col-lg-4">
                 <div class="property-card h-100">
                     <div class="property-image position-relative overflow-hidden">
-                        <img src="{{ bien.image.url }}" alt="{{ bien.description }}" class="img-fluid">
+                        {% if bien.image and bien.image.url %}
+                            <img src="{{ bien.image.url }}" alt="{{ bien.description|default:'' }}" class="img-fluid">
+                        {% else %}
+                            <div class="bg-gray-200 w-100 h-48 flex items-center justify-center">
+                                <span class="text-gray-500">Aucune image disponible</span>
+                            </div>
+                        {% endif %}
                         <div class="property-type bg-primary text-white p-2 rounded position-absolute top-0 start-0 m-3">
                             {{ bien.type_bien }}
                         </div>

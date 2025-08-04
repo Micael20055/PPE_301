@@ -1,0 +1,283 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load dashboard_filters %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-800">Tableau de bord</h1>
+    <p class="text-gray-600">Bienvenue dans votre espace d'administration</p>
+</div>
+
+<!-- Statistiques -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Utilisateurs -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <i class="fas fa-users text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Utilisateurs</p>
+                <h3 class="text-2xl font-bold">{{ stats.total_users }}</h3>
+                <p class="text-green-500 text-xs">+{{ stats.new_users_this_week }} cette semaine</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Biens immobiliers -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                <i class="fas fa-home text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Biens immobiliers</p>
+                <h3 class="text-2xl font-bold">{{ stats.total_properties }}</h3>
+                <p class="text-gray-500 text-xs">enregistrés</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenus -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                <i class="fas fa-euro-sign text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Revenus totaux</p>
+                <h3 class="text-2xl font-bold">{{ stats.total_revenue|floatformat:2 }} €</h3>
+                <p class="text-gray-500 text-xs">cumulés</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visites à venir -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                <i class="fas fa-calendar-alt text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Visites à venir</p>
+                <h3 class="text-2xl font-bold">{{ stats.upcoming_visits }}</h3>
+                <p class="text-gray-500 text-xs">dans les 30 prochains jours</p>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenus -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                <i class="fas fa-money-bill-wave text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Revenus totaux</p>
+                <h3 class="text-2xl font-bold">{{ stats.total_revenue|floatformat:2 }} €</h3>
+</div>
+
+<!-- Derniers utilisateurs -->
+<div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+    <div class="p-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Derniers utilisateurs</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inscription</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user in recent_users %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper|default:user.username|first|upper }}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ user.get_full_name|default:user.username }}
+                                </div>
+                                <div class="text-sm text-gray-500">@{{ user.username }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user.email }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.profession == 'proprietaire' %}bg-green-100 text-green-800
+                            {% elif user.profession == 'client' %}bg-blue-100 text-blue-800
+                            {% elif user.profession == 'agent' %}bg-purple-100 text-purple-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user.get_profession_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user.date_joined|date:"d/m/Y" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+        <div class="text-sm text-gray-500">
+            Affichage des 5 derniers utilisateurs
+        </div>
+        <a href="{% url 'admin_dashboard:user_list' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            Voir tout <span aria-hidden="true">→</span>
+        </a>
+    </div>
+</div>
+
+<!-- Graphique des inscriptions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Nouveaux utilisateurs (7 derniers jours)</h3>
+        <canvas id="usersChart" class="w-full h-64"></canvas>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Répartition par type d'utilisateur</h3>
+        <canvas id="usersByTypeChart" class="w-full h-64"></canvas>
+    </div>
+</div>
+
+<!-- Dernières activités -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Dernières activités</h2>
+    </div>
+    <div class="divide-y divide-gray-200">
+        {% for visit in recent_visits|slice:":5" %}
+        <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">
+                        Nouvelle visite programmée
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        {{ visit.client.get_full_name|default:visit.client.username }} a programmé une visite pour le {{ visit.date_visite|date:"d/m/Y à H:i" }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        {{ visit.date_visite|timesince }} ago
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% for pub in recent_publications|slice:":3" %}
+        <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">
+                        Nouvelle publication
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        {{ pub.titre }} - {{ pub.prix }} €
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        {{ pub.date_mise_a_jour|timesince }} ago
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Graphique des inscriptions sur 7 jours
+    const usersCtx = document.getElementById('usersChart').getContext('2d');
+    const usersChart = new Chart(usersCtx, {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            datasets: [{
+                label: 'Nouveaux utilisateurs',
+                data: [12, 19, 8, 15, 22, 10, 5],
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderColor: 'rgb(99, 102, 241)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique des types d'utilisateurs
+    const usersByTypeCtx = document.getElementById('usersByTypeChart').getContext('2d');
+    const usersByTypeChart = new Chart(usersByTypeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                'Propriétaires',
+                'Clients',
+                'Agents',
+                'Administrateurs'
+            ],
+            datasets: [{
+                data: [
+                    {{ users_by_profession|get_item:'proprietaire'|default:0 }},
+                    {{ users_by_profession|get_item:'client'|default:0 }},
+                    {{ users_by_profession|get_item:'agent'|default:0 }},
+                    {{ users_by_profession|get_item:'admin'|default:0 }}
+                ],
+                backgroundColor: [
+                    'rgb(16, 185, 129)',
+                    'rgb(59, 130, 246)',
+                    'rgb(139, 92, 246)',
+                    'rgb(239, 68, 68)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

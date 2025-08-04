@@ -3,6 +3,14 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.http import HttpResponseRedirect
+from .models import BienImmobilier, Visite
+from .forms import VisiteForm
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.urls import reverse
 from django.utils import timezone
@@ -15,7 +23,7 @@ from django.db.models import Count, Q, Sum
 import logging
 from .forms import CustomUserCreationForm, ProfilForm
 from .models import Utilisateur, Publication, BienImmobilier, Transaction, Maison, Appartement, Terrain, Visite, Paiement, Commentaire
-from .forms import PublicationForm, TransactionForm, PaiementForm, MaisonForm, AppartementForm, TerrainForm, CommentaireForm
+from .forms import PublicationForm, TransactionForm, PaiementForm, MaisonForm, AppartementForm, TerrainForm, CommentaireForm, ContactForm, ReponseCommentaireForm
 
 logger = logging.getLogger(__name__)
 
@@ -99,40 +107,7 @@ def paiement_form(request):
         form = PaiementForm()
     return render(request, 'comptes/paiement_form.html', {'form': form})
 
-@login_required
-@user_passes_test(lambda u: u.profession == 'agent')
-def dashboard_agence(request):
-    # Vérifier si l'utilisateur est bien un agent et a une agence
-    if not hasattr(request.user, 'agence') or not request.user.agence:
-        messages.error(request, "Votre compte agent n'est pas associé à une agence.")
-        return redirect('comptes:home')
-    
-    agence = request.user.agence
-    
-    # Récupérer les statistiques filtrées par agence
-    total_biens = BienImmobilier.objects.filter(proprietaire__agence=agence).count()
-    total_clients = Utilisateur.objects.filter(profession='client', agence=agence).count()
-    
-    # Pour les transactions et visites, on suppose qu'elles sont liées aux biens de l'agence
-    total_transactions = Transaction.objects.filter(bien__proprietaire__agence=agence).count()
-    total_visites = Visite.objects.filter(
-        Q(bien__proprietaire__agence=agence) | 
-        Q(proprietaire__agence=agence)
-    ).distinct().count()
-
-    # Récupérer les biens de l'agence (les 6 derniers)
-    biens = BienImmobilier.objects.filter(
-        proprietaire__agence=agence
-    ).order_by('-id')[:6]
-
-    return render(request, 'comptes/dashboard_agence.html', {
-        'agence': agence,  # Ajout de l'agence au contexte
-        'total_biens': total_biens,
-        'total_clients': total_clients,
-        'total_transactions': total_transactions,
-        'total_visites': total_visites,
-        'biens': biens
-    })
+# La vue dashboard_agence a été supprimée car les fonctionnalités d'agence ne sont plus nécessaires
 
 @login_required
 @user_passes_test(lambda u: u.profession == 'client')
@@ -228,17 +203,20 @@ def mes_publications(request):
     return render(request, 'comptes/mes_publications.html', context)
 
 @login_required
-@user_passes_test(lambda u: u.profession == 'client')
 def modifier_profil(request):
     if request.method == 'POST':
         form = ProfilForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('comptes:profil_view')
+            messages.success(request, 'Votre profil a été mis à jour avec succès.')
+            return redirect('comptes:profil')
     else:
         form = ProfilForm(instance=request.user)
     
-    return render(request, 'comptes/modifier_profil.html', {'form': form})
+    return render(request, 'comptes/modifier_profil.html', {
+        'form': form,
+        'title': 'Modifier mon profil'
+    })
 
 def login_view(request):
     # Si l'utilisateur est déjà connecté, on le redirige directement
@@ -607,9 +585,25 @@ def mes_favoris(request):
     return render(request, 'comptes/mes_favoris.html', context)
 
 @login_required
-@user_passes_test(lambda u: u.profession == 'client')
 def profil_view(request):
-    return render(request, 'comptes/profil.html')
+    # Vérifier que l'utilisateur est soit un client soit un propriétaire
+    if request.user.profession not in ['client', 'proprietaire']:
+        return redirect('comptes:login')
+    
+    # Préparer le contexte avec les informations de l'utilisateur
+    context = {
+        'user_profile': request.user,
+        'title': 'Mon Profil'
+    }
+    
+    # Utiliser le template approprié en fonction du type d'utilisateur
+    template_name = f'comptes/{request.user.profession}_profil.html'
+    
+    # Vérifier si le template spécifique existe, sinon utiliser le template par défaut
+    try:
+        return render(request, template_name, context)
+    except:
+        return render(request, 'comptes/profil.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.profession == 'proprietaire')
@@ -646,18 +640,159 @@ def proprietaire_dashboard(request):
     return render(request, 'comptes/proprietaire_dashboard.html', context)
 
 @login_required
-@user_passes_test(lambda u: u.profession == 'proprietaire')
+@user_passes_test(lambda u: u.profession in ['proprietaire', 'agent'])
 def commentaires_view(request):
+    """
+    Vue pour afficher les commentaires sur les biens d'un propriétaire ou d'une agence
+    Gère à la fois les requêtes normales et AJAX
+    """
+    # Vérifier si c'est une requête AJAX
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    # Initialisation des formulaires
+    reponse_form = None
+    commentaire_id = request.GET.get('repondre_a') or request.POST.get('commentaire_id')
+    
     # Si l'utilisateur est un propriétaire, afficher les commentaires sur ses biens
     if request.user.profession == 'proprietaire':
-        commentaires = Commentaire.objects.filter(bien__proprietaire=request.user).order_by('-date_creation')
+        commentaires = Commentaire.objects.filter(
+            bien__proprietaire=request.user,
+            parent__isnull=True  # Afficher uniquement les commentaires principaux
+        ).order_by('-date_creation').prefetch_related('reponses')
     # Si l'utilisateur est un agent, afficher les commentaires sur les biens de son agence
     elif request.user.profession == 'agent' and hasattr(request.user, 'agence'):
-        commentaires = Commentaire.objects.filter(bien__publication__agence=request.user.agence).order_by('-date_creation')
+        commentaires = Commentaire.objects.filter(
+            bien__publication__agence=request.user.agence,
+            parent__isnull=True  # Afficher uniquement les commentaires principaux
+        ).order_by('-date_creation').prefetch_related('reponses')
     else:
         commentaires = Commentaire.objects.none()
     
-    return render(request, 'comptes/commentaires.html', {'commentaires': commentaires})
+    # Gestion du formulaire de réponse (POST)
+    if request.method == 'POST' and commentaire_id:
+        commentaire_parent = get_object_or_404(Commentaire, id=commentaire_id)
+        reponse_form = ReponseCommentaireForm(
+            request.POST,
+            auteur=request.user,
+            bien=commentaire_parent.bien,
+            parent=commentaire_parent
+        )
+        
+        if reponse_form.is_valid():
+            reponse = reponse_form.save()
+            
+            # Préparer la réponse pour AJAX
+            if is_ajax:
+                # Récupérer le template HTML de la réponse
+                html = render_to_string('comptes/partials/commentaire_item.html', 
+                                      {'commentaire': reponse, 'user': request.user}, 
+                                      request=request)
+                
+                # Envoyer une notification au client
+                notification_data = {
+                    'type': 'success',
+                    'title': 'Réponse publiée',
+                    'message': 'Votre réponse a été publiée avec succès.',
+                    'html': html,
+                    'parent_id': str(commentaire_parent.id),
+                    'commentaire_id': str(reponse.id)
+                }
+                
+                return JsonResponse({
+                    'success': True,
+                    'notification': notification_data
+                })
+            else:
+                messages.success(request, 'Votre réponse a été publiée avec succès.')
+                return redirect('comptes:commentaires')
+        elif is_ajax:
+            # En cas d'erreur de validation, renvoyer les erreurs en JSON
+            return JsonResponse({
+                'success': False,
+                'errors': reponse_form.errors,
+                'message': 'Veuillez corriger les erreurs ci-dessous.'
+            }, status=400)
+    
+    # Préparer le formulaire de réponse (GET ou affichage initial)
+    if commentaire_id and not request.method == 'POST':
+        commentaire_parent = get_object_or_404(Commentaire, id=commentaire_id)
+        reponse_form = ReponseCommentaireForm(
+            initial={'contenu': ''},
+            auteur=request.user,
+            bien=commentaire_parent.bien,
+            parent=commentaire_parent
+        )
+        
+        # Si c'est une requête AJAX pour le formulaire de réponse
+        if is_ajax:
+            html = render_to_string('comptes/partials/reply_form.html', 
+                                  {'form': reponse_form, 'commentaire': commentaire_parent}, 
+                                  request=request)
+            return JsonResponse({
+                'success': True,
+                'form_html': html,
+                'commentaire_id': str(commentaire_parent.id)
+            })
+    
+    # Marquer les commentaires comme lus lorsqu'ils sont affichés
+    if request.user.profession == 'proprietaire':
+        Commentaire.objects.filter(bien__proprietaire=request.user, lu=False).update(lu=True)
+    
+    # Si c'est une requête AJAX pour recharger les commentaires
+    if is_ajax:
+        html = render_to_string('comptes/partials/commentaires_list.html', 
+                              {'commentaires': commentaires, 'user': request.user}, 
+                              request=request)
+        return JsonResponse({
+            'success': True,
+            'html': html
+        })
+    
+    # Préparer le contexte pour le template
+    context = {
+        'commentaires': commentaires,
+        'form': reponse_form,
+        'title': 'Gestion des commentaires',
+        'active_tab': 'commentaires',
+        'user': request.user,
+        'biens': BienImmobilier.objects.filter(proprietaire=request.user) if request.user.profession == 'proprietaire' else None
+    }
+    
+    # Pour les requêtes normales, afficher la page complète
+    return render(request, 'comptes/commentaires.html', context)
+
+@login_required
+def supprimer_commentaire(request, commentaire_id):
+    """
+    Supprime un commentaire ou une réponse si l'utilisateur en a les droits.
+    """
+    commentaire = get_object_or_404(Commentaire, id=commentaire_id)
+    
+    # Vérifier les permissions :
+    # - Le propriétaire du bien peut supprimer n'importe quel commentaire sur son bien
+    # - L'auteur du commentaire peut le supprimer
+    # - Un agent peut supprimer les commentaires sur les biens de son agence
+    peut_supprimer = False
+    
+    if hasattr(request.user, 'profession'):
+        if request.user.profession == 'proprietaire' and commentaire.bien.proprietaire == request.user:
+            peut_supprimer = True
+        elif request.user.profession == 'agent' and hasattr(request.user, 'agence') and commentaire.bien.agence == request.user.agence:
+            peut_supprimer = True
+    
+    if commentaire.auteur == request.user:
+        peut_supprimer = True
+    
+    if not peut_supprimer:
+        messages.error(request, "Vous n'êtes pas autorisé à supprimer ce commentaire.")
+        return redirect('comptes:commentaires')
+    
+    # Supprimer le commentaire (et ses réponses en cascade grâce à on_delete=models.CASCADE)
+    bien_id = commentaire.bien.id
+    commentaire.delete()
+    
+    messages.success(request, "Le commentaire a été supprimé avec succès.")
+    return redirect('comptes:commentaires')
 
 import logging
 logger = logging.getLogger(__name__)
@@ -694,6 +829,169 @@ def ajouter_commentaire(request, bien_id):
     
     # Rediriger vers la page du bien dans tous les cas
     return redirect('comptes:detail_bien', pk=bien_id)
+
+@login_required
+def repondre_commentaire(request):
+    """
+    Vue pour répondre à un commentaire existant via AJAX
+    """
+    # Vérifier si c'est une requête AJAX pour les requêtes POST
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'GET'
+    
+    if not is_ajax and request.method == 'POST':
+        return JsonResponse({
+            'success': False,
+            'message': 'Cette vue ne peut être appelée que via AJAX.'
+        }, status=400)
+    
+    # Gestion des requêtes GET pour charger le formulaire de réponse
+    if request.method == 'GET':
+        parent_id = request.GET.get('repondre_a')
+        
+        if not parent_id:
+            return JsonResponse({
+                'success': False,
+                'message': 'ID du commentaire parent manquant.'
+            }, status=400)
+        
+        try:
+            # Récupérer le commentaire parent avec les relations nécessaires
+            parent_comment = get_object_or_404(
+                Commentaire.objects.select_related('auteur', 'bien', 'bien__proprietaire'), 
+                id=parent_id
+            )
+            
+            # Vérifier que l'utilisateur est soit le propriétaire du bien, soit un agent
+            user = request.user
+            is_authorized = False
+            
+            if hasattr(user, 'profession'):
+                if user.profession == 'proprietaire' and parent_comment.bien.proprietaire == user:
+                    is_authorized = True
+                elif user.profession == 'agent':
+                    # Vérifier si l'agent est associé à l'agence du bien
+                    if hasattr(user, 'agence') and parent_comment.bien.agence == user.agence:
+                        is_authorized = True
+            
+            if not is_authorized:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Vous n\'êtes pas autorisé à répondre à ce commentaire.'
+                }, status=403)
+            
+            # Rendre le formulaire de réponse
+            form_html = render_to_string('comptes/partials/reply_form.html', 
+                                       {'commentaire': parent_comment}, 
+                                       request=request)
+            
+            return JsonResponse({
+                'success': True,
+                'form_html': form_html,
+                'commentaire_id': str(parent_comment.id)
+            })
+            
+        except (Commentaire.DoesNotExist, ValueError):
+            return JsonResponse({
+                'success': False,
+                'message': 'Le commentaire parent n\'existe pas ou l\'ID est invalide.'
+            }, status=404)
+            
+        except Exception as e:
+            logger.error(f"Erreur lors du chargement du formulaire de réponse: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Une erreur est survenue lors du chargement du formulaire: {str(e)}'
+            }, status=500)
+    
+    # Gestion des requêtes POST pour soumettre une réponse
+    elif request.method == 'POST':
+        try:
+            parent_id = request.POST.get('parent_id')
+            contenu = request.POST.get('contenu', '').strip()
+            
+            if not parent_id or not contenu:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Veuillez saisir une réponse valide.'
+                }, status=400)
+            
+            # Récupérer le commentaire parent avec les relations nécessaires
+            parent_comment = get_object_or_404(
+                Commentaire.objects.select_related('bien', 'bien__proprietaire'), 
+                id=parent_id
+            )
+            
+            # Vérifier que l'utilisateur est autorisé à répondre
+            user = request.user
+            is_authorized = False
+            
+            if hasattr(user, 'profession'):
+                if user.profession == 'proprietaire' and parent_comment.bien.proprietaire == user:
+                    is_authorized = True
+                elif user.profession == 'agent':
+                    # Vérifier si l'agent est associé à l'agence du bien
+                    if hasattr(user, 'agence') and parent_comment.bien.agence == user.agence:
+                        is_authorized = True
+            
+            if not is_authorized:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Vous n\'êtes pas autorisé à répondre à ce commentaire.'
+                }, status=403)
+            
+            # Créer la réponse
+            reponse = Commentaire.objects.create(
+                contenu=contenu,
+                auteur=user,
+                bien=parent_comment.bien,
+                parent=parent_comment,
+                lu=True  # Les réponses sont marquées comme lues par défaut
+            )
+            
+            # Marquer le commentaire parent comme lu si c'est le propriétaire
+            if parent_comment.bien.proprietaire == user and not parent_comment.lu:
+                parent_comment.lu = True
+                parent_comment.save(update_fields=['lu'])
+            
+            # Récupérer le HTML du commentaire pour la réponse AJAX
+            html = render_to_string('comptes/partials/commentaire_item.html', 
+                                  {'commentaire': reponse, 'user': user}, 
+                                  request=request)
+            
+            # Préparer la réponse avec notification
+            response_data = {
+                'success': True,
+                'message': 'Votre réponse a été publiée avec succès.',
+                'html': html,
+                'commentaire_id': str(reponse.id),
+                'parent_id': str(parent_id),
+                'notification': {
+                    'type': 'success',
+                    'title': 'Réponse publiée',
+                    'message': 'Votre réponse a été publiée avec succès.'
+                }
+            }
+            
+            return JsonResponse(response_data)
+            
+        except (Commentaire.DoesNotExist, ValueError):
+            return JsonResponse({
+                'success': False,
+                'message': 'Le commentaire parent n\'existe pas ou l\'ID est invalide.'
+            }, status=404)
+            
+        except Exception as e:
+            logger.error(f"Erreur lors de la publication de la réponse: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Une erreur est survenue lors de la publication de votre réponse: {str(e)}'
+            }, status=500)
+    
+    # Méthode non supportée
+    return JsonResponse({
+        'success': False,
+        'message': 'Méthode non autorisée.'
+    }, status=405)
 
 @login_required
 def transactions_view(request):
@@ -1085,47 +1383,54 @@ def choix_bien(request):
     type_action = request.GET.get('type')  # 'vente' ou 'location'
     return render(request, 'comptes/choix_bien.html', {'type_action': type_action})
 
+@login_required
+@user_passes_test(lambda u: u.profession == 'proprietaire')
 def ajouter_publication(request):
+    """Vue pour ajouter une nouvelle publication"""
     # Récupérer les paramètres de l'URL
-    type_action = request.GET.get('type') or request.POST.get('type')
     bien = request.GET.get('bien') or request.POST.get('bien')
     
-    # Vérifier que nous avons les paramètres nécessaires
-    if not type_action or not bien:
-        return render(request, 'comptes/ajouter_publication.html', {
-            'error_message': "Type d'action et type de bien sont requis"
-        })
+    # Vérifier que nous avons le paramètre nécessaire
+    if not bien:
+        messages.error(request, "Type de bien requis")
+        return redirect('comptes:choix_type_publication')
     
     # Initialiser les formulaires
     maison_form = MaisonForm()
     appartement_form = AppartementForm()
     terrain_form = TerrainForm()
     
-    if not request.user.is_authenticated:
-        return redirect('login')
-        
     if request.method == 'POST':
-        # Récupérer les données du formulaire
-        superficie = request.POST.get('superficie')
-        description = request.POST.get('description')
-        prix = request.POST.get('prix')
-        image = request.FILES.get('image')
-        
-        # Vérifier que tous les champs requis sont présents
-        if not all([superficie, description, prix, image]):
-            return render(request, 'comptes/ajouter_publication.html', {
-                'type_action': type_action,
-                'bien': bien,
-                'error_message': "Veuillez remplir tous les champs requis",
-                'maison_form': maison_form,
-                'appartement_form': appartement_form,
-                'terrain_form': terrain_form
-            })
-            
         try:
+            # Récupérer les données du formulaire
+            superficie = request.POST.get('superficie')
+            description = request.POST.get('description')
+            prix = request.POST.get('prix')
+            image = request.FILES.get('image')
+            
+            # Validation des champs requis
+            if not superficie or not description or not prix:
+                raise ValueError("Veuillez remplir tous les champs requis")
+            
+            # Validation de l'image
+            if not image:
+                raise ValueError("Veuillez sélectionner une image")
+            
+            # Validation des types de fichiers
+            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+            if image.content_type not in allowed_types:
+                raise ValueError("Format d'image non supporté. Utilisez JPG, PNG ou WEBP")
+            
+            # Validation de la taille du fichier (10MB max)
+            if image.size > 10 * 1024 * 1024:
+                raise ValueError("L'image ne doit pas dépasser 10MB")
+            
             # Convertir les valeurs numériques
-            superficie = float(superficie)
-            prix = float(prix)
+            try:
+                superficie = float(superficie)
+                prix = float(prix)
+            except ValueError:
+                raise ValueError("Les valeurs de superficie et prix doivent être numériques")
             
             if superficie <= 0:
                 raise ValueError("La superficie doit être supérieure à 0")
@@ -1134,7 +1439,7 @@ def ajouter_publication(request):
             
             # Créer le bien de base avec les champs communs
             bien_base = BienImmobilier.objects.create(
-                type_bien=bien,
+                type_bien=bien.capitalize(),
                 superficie=superficie,
                 description=description,
                 prix=prix,
@@ -1151,14 +1456,8 @@ def ajouter_publication(request):
                     maison.save()
                 else:
                     bien_base.delete()
-                    return render(request, 'comptes/ajouter_publication.html', {
-                        'type_action': type_action,
-                        'bien': bien,
-                        'error_message': "Erreur dans le formulaire de la maison",
-                        'maison_form': maison_form,
-                        'appartement_form': appartement_form,
-                        'terrain_form': terrain_form
-                    })
+                    raise ValueError("Erreur dans le formulaire de la maison")
+                    
             elif bien == 'appartement':
                 appartement_form = AppartementForm(request.POST)
                 if appartement_form.is_valid():
@@ -1167,14 +1466,8 @@ def ajouter_publication(request):
                     appartement.save()
                 else:
                     bien_base.delete()
-                    return render(request, 'comptes/ajouter_publication.html', {
-                        'type_action': type_action,
-                        'bien': bien,
-                        'error_message': "Erreur dans le formulaire de l'appartement",
-                        'maison_form': maison_form,
-                        'appartement_form': appartement_form,
-                        'terrain_form': terrain_form
-                    })
+                    raise ValueError("Erreur dans le formulaire de l'appartement")
+                    
             elif bien == 'terrain':
                 terrain_form = TerrainForm(request.POST)
                 if terrain_form.is_valid():
@@ -1183,29 +1476,25 @@ def ajouter_publication(request):
                     terrain.save()
                 else:
                     bien_base.delete()
-                    return render(request, 'comptes/ajouter_publication.html', {
-                        'type_action': type_action,
-                        'bien': bien,
-                        'error_message': "Erreur dans le formulaire du terrain",
-                        'maison_form': maison_form,
-                        'appartement_form': appartement_form,
-                        'terrain_form': terrain_form
-                    })
-                
-            # Créer une publication avec le modèle Publication
+                    raise ValueError("Erreur dans le formulaire du terrain")
+            
+            # Créer la publication
             Publication.objects.create(
                 bien=bien_base,
-                titre=f"{type_action.capitalize()} {bien}",
+                titre=f"{bien_base.type_bien} - {bien_base.description[:50]}...",
                 description=description,
-                prix=prix,
-                date_creation=timezone.now()
+                prix=prix
             )
             
+            messages.success(request, f"Votre {bien} a été publié avec succès !")
             return redirect('comptes:mes_publications')
             
         except ValueError as e:
+            # Supprimer le bien créé en cas d'erreur
+            if 'bien_base' in locals():
+                bien_base.delete()
+            
             return render(request, 'comptes/ajouter_publication.html', {
-                'type_action': type_action,
                 'bien': bien,
                 'error_message': str(e),
                 'maison_form': maison_form,
@@ -1213,18 +1502,21 @@ def ajouter_publication(request):
                 'terrain_form': terrain_form
             })
         except Exception as e:
+            # Supprimer le bien créé en cas d'erreur
+            if 'bien_base' in locals():
+                bien_base.delete()
+            
+            logger.error(f"Erreur lors de l'ajout de publication: {str(e)}")
             return render(request, 'comptes/ajouter_publication.html', {
-                'type_action': type_action,
                 'bien': bien,
-                'error_message': f"Une erreur est survenue: {str(e)}",
+                'error_message': "Une erreur inattendue s'est produite. Veuillez réessayer.",
                 'maison_form': maison_form,
                 'appartement_form': appartement_form,
                 'terrain_form': terrain_form
             })
     
-    # Afficher le formulaire
+    # Affichage du formulaire (GET)
     return render(request, 'comptes/ajouter_publication.html', {
-        'type_action': type_action,
         'bien': bien,
         'maison_form': maison_form,
         'appartement_form': appartement_form,

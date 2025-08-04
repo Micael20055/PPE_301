@@ -1,103 +1,95 @@
-{% extends 'comptes/index.html' %}
+{% extends 'comptes/proprietaire_base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Transactions{% endblock %}
+
 {% block content %}
-
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="pe-7s-cash icon-gradient bg-mean-fruit"></i>
-            </div>
-            <div>Transactions
-                <div class="page-title-subheading">Suivez vos transactions immobilières</div>
-            </div>
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Gestion des Transactions</h2>
+            <p class="text-gray-600">Suivez vos transactions immobilières</p>
         </div>
+        <a href="#" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center">
+            <i class="fas fa-download mr-2"></i>Exporter
+        </a>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="main-card mb-3 card">
-            <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <h5 class="card-title mb-0">Historique des transactions</h5>
-                    <div class="ml-auto">
-                        <button class="btn btn-primary">
-                            <i class="fa fa-download mr-2"></i>Exporter
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                {% if transactions %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Référence</th>
-                                    <th>Bien</th>
-                                    <th>Type</th>
-                                    <th>Montant</th>
-                                    <th>Date</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transaction in transactions %}
-                                <tr class="transaction-row">
-                                    <td>
-                                        <span class="text-primary">#{{ transaction.reference }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if transaction.publication.image %}
-                                                <img src="{{ transaction.publication.image.url }}" class="mr-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
-                                            {% else %}
-                                                <i class="pe-7s-home fa-2x mr-2 text-muted"></i>
-                                            {% endif %}
-                                            {{ transaction.publication.titre }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{% if transaction.type == 'vente' %}success{% else %}info{% endif %}">
-                                            {{ transaction.type|title }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <strong>{{ transaction.montant|floatformat:2 }} €</strong>
-                                    </td>
-                                    <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        <span class="badge badge-{% if transaction.statut == 'complete' %}success{% elif transaction.statut == 'en_cours' %}warning{% else %}danger{% endif %}">
-                                            {{ transaction.get_statut_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info mr-2" data-toggle="tooltip" title="Détails">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-primary mr-2" data-toggle="tooltip" title="Télécharger">
-                                                <i class="fa fa-download"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="pe-7s-cash fa-4x text-muted mb-3"></i>
-                        <h5>Aucune transaction</h5>
-                        <p class="text-muted">Vos transactions immobilières apparaîtront ici</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+    {% if transactions %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bien</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for transaction in transactions %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-blue-600 font-medium">#{{ transaction.reference }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            {% if transaction.publication.image %}
+                                <img src="{{ transaction.publication.image.url }}" class="h-10 w-10 rounded-full object-cover mr-3">
+                            {% else %}
+                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 mr-3">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                            {% endif %}
+                            <div class="text-sm font-medium text-gray-900">{{ transaction.publication.titre|truncatechars:30 }}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if transaction.type == 'vente' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ transaction.get_type_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ transaction.montant|floatformat:2 }} €
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ transaction.date|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if transaction.statut == 'complete' %}bg-green-100 text-green-800
+                            {% elif transaction.statut == 'en_cours' %}bg-yellow-100 text-yellow-800
+                            else %}bg-red-100 text-red-800{% endif %}">
+                            {{ transaction.get_statut_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-600 hover:text-blue-900" title="Détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-indigo-600 hover:text-indigo-900" title="Télécharger">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-</div>
+    {% else %}
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+        <div class="mx-auto w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+            <i class="fas fa-cash-register text-blue-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">Aucune transaction</h3>
+        <p class="text-gray-500 max-w-md mx-auto">Vos transactions immobilières apparaîtront ici dès qu'elles seront effectuées.</p>
+    </div>
+    {% endif %}
 
 <style>
 .transaction-row:hover {

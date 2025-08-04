@@ -1,0 +1,74 @@
+{% load humanize %}
+
+<div class="comment-item bg-white p-4 rounded-lg shadow-sm mb-4 border-l-4 {% if commentaire.lu %}border-gray-200{% else %}border-indigo-500{% endif %}" 
+     data-comment-id="{{ commentaire.id }}">
+    
+    <!-- En-tête du commentaire -->
+    <div class="flex justify-between items-start mb-2">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                {{ commentaire.auteur.first_name|slice:":1" }}{{ commentaire.auteur.last_name|slice:":1" }}
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900">
+                    {{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}
+                    {% if commentaire.auteur == commentaire.bien.proprietaire %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 ml-1">
+                            Propriétaire
+                        </span>
+                    {% endif %}
+                </h4>
+                <p class="text-xs text-gray-500">
+                    <time datetime="{{ commentaire.date_creation|date:'c' }}" 
+                          title="{{ commentaire.date_creation|date:'d F Y à H:i' }}">
+                        {{ commentaire.date_creation|date:'d/m/Y à H:i' }}
+                    </time>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Boutons d'action -->
+        <div class="flex space-x-2">
+            <!-- Bouton de réponse (uniquement pour les commentaires principaux) -->
+            {% if not commentaire.parent %}
+            <button type="button" 
+                    class="reply-btn inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    data-action="reply"
+                    data-comment-id="{{ commentaire.id }}">
+                <i class="fas fa-reply mr-1"></i> Répondre
+            </button>
+            {% endif %}
+            
+            <!-- Bouton de suppression (auteur, propriétaire ou admin) -->
+            {% if commentaire.auteur == user or commentaire.bien.proprietaire == user or user.is_staff %}
+            <button type="button" 
+                    class="delete-btn inline-flex items-center px-2.5 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    data-action="delete"
+                    data-comment-id="{{ commentaire.id }}">
+                <i class="fas fa-trash mr-1"></i> Supprimer
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Contenu du commentaire -->
+    <div class="pl-12">
+        <div class="prose prose-sm max-w-none text-gray-700">
+            {{ commentaire.contenu|linebreaksbr }}
+        </div>
+        
+        <!-- Zone de réponse (affichée dynamiquement) -->
+        <div id="reply-form-{{ commentaire.id }}" class="mt-3 hidden">
+            <!-- Le formulaire de réponse sera injecté ici par JavaScript -->
+        </div>
+        
+        <!-- Réponses existantes -->
+        {% if commentaire.reponses.exists %}
+            <div class="mt-4 border-t border-gray-100 pt-4 space-y-4">
+                {% for reponse in commentaire.reponses.all %}
+                    {% include 'comptes/partials/commentaire_item.html' with commentaire=reponse %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

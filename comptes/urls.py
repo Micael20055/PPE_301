@@ -21,6 +21,7 @@ urlpatterns = [
     
     # Profil utilisateur
     path('profil/', views.profil_view, name='profil'),
+    path('profil/modifier/', views.modifier_profil, name='modifier_profil'),
     path('mes-favoris/', views.mes_favoris, name='mes_favoris'),
     
     path('client/', views.client_home, name='client_home'),
@@ -47,6 +48,12 @@ urlpatterns = [
     path('publications/modifier/<int:pk>/', views.modifier_publication, name='modifier_publication'),
     path('publications/supprimer/<int:pk>/', views.supprimer_publication, name='supprimer_publication'),
     
+    # Gestion des commentaires
+    path('commentaires/', views.commentaires_view, name='commentaires'),
+    path('commentaires/ajouter/<int:bien_id>/', views.ajouter_commentaire, name='ajouter_commentaire'),
+    path('commentaires/repondre/', views.repondre_commentaire, name='repondre_commentaire'),
+    path('commentaires/supprimer/<int:commentaire_id>/', views.supprimer_commentaire, name='supprimer_commentaire'),
+    
     # Gestion des contacts
     path('bien/<int:pk>/contacter/', views.contacter_proprietaire, name='contacter_proprietaire'),
     
@@ -56,10 +63,4 @@ urlpatterns = [
     # Gestion des paiements
     path('paiements/', views.paiements_view, name='paiements'),
     path('paiements/nouveau/', views.paiement_form, name='paiement_form'),
-    
-    # Profil et commentaires
-    path('profil/', views.profil_view, name='profil_view'),
-    path('profil/modifier/', views.modifier_profil, name='modifier_profil'),
-    path('commentaires/', views.commentaires_view, name='commentaires'),
-    path('commentaires/ajouter/<int:bien_id>/', views.ajouter_commentaire, name='ajouter_commentaire'),
 ]

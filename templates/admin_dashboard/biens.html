@@ -1,0 +1,305 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static humanize %}
+
+{% block title %}Gestion des Biens Immobiliers | Tableau de bord Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Gestion des Biens Immobiliers</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard:admin_home' %}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Biens Immobiliers</li>
+    </ol>
+
+    <!-- Cartes de statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">{{ total_biens|intcomma }}</div>
+                            <div>Total des biens</div>
+                        </div>
+                        <i class="fas fa-home fa-2x text-white-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#biens-list">Voir la liste</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">{{ maisons_count|intcomma }}</div>
+                            <div>Maisons</div>
+                        </div>
+                        <i class="fas fa-home fa-2x text-white-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="?type_bien=Maison">Voir les maisons</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">{{ appartements_count|intcomma }}</div>
+                            <div>Appartements</div>
+                        </div>
+                        <i class="fas fa-building fa-2x text-white-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="?type_bien=Appartement">Voir les appartements</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">{{ terrains_count|intcomma }}</div>
+                            <div>Terrains</div>
+                        </div>
+                        <i class="fas fa-mountain fa-2x text-white-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="?type_bien=Terrain">Voir les terrains</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-filter me-1"></i>
+            Filtres de recherche
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="search" class="form-label">Rechercher</label>
+                    <input type="text" class="form-control" id="search" name="q" value="{{ query }}" 
+                           placeholder="Rechercher par description, type ou propriétaire...">
+                </div>
+                <div class="col-md-3">
+                    <label for="type_bien" class="form-label">Type de bien</label>
+                    <select class="form-select" id="type_bien" name="type_bien">
+                        <option value="">Tous les types</option>
+                        <option value="Maison" {% if type_filter == 'Maison' %}selected{% endif %}>Maison</option>
+                        <option value="Appartement" {% if type_filter == 'Appartement' %}selected{% endif %}>Appartement</option>
+                        <option value="Terrain" {% if type_filter == 'Terrain' %}selected{% endif %}>Terrain</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="proprietaire" class="form-label">Propriétaire</label>
+                    <select class="form-select" id="proprietaire" name="proprietaire">
+                        <option value="">Tous les propriétaires</option>
+                        {% for proprietaire in proprietaires %}
+                            <option value="{{ proprietaire.id }}" 
+                                    {% if proprietaire.id|stringformat:'s' == proprietaire_filter %}selected{% endif %}>
+                                {{ proprietaire.username }} ({{ proprietaire.email }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des biens -->
+    <div class="card mb-4" id="biens-list">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                Liste des biens immobiliers
+            </div>
+            <a href="#" class="btn btn-success btn-sm">
+                <i class="fas fa-plus me-1"></i> Ajouter un bien
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="biensTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Superficie</th>
+                            <th>Prix</th>
+                            <th>Propriétaire</th>
+                            <th>Date d'ajout</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bien in biens %}
+                        <tr>
+                            <td>{{ bien.id }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if bien.type_bien == 'Maison' %}bg-success
+                                    {% elif bien.type_bien == 'Appartement' %}bg-info
+                                    {% else %}bg-warning{% endif %}">
+                                    {{ bien.type_bien }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 250px;" 
+                                     title="{{ bien.description }}">
+                                    {{ bien.description|truncatechars:50 }}
+                                </div>
+                            </td>
+                            <td>{{ bien.superficie }} m²</td>
+                            <td>{{ bien.prix|floatformat:2|intcomma }} €</td>
+                            <td>
+                                {% if bien.proprietaire %}
+                                    <a href="#" class="text-decoration-none">
+                                        {{ bien.proprietaire.username }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Aucun</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ bien.date_creation|date:"d/m/Y" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p class="mb-0">Aucun bien immobilier trouvé.</p>
+                                    <small>Essayez de modifier vos critères de recherche</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if biens.has_other_pages %}
+            <nav aria-label="Pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if biens.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ biens.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type_bien={{ type_filter }}{% endif %}{% if proprietaire_filter %}&proprietaire={{ proprietaire_filter }}{% endif %}" aria-label="Précédent">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for i in biens.paginator.page_range %}
+                        {% if biens.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }} <span class="sr-only">(actuel)</span></span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type_bien={{ type_filter }}{% endif %}{% if proprietaire_filter %}&proprietaire={{ proprietaire_filter }}{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if biens.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ biens.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type_bien={{ type_filter }}{% endif %}{% if proprietaire_filter %}&proprietaire={{ proprietaire_filter }}{% endif %}" aria-label="Suivant">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation des tooltips Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Gestion des filtres
+        const searchInput = document.getElementById('search');
+        const typeSelect = document.getElementById('type_bien');
+        const proprietaireSelect = document.getElementById('proprietaire');
+        
+        // Mise à jour de l'URL lors de la saisie de la recherche
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(updateUrl, 500);
+        });
+        
+        // Mise à jour de l'URL lors du changement des sélecteurs
+        typeSelect.addEventListener('change', updateUrl);
+        proprietaireSelect.addEventListener('change', updateUrl);
+        
+        function updateUrl() {
+            const params = new URLSearchParams();
+            
+            if (searchInput.value) {
+                params.set('q', searchInput.value);
+            }
+            
+            if (typeSelect.value) {
+                params.set('type_bien', typeSelect.value);
+            }
+            
+            if (proprietaireSelect.value) {
+                params.set('proprietaire', proprietaireSelect.value);
+            }
+            
+            window.location.href = '?' + params.toString();
+        }
+    });
+</script>
+{% endblock %}

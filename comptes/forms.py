@@ -101,9 +101,21 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Utilisateur, Publication, Transaction, Paiement, Maison, Appartement, Terrain, Commentaire, Visite
 
 class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = Utilisateur
+        fields = ('username', 'email', 'first_name', 'last_name', 'profession')
+
+class CustomUserChangeForm(forms.ModelForm):
     class Meta:
         model = Utilisateur
-        fields = ['username', 'email', 'password1', 'password2', 'profession']
+        fields = ('username', 'email', 'first_name', 'last_name', 'profession', 'is_active', 'is_staff')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'profession': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 class VisiteForm(forms.ModelForm):
     """Formulaire pour la programmation d'une visite"""
@@ -202,15 +214,32 @@ class MaisonForm(forms.ModelForm):
         fields = ['nbr_chambre', 'piece_speciale', 'nbr_etages']
         widgets = {
             'nbr_chambre': forms.NumberInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'min': '0',
+                'placeholder': 'Nombre de chambres'
             }),
             'piece_speciale': forms.TextInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'placeholder': 'Ex: Cave, Garage, Terrasse...'
             }),
             'nbr_etages': forms.NumberInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'min': '1',
+                'placeholder': 'Nombre d\'étages'
             })
         }
+    
+    def clean_nbr_chambre(self):
+        nbr_chambre = self.cleaned_data.get('nbr_chambre')
+        if nbr_chambre is not None and nbr_chambre < 0:
+            raise forms.ValidationError("Le nombre de chambres ne peut pas être négatif")
+        return nbr_chambre
+    
+    def clean_nbr_etages(self):
+        nbr_etages = self.cleaned_data.get('nbr_etages')
+        if nbr_etages is not None and nbr_etages < 1:
+            raise forms.ValidationError("Le nombre d'étages doit être au moins 1")
+        return nbr_etages
 
 class AppartementForm(forms.ModelForm):
     class Meta:
@@ -218,12 +247,28 @@ class AppartementForm(forms.ModelForm):
         fields = ['etage', 'nbr_chambre']
         widgets = {
             'etage': forms.NumberInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'min': '0',
+                'placeholder': 'Numéro d\'étage'
             }),
             'nbr_chambre': forms.NumberInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'min': '0',
+                'placeholder': 'Nombre de chambres'
             })
         }
+    
+    def clean_etage(self):
+        etage = self.cleaned_data.get('etage')
+        if etage is not None and etage < 0:
+            raise forms.ValidationError("Le numéro d'étage ne peut pas être négatif")
+        return etage
+    
+    def clean_nbr_chambre(self):
+        nbr_chambre = self.cleaned_data.get('nbr_chambre')
+        if nbr_chambre is not None and nbr_chambre < 0:
+            raise forms.ValidationError("Le nombre de chambres ne peut pas être négatif")
+        return nbr_chambre
 
 class TerrainForm(forms.ModelForm):
     class Meta:
@@ -231,9 +276,17 @@ class TerrainForm(forms.ModelForm):
         fields = ['nbr_parcelles']
         widgets = {
             'nbr_parcelles': forms.NumberInput(attrs={
-                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                'class': 'block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+                'min': '1',
+                'placeholder': 'Nombre de parcelles'
             })
         }
+    
+    def clean_nbr_parcelles(self):
+        nbr_parcelles = self.cleaned_data.get('nbr_parcelles')
+        if nbr_parcelles is not None and nbr_parcelles < 1:
+            raise forms.ValidationError("Le nombre de parcelles doit être au moins 1")
+        return nbr_parcelles
 
 class CommentaireForm(forms.ModelForm):
     class Meta:
@@ -246,6 +299,39 @@ class CommentaireForm(forms.ModelForm):
                 'placeholder': 'Écrivez votre commentaire ici...'
             })
         }
+        
+    def __init__(self, *args, **kwargs):
+        self.auteur = kwargs.pop('auteur', None)
+        self.bien = kwargs.pop('bien', None)
+        self.parent = kwargs.pop('parent', None)
+        super().__init__(*args, **kwargs)
+    
+    def save(self, commit=True):
+        commentaire = super().save(commit=False)
+        if self.auteur:
+            commentaire.auteur = self.auteur
+        if self.bien:
+            commentaire.bien = self.bien
+        if self.parent:
+            commentaire.parent = self.parent
+        if commit:
+            commentaire.save()
+            
+            # Si c'est une réponse, notifier l'auteur du commentaire parent
+            if self.parent:
+                self.parent.notifier_reponse(commentaire)
+                
+        return commentaire
+
+
+class ReponseCommentaireForm(CommentaireForm):
+    """Formulaire pour répondre à un commentaire existant"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contenu'].widget.attrs.update({
+            'placeholder': 'Écrivez votre réponse ici...',
+            'rows': 3
+        })
 
 class ProfilForm(forms.ModelForm):
     class Meta:

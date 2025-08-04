@@ -64,7 +64,7 @@
                                     <p class="pl-1">ou glisser-déposer</p>
                                 </div>
                                 <p class="text-xs text-gray-500">
-                                    PNG, JPG, JPEG jusqu'à 10MB
+                                    PNG, JPG, JPEG, WEBP jusqu'à 10MB
                                 </p>
                             </div>
                         </div>
@@ -198,10 +198,12 @@
         form.addEventListener('submit', function(event) {
             const superficie = document.getElementById('superficie').value;
             const prix = document.getElementById('prix').value;
+            const description = document.getElementById('description').value;
+            const image = document.getElementById('file-upload').files[0];
             let isValid = true;
             
             // Validation de la superficie
-            if (superficie <= 0) {
+            if (!superficie || superficie <= 0) {
                 showError('superficie', 'La superficie doit être supérieure à 0');
                 isValid = false;
             } else {
@@ -209,15 +211,46 @@
             }
             
             // Validation du prix
-            if (precio <= 0) {
+            if (!prix || prix <= 0) {
                 showError('prix', 'Le prix doit être supérieur à 0');
                 isValid = false;
             } else {
                 clearError('prix');
             }
             
+            // Validation de la description
+            if (!description || description.trim().length < 10) {
+                showError('description', 'La description doit contenir au moins 10 caractères');
+                isValid = false;
+            } else {
+                clearError('description');
+            }
+            
+            // Validation de l'image
+            if (!image) {
+                showError('file-upload', 'Veuillez sélectionner une image');
+                isValid = false;
+            } else {
+                // Validation du type de fichier
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!allowedTypes.includes(image.type)) {
+                    showError('file-upload', 'Format d\'image non supporté. Utilisez JPG, PNG ou WEBP');
+                    isValid = false;
+                } else if (image.size > 10 * 1024 * 1024) {
+                    showError('file-upload', 'L\'image ne doit pas dépasser 10MB');
+                    isValid = false;
+                } else {
+                    clearError('file-upload');
+                }
+            }
+            
             if (!isValid) {
                 event.preventDefault();
+                // Scroll vers la première erreur
+                const firstError = document.querySelector('.text-red-600');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
         
@@ -225,17 +258,33 @@
             let errorElement = document.getElementById(`${fieldId}-error`);
             if (!errorElement) {
                 const input = document.getElementById(fieldId);
-                errorElement = document.createElement('p');
-                errorElement.id = `${fieldId}-error`;
-                errorElement.className = 'mt-1 text-sm text-red-600';
-                input.parentNode.insertBefore(errorElement, input.nextSibling);
+                if (!input) {
+                    // Pour les champs sans ID, chercher par nom
+                    const inputByName = document.querySelector(`[name="${fieldId}"]`);
+                    if (inputByName) {
+                        errorElement = document.createElement('p');
+                        errorElement.id = `${fieldId}-error`;
+                        errorElement.className = 'mt-1 text-sm text-red-600';
+                        inputByName.parentNode.insertBefore(errorElement, inputByName.nextSibling);
+                        
+                        // Ajout de la classe d'erreur au champ
+                        inputByName.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+                        inputByName.classList.remove('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+                    }
+                } else {
+                    errorElement = document.createElement('p');
+                    errorElement.id = `${fieldId}-error`;
+                    errorElement.className = 'mt-1 text-sm text-red-600';
+                    input.parentNode.insertBefore(errorElement, input.nextSibling);
+                    
+                    // Ajout de la classe d'erreur au champ
+                    input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+                    input.classList.remove('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+                }
             }
-            errorElement.textContent = message;
-            
-            // Ajout de la classe d'erreur au champ
-            const input = document.getElementById(fieldId);
-            input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
-            input.classList.remove('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
         }
         
         function clearError(fieldId) {
@@ -246,7 +295,14 @@
             
             // Suppression de la classe d'erreur du champ
             const input = document.getElementById(fieldId);
-            if (input) {
+            if (!input) {
+                // Pour les champs sans ID, chercher par nom
+                const inputByName = document.querySelector(`[name="${fieldId}"]`);
+                if (inputByName) {
+                    inputByName.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+                    inputByName.classList.add('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+                }
+            } else {
                 input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
                 input.classList.add('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
             }

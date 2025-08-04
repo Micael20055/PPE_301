@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 import os
+from .utils import validate_superficie, validate_prix, validate_file_size, validate_file_type
 
 def upload_to_bien(instance, filename):
     """Génère un chemin de fichier pour les images des biens"""
@@ -27,10 +30,23 @@ class BienImmobilier(models.Model):
         ('Appartement', 'Appartement'),
         ('Terrain', 'Terrain'),
     ]
+    date_creation = models.DateTimeField(default=timezone.now, verbose_name="Date de création")
     type_bien = models.CharField(max_length=20, choices=TYPE_CHOICES)
-    superficie = models.FloatField()
-    description = models.TextField(blank=True)
-    prix = models.DecimalField(max_digits=10, decimal_places=2)  # Ajout du champ prix
+    superficie = models.FloatField(
+        validators=[validate_superficie],
+        help_text="Superficie en m²"
+    )
+    description = models.TextField(
+        blank=True,
+        max_length=2000,
+        help_text="Description détaillée du bien (max 2000 caractères)"
+    )
+    prix = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        validators=[validate_prix],
+        help_text="Prix en euros"
+    )
     proprietaire = models.ForeignKey(
         Utilisateur, 
         on_delete=models.CASCADE,
@@ -39,7 +55,13 @@ class BienImmobilier(models.Model):
         null=True,
         blank=True
     )
-    image = models.ImageField(upload_to='biens/', null=True, blank=True)
+    image = models.ImageField(
+        upload_to='biens/', 
+        null=True, 
+        blank=True,
+        validators=[validate_file_size, validate_file_type],
+        help_text="Image du bien (JPG, PNG, WEBP, max 10MB)"
+    )
 
     def __str__(self):
         return f"{self.id}: {self.type_bien} - {self.superficie}m² - {self.prix}€ - Prop: {self.proprietaire_id if self.proprietaire else 'Aucun'}"
@@ -176,11 +198,13 @@ class Paiement(models.Model):
         return f"Paiement de {self.montant}€ pour {self.bien} ({self.get_statut_display()})"
 
 class Commentaire(models.Model):
-    """Modèle pour les commentaires sur les biens immobiliers"""
+    """Modèle pour les commentaires sur les biens immobiliers avec réponses"""
     bien = models.ForeignKey(BienImmobilier, on_delete=models.CASCADE, related_name='commentaires')
     auteur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='commentaires')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='reponses')
     contenu = models.TextField()
     date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
     lu = models.BooleanField(default=False)
     
     class Meta:
@@ -190,6 +214,35 @@ class Commentaire(models.Model):
     
     def __str__(self):
         return f"Commentaire de {self.auteur} sur {self.bien} ({self.date_creation.strftime('%d/%m/%Y %H:%M')})"
+    
+    @property
+    def est_une_reponse(self):
+        """Vérifie si le commentaire est une réponse à un autre commentaire"""
+        return self.parent is not None
+    
+    def get_reponses(self):
+        """Récupère toutes les réponses à ce commentaire"""
+        return self.reponses.all().order_by('date_creation')
+    
+    def marquer_comme_lu(self):
+        """Marque le commentaire comme lu"""
+        self.lu = True
+        self.save(update_fields=['lu'])
+    
+    def notifier_reponse(self, reponse):
+        """Envoie une notification au client lorsqu'une réponse est ajoutée"""
+        from django.contrib import messages
+        from django.urls import reverse
+        from django.utils import timezone
+        
+        # Créer une notification pour le client
+        Notification.objects.create(
+            utilisateur=self.auteur,
+            titre=f'Nouvelle réponse à votre commentaire',
+            message=f'Le propriétaire a répondu à votre commentaire sur le bien: {self.bien.titre}',
+            url=reverse('comptes:detail_bien', kwargs={'pk': self.bien.id}),
+            type_notification='reponse_commentaire'
+        )
 
 
 # class Facture(models.Model):
@@ -200,3 +253,34 @@ class Commentaire(models.Model):
 # 
 #     def __str__(self):
 #         return f"Facture {self.id} - {self.montant}€"frc pour {self.paiement}"
+
+class Notification(models.Model):
+    """Modèle pour les notifications utilisateur"""
+    TYPE_CHOICES = [
+        ('reponse_commentaire', 'Réponse à un commentaire'),
+        ('nouvelle_publication', 'Nouvelle publication'),
+        ('visite_confirmee', 'Visite confirmée'),
+        ('visite_annulee', 'Visite annulée'),
+        ('message', 'Message'),
+    ]
+    
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='notifications')
+    titre = models.CharField(max_length=200)
+    message = models.TextField()
+    url = models.CharField(max_length=500, blank=True, null=True)
+    type_notification = models.CharField(max_length=50, choices=TYPE_CHOICES, default='message')
+    lu = models.BooleanField(default=False)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-date_creation']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f"Notification pour {self.utilisateur}: {self.titre}"
+    
+    def marquer_comme_lu(self):
+        """Marque la notification comme lue"""
+        self.lu = True
+        self.save(update_fields=['lu'])

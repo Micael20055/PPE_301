@@ -1,0 +1,283 @@
+/* Dashboard Styles */
+
+/* Menu de gauche */
+.app-sidebar {
+    background-color: #f8f9fa;
+    position: fixed;
+    left: 0;
+    top: 60px; /* Position absolue sous le header */
+    bottom: 0; /* Utilisation de bottom pour une hauteur dynamique */
+    width: 250px;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* Style pour le header */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1010;
+}
+
+/* Style pour le contenu principal */
+.app-main__outer {
+    margin-top: 60px; /* Même hauteur que le header */
+    padding-left: 250px; /* Largeur du menu de gauche */
+}
+
+.vertical-nav-menu {
+    padding: 1rem;
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.vertical-nav-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.vertical-nav-menu a {
+    color: #6c757d;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+}
+
+.vertical-nav-menu a:hover {
+    color: #3f6ad8;
+    background-color: #e9ecef;
+    text-decoration: none !important;
+}
+
+.vertical-nav-menu a.mm-active {
+    color: #3f6ad8;
+    background-color: #e9ecef;
+    font-weight: 500;
+    text-decoration: none !important;
+}
+
+.vertical-nav-menu .app-sidebar__heading {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 0;
+    margin: 1rem 0;
+}
+
+.vertical-nav-menu .metismenu-icon {
+    font-size: 1.1rem;
+    margin-right: 0.75rem;
+    color: #3f6ad8;
+}
+
+/* Header */
+.app-header {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-header__logo {
+    padding: 1rem;
+}
+
+.app-header__content {
+    padding: 1rem;
+}
+
+.header-btn-lg {
+    margin-left: 1rem;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+}
+
+.dropdown-item:hover {
+    background-color: #e9ecef;
+    text-decoration: none !important;
+}
+
+.dropdown-item i {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    color: #3f6ad8;
+}
+
+.dropdown-item {
+    text-decoration: none !important;
+}
+
+/* Cartes */
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: white;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody td {
+    vertical-align: middle;
+}
+
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+}
+
+/* Boutons */
+.btn-primary {
+    background-color: #3f6ad8;
+    border-color: #3f6ad8;
+}
+
+.btn-primary:hover {
+    background-color: #2a52be;
+    border-color: #2a52be;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Styles généraux */
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3f6ad8;
+}
+
+.widget-content-left img {
+    border: 2px solid #3f6ad8;
+}
+
+.modal-body .form-control {
+    background-color: #f8f9fa;
+    cursor: default;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-item i {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    background: rgba(63, 106, 216, 0.1);
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 0;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 500;
+}
+
+/* Styles pour les descriptions */
+.description-container {
+    position: relative;
+}
+
+.description-short {
+    cursor: pointer;
+}
+
+.description-full {
+    margin-top: 0.5rem;
+}
+
+.expand-details {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #3f6ad8;
+}
+
+.expand-details:hover {
+    color: #2a52be;
+}
+
+.expand-details i {
+    transition: transform 0.3s ease;
+}
+
+.details-container {
+    display: none;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin-top: 1rem;
+}
+
+.details-container.show {
+    display: block;
+}
+
+.details-item {
+    margin-bottom: 0.5rem;
+}
+
+.details-item:last-child {
+    margin-bottom: 0;
+}
+
+.details-item i {
+    color: #3f6ad8;
+    margin-right: 0.5rem;
+}

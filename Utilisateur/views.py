@@ -18,30 +18,104 @@ def index(request):
     return render(request, 'utilisateur/index.html', context)
 
 def biens(request):
-    """Page de liste des biens immobiliers"""
-    # Tous les biens sont visibles par défaut
-    biens_liste = Publication.objects.all()
+    """Page de liste des biens immobiliers avec filtres"""
+    # Récupérer tous les biens publiés
+    biens_liste = Publication.objects.select_related('bien').all()
     
-    # Filtres par type de bien
-    type_bien = request.GET.get('type')
-    if type_bien and type_bien in dict(BienImmobilier.TYPE_CHOICES):
-        biens_liste = biens_liste.filter(bien__type_bien=type_bien)
+    # Récupérer les paramètres de filtre
+    type_bien = request.GET.getlist('type_bien')  # Liste des types sélectionnés
+    prix_min = request.GET.get('prix_min')
+    prix_max = request.GET.get('prix_max')
+    surface_min = request.GET.get('surface_min')
+    surface_max = request.GET.get('surface_max')
+    chambres = request.GET.get('chambres')
+    transaction = request.GET.get('transaction')
     
-    # Tri
+    # Appliquer les filtres
+    if type_bien:
+        biens_liste = biens_liste.filter(bien__type_bien__in=type_bien)
+    
+    if prix_min:
+        try:
+            biens_liste = biens_liste.filter(bien__prix__gte=float(prix_min))
+        except (ValueError, TypeError):
+            pass
+    
+    if prix_max:
+        try:
+            biens_liste = biens_liste.filter(bien__prix__lte=float(prix_max))
+        except (ValueError, TypeError):
+            pass
+    
+    if surface_min:
+        try:
+            biens_liste = biens_liste.filter(bien__superficie__gte=float(surface_min))
+        except (ValueError, TypeError):
+            pass
+    
+    if surface_max:
+        try:
+            biens_liste = biens_liste.filter(bien__superficie__lte=float(surface_max))
+        except (ValueError, TypeError):
+            pass
+    
+    if chambres:
+        try:
+            chambres = int(chambres)
+            # Pour les maisons
+            biens_maison = biens_liste.filter(
+                Q(bien__maison__isnull=False) & 
+                Q(bien__maison__nbr_chambre__gte=chambres)
+            )
+            # Pour les appartements
+            biens_appart = biens_liste.filter(
+                Q(bien__appartement__isnull=False) & 
+                Q(bien__appartement__nbr_chambre__gte=chambres)
+            )
+            # Combiner les résultats
+            biens_liste = biens_maison.union(biens_appart)
+        except (ValueError, TypeError):
+            pass
+    
+    if transaction:
+        # Filtrer les biens en fonction du type de transaction (vente ou location)
+        # Si c'est une location, on filtre les biens avec un loyer (prix mensuel)
+        # Si c'est une vente, on filtre les biens avec un prix de vente
+        # Note: Cette logique peut être ajustée selon votre modèle métier
+        if transaction == 'location':
+            biens_liste = biens_liste.filter(bien__prix__lt=100000)  # Exemple: moins de 100 000€ pour une location
+        else:  # vente
+            biens_liste = biens_liste.filter(bien__prix__gte=100000)  # Exemple: 100 000€ ou plus pour une vente
+    
+    # Gestion du tri
     tri = request.GET.get('tri', 'date_desc')
-    if tri == 'prix_asc':
+    if tri == 'prix-croissant':
         biens_liste = biens_liste.order_by('bien__prix')
-    elif tri == 'prix_desc':
+    elif tri == 'prix-decroissant':
         biens_liste = biens_liste.order_by('-bien__prix')
+    elif tri == 'surface-croissante':
+        biens_liste = biens_liste.order_by('bien__superficie')
+    elif tri == 'surface-decroissante':
+        biens_liste = biens_liste.order_by('-bien__superficie')
     elif tri == 'date_asc':
         biens_liste = biens_liste.order_by('date_creation')
     else:  # date_desc par défaut
         biens_liste = biens_liste.order_by('-date_creation')
     
+    # Préparer le contexte avec les valeurs actuelles des filtres
     context = {
         'biens': biens_liste,
         'types_biens': BienImmobilier.TYPE_CHOICES,
         'tri_actuel': tri,
+        'filtres_actifs': {
+            'type_bien': type_bien,
+            'prix_min': prix_min if prix_min else '',
+            'prix_max': prix_max if prix_max else '',
+            'surface_min': surface_min if surface_min else '',
+            'surface_max': surface_max if surface_max else '',
+            'chambres': chambres if chambres else '',
+            'transaction': transaction if transaction else '',
+        },
         'form_recherche': RechercheForm(request.GET or None),
     }
     return render(request, 'utilisateur/biens.html', context)

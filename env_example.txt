@@ -1,0 +1,14 @@
+# Configuration de sécurité
+SECRET_KEY=django-insecure-5+6g(8ubol&edk1m%o@gx3c)de!t-7(1-44*-2eqdlsc56y$u6
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Configuration de la base de données (optionnel pour SQLite)
+# DATABASE_URL=sqlite:///db.sqlite3
+
+# Configuration email (optionnel)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+# EMAIL_HOST_USER=your-email@gmail.com
+# EMAIL_HOST_PASSWORD=your-app-password 

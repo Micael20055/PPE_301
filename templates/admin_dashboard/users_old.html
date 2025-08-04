@@ -1,0 +1,199 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Gestion des utilisateurs</h1>
+        <p class="text-gray-600">Consultez et gérez tous les utilisateurs de la plateforme</p>
+    </div>
+    <div class="mt-4 md:mt-0">
+        <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-plus mr-2"></i> Ajouter un utilisateur
+        </a>
+    </div>
+</div>
+
+<!-- Filtres et recherche -->
+<div class="bg-white shadow rounded-lg p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="col-span-2">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" id="search" name="search" value="{{ query }}" placeholder="Rechercher un utilisateur..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+        </div>
+        <div>
+            <select id="profession" name="profession" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option value="">Tous les rôles</option>
+                <option value="proprietaire" {% if profession_filter == 'proprietaire' %}selected{% endif %}>Propriétaires</option>
+                <option value="client" {% if profession_filter == 'client' %}selected{% endif %}>Clients</option>
+                <option value="agent" {% if profession_filter == 'agent' %}selected{% endif %}>Agents</option>
+                <option value="admin" {% if profession_filter == 'admin' %}selected{% endif %}>Administrateurs</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des utilisateurs -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inscription</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user in users %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper|default:user.username|first|upper }}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'admin_dashboard:user_detail' user.id %}" class="hover:text-indigo-600">
+                                        {{ user.get_full_name|default:user.username }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">@{{ user.username }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user.email }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.profession == 'proprietaire' %}bg-green-100 text-green-800
+                            {% elif user.profession == 'client' %}bg-blue-100 text-blue-800
+                            {% elif user.profession == 'agent' %}bg-purple-100 text-purple-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user.get_profession_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user.date_joined|date:"d/m/Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'admin_dashboard:user_detail' user.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-eye"></i> Voir
+                        </a>
+                        <a href="#" class="text-yellow-600 hover:text-yellow-900 mr-3">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <a href="#" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        Aucun utilisateur trouvé.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Précédent
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Suivant
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Affichage de <span class="font-medium">{{ page_obj.start_index }}</span> à <span class="font-medium">{{ page_obj.end_index }}</span> sur <span class="font-medium">{{ page_obj.paginator.count }}</span> utilisateurs
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Précédent</span>
+                        <i class="fas fa-chevron-left h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                            {{ num }}
+                        </a>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if profession_filter %}&profession={{ profession_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Suivant</span>
+                        <i class="fas fa-chevron-right h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+    // Gestion des filtres
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const professionSelect = document.getElementById('profession');
+        
+        // Mise à jour de l'URL lors de la saisie de la recherche
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(updateUrl, 500);
+        });
+        
+        // Mise à jour de l'URL lors du changement de filtre
+        professionSelect.addEventListener('change', updateUrl);
+        
+        function updateUrl() {
+            const params = new URLSearchParams();
+            
+            if (searchInput.value) {
+                params.set('q', searchInput.value);
+            }
+            
+            if (professionSelect.value) {
+                params.set('profession', professionSelect.value);
+            }
+            
+            const queryString = params.toString();
+            window.location.href = '/admin-dashboard/users/' + (queryString ? '?' + queryString : '');
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

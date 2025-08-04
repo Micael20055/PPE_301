@@ -132,9 +132,7 @@
                             <div class="col-md-6">
                                 <ul class="list-unstyled">
                                     <li class="mb-2"><i class="fas fa-bed me-2 text-primary"></i> {{ details.nbr_chambre|default:'0' }} chambres</li>
-                                    <li class="mb-2"><i class="fas fa-bath me-2 text-primary"></i> {{ details.nbr_salle_bain|default:'0' }} salles de bain</li>
-                                    <li class="mb-2"><i class="fas fa-car me-2 text-primary"></i> {{ details.nbr_garage|default:'0' }} garage(s)</li>
-                                </ul>
+                                   
                             </div>
                             <div class="col-md-6">
                                 <ul class="list-unstyled">
@@ -268,41 +266,20 @@
                         </div>
                     </div>
 
-                    <!-- Formulaire de programmation de visite -->
+                    <!-- Section de contact pour les visites -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <h3 class="h5 mb-3">Programmer une visite</h3>
-                            {% if user.is_authenticated and user.profession == 'client' %}
-                                <form id="visiteForm" method="post" action="{% url 'comptes:programmer_visite' bien.id %}" class="needs-validation" novalidate>
-                                    {% csrf_token %}
-                                    <div class="mb-3">
-                                        <label for="date_visite" class="form-label">Date et heure de la visite</label>
-                                        <input type="datetime-local" class="form-control" id="date_visite" name="date_visite" 
-                                               min="{{ today|date:'Y-m-d\TH:i' }}" required>
-                                        <div class="invalid-feedback">
-                                            Veuillez sélectionner une date et une heure valides.
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="remarques" class="form-label">Remarques (optionnel)</label>
-                                        <textarea class="form-control" id="remarques" name="remarques" rows="3" 
-                                                  placeholder="Précisez vos disponibilités ou demandes particulières"></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="far fa-calendar-check me-2"></i>Programmer la visite
-                                    </button>
-                                </form>
-                                <div id="visiteMessage" class="mt-3 d-none"></div>
-                            {% elif user.is_authenticated %}
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    Seuls les clients peuvent programmer des visites.
-                                </div>
+                            <h3 class="h5 mb-3">Intéressé par ce bien ?</h3>
+                            <p class="mb-3">Pour visiter ce bien ou obtenir plus d'informations, veuillez contacter le propriétaire.</p>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'comptes:contacter_proprietaire' bien.id %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-envelope me-2"></i>Contacter le propriétaire
+                                </a>
                             {% else %}
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle me-2"></i>
                                     <a href="{% url 'comptes:login' %}?next={% url 'comptes:detail_bien' bien.id %}" class="alert-link">Connectez-vous</a> 
-                                    en tant que client pour programmer une visite.
+                                    pour contacter le propriétaire de ce bien.
                                 </div>
                             {% endif %}
                         </div>
@@ -322,138 +299,69 @@
 
 {% block extra_js %}
 <script>
-    // Gestion du formulaire de programmation de visite
-    document.addEventListener('DOMContentLoaded', function() {
-        const visiteForm = document.getElementById('visiteForm');
-        const visiteMessage = document.getElementById('visiteMessage');
-        
-        if (visiteForm) {
-            visiteForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Désactiver le bouton de soumission
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Envoi en cours...';
-                
-                // Envoyer les données du formulaire
-                const formData = new FormData(this);
-                
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Réinitialiser le formulaire en cas de succès
-                    if (data.success) {
-                        visiteForm.reset();
-                    }
-                    
-                    // Afficher le message de retour
-                    visiteMessage.className = `alert ${data.success ? 'alert-success' : 'alert-danger'} mt-3`;
-                    visiteMessage.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="${data.success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'} me-2"></i>
-                            ${data.message}
-                        </div>
-                    `;
-                    visiteMessage.classList.remove('d-none');
-                    
-                    // Faire défiler jusqu'au message
-                    visiteMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Masquer le message après 5 secondes
-                    setTimeout(() => {
-                        visiteMessage.classList.add('fade-out');
-                        setTimeout(() => {
-                            visiteMessage.classList.add('d-none');
-                            visiteMessage.classList.remove('fade-out');
-                        }, 500);
-                    }, 5000);
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    visiteMessage.className = 'alert alert-danger mt-3';
-                    visiteMessage.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Une erreur est survenue lors de la programmation de la visite.
-                        </div>
-                    `;
-                    visiteMessage.classList.remove('d-none');
-                })
-                .finally(() => {
-                    // Réactiver le bouton de soumission
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                });
-            });
-            
-            // Validation côté client
-            (function () {
-                'use strict'
-                
-                // Récupérer tous les formulaires auxquels nous voulons appliquer les styles de validation Bootstrap personnalisés
-                var forms = document.querySelectorAll('.needs-validation')
-                
-                // Boucle sur les formulaires et empêcher la soumission
-                Array.prototype.slice.call(forms)
-                    .forEach(function (form) {
-                        form.addEventListener('submit', function (event) {
-                            if (!form.checkValidity()) {
-                                event.preventDefault()
-                                event.stopPropagation()
-                            }
-                            
-                            form.classList.add('was-validated')
-                        }, false)
-                    })
-            })()
-        }
-    });
-    
-    // Animation des sections
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate__fadeIn');
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
-
-    document.querySelectorAll('.property-gallery, .property-details, .sidebar').forEach((el) => {
-        observer.observe(el);
-    });
-
     // Initialisation de la carte Google Maps
     function initMap() {
-        const map = new google.maps.Map(document.getElementById('map'), {
+        // Vérifier si la carte est présente sur la page
+        const mapElement = document.getElementById('map');
+        if (!mapElement) return;
+        
+        // Vérifier si les coordonnées sont disponibles
+        const lat = parseFloat('{{ bien.latitude }}');
+        const lng = parseFloat('{{ bien.longitude }}');
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            console.error('Coordonnées GPS invalides pour ce bien');
+            return;
+        }
+        
+        // Créer la carte
+        const map = new google.maps.Map(mapElement, {
             zoom: 15,
-            center: { lat: {{ bien.latitude }}, lng: {{ bien.longitude }} }
+            center: { lat: lat, lng: lng },
+            mapTypeControl: true,
+            streetViewControl: false,
+            fullscreenControl: true
         });
 
-        const marker = new google.maps.Marker({
-            position: { lat: {{ bien.latitude }}, lng: {{ bien.longitude }} },
+        // Ajouter un marqueur à l'emplacement du bien
+        new google.maps.Marker({
+            position: { lat: lat, lng: lng },
             map: map,
-            title: '{{ bien.description }}'
+            title: '{{ bien.description|escapejs }}'
         });
     }
 
-    // Chargement de la carte
-    if (document.getElementById('map')) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap`;
-        script.defer = true;
-        document.head.appendChild(script);
-    }
+    // Charger la carte Google Maps lorsque le DOM est prêt
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation des sections
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__fadeIn');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        // Observer les éléments à animer
+        document.querySelectorAll('.property-gallery, .property-details, .sidebar').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // Charger la carte Google Maps si l'élément map existe
+        if (document.getElementById('map')) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap`;
+            script.defer = true;
+            script.async = true;
+            script.onerror = function() {
+                console.error('Erreur lors du chargement de Google Maps');
+                document.getElementById('map').innerHTML = 
+                    '<div class="alert alert-warning">Impossible de charger la carte. Veuillez vérifier votre connexion Internet.</div>';
+            };
+            document.head.appendChild(script);
+        }
+    });
 </script>
 {% endblock %}

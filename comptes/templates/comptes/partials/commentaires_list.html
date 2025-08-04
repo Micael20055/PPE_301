@@ -1,0 +1,20 @@
+{% load humanize %}
+
+<div class="space-y-6">
+    {% if commentaires %}
+        {% for commentaire in commentaires %}
+            {% include 'comptes/partials/commentaire_item.html' with commentaire=commentaire user=user %}
+        {% endfor %}
+    {% else %}
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <i class="fas fa-comment-slash text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-600">Aucun commentaire pour le moment.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% if not commentaires %}
+    <div class="mt-8 text-center">
+        <p class="text-gray-500 italic">Les commentaires des visiteurs s'afficheront ici.</p>
+    </div>
+{% endif %}

@@ -1,0 +1,26 @@
+{% load crispy_forms_tags %}
+
+<form method="post" action="{% url 'comptes:repondre_commentaire' %}" class="space-y-4" data-comment-form>
+    {% csrf_token %}
+    <input type="hidden" name="parent_id" value="{{ commentaire.id }}">
+    
+    <div class="form-group">
+        <label for="id_contenu" class="sr-only">Votre réponse</label>
+        <textarea name="contenu" id="id_contenu" 
+                  class="form-control block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                  rows="3" placeholder="Écrivez votre réponse..." required></textarea>
+    </div>
+    
+    <div class="flex justify-end space-x-3">
+        <button type="button" 
+                class="cancel-reply inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                data-comment-id="{{ commentaire.id }}">
+            Annuler
+        </button>
+        
+        <button type="submit" 
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-paper-plane mr-2"></i> Publier la réponse
+        </button>
+    </div>
+</form>

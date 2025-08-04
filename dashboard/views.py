@@ -1,113 +1,357 @@
-from django.shortcuts import render
-from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import get_user_model, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from datetime import timedelta
-from comptes.models import BienImmobilier, Visite, Paiement, Transaction
+from datetime import datetime, timedelta
+from django.db.models import Count, Q, Sum, F, Case, When, Value, IntegerField
+from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Q
+from django.contrib import messages
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
 
-def home(request):
-    # Récupérer tous les utilisateurs avec leurs informations détaillées
-    User = get_user_model()
+from comptes.models import BienImmobilier, Visite, Paiement, Transaction, Commentaire, Utilisateur
+from comptes.forms import CustomUserChangeForm
+
+# Récupérer le modèle utilisateur personnalisé
+User = get_user_model()
+
+def admin_required(user):
+    """Vérifie si l'utilisateur est un administrateur."""
+    return user.is_authenticated and user.is_staff
+
+@login_required
+def dashboard_home(request):
+    """Vue pour la page d'accueil du tableau de bord d'administration."""
+    if not request.user.is_staff:
+        return redirect('comptes:login')
     
-    # Récupérer les utilisateurs connectés (simplifié pour l'exemple)
-    # En production, utilisez une logique plus sophistiquée avec les sessions
-    connected_users = User.objects.select_related('profile').all()
+    # Récupérer les statistiques des utilisateurs
+    users = User.objects.all()
+    today = timezone.now().date()
+    last_week = today - timedelta(days=7)
     
-    # Ajouter un attribut is_online à chaque utilisateur (simulé pour l'exemple)
-    from django.utils import timezone
-    from datetime import timedelta
-    
-    for user in connected_users:
-        # Simuler des utilisateurs en ligne (dernière connexion < 15 minutes)
-        user.is_online = user.last_login and \
-                        (timezone.now() - user.last_login) < timedelta(minutes=15)
-    
-    # Compter les utilisateurs par type
+    # Statistiques des utilisateurs
     user_stats = {
-        'total': connected_users.count(),
-        'online': sum(1 for u in connected_users if hasattr(u, 'is_online') and u.is_online),
-        'clients': connected_users.filter(is_client=True).count(),
-        'proprietaires': connected_users.filter(est_proprietaire=True).count(),
-        'agents': connected_users.filter(est_agent=True).count(),
-        'agences': connected_users.filter(est_agence=True).count(),
-        'admins': connected_users.filter(is_superuser=True).count()
+        'total': users.count(),
+        'new_this_week': users.filter(date_joined__date__gte=last_week).count(),
+        'clients': users.filter(profession='client').count(),
+        'proprietaires': users.filter(profession='proprietaire').count(),
+        'agents': users.filter(profession='agent').count(),
+        'admins': users.filter(is_superuser=True).count(),
     }
     
-    # Statistiques des biens
-    total_properties = BienImmobilier.objects.count()
+    # Statistiques des biens immobiliers
+    properties = BienImmobilier.objects.all()
+    total_properties = properties.count()
     
-    # Biens ajoutés ce mois-ci
-    start_of_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    monthly_properties = BienImmobilier.objects.filter(
-        date_creation__gte=start_of_month
-    ).count()
-    
-    # Visites à venir (dans les 30 prochains jours)
-    upcoming_visits = Visite.objects.filter(
-        date_visite__gte=timezone.now(),
-        date_visite__lte=timezone.now() + timedelta(days=30)
-    ).count()
-    
-    # Transactions récentes
-    recent_transactions = Transaction.objects.select_related('bien', 'client', 'agent').order_by('-date_transaction')[:5]
-    
-    # Répartition des biens par type
-    property_types = BienImmobilier.objects.values('type_bien').annotate(
-        count=Count('type_bien')
-    )
-    
-    # Préparer les données pour le graphique des biens par type
-    property_type_data = {pt['type_bien']: pt['count'] for pt in property_types}
-    
-    # Données pour le graphique des inscriptions (30 derniers jours)
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    registrations = User.objects.filter(
-        date_joined__gte=thirty_days_ago
-    ).extra({
-        'date': "date(date_joined)"
-    }).values('date').annotate(
+    # Biens par type
+    properties_by_type = properties.values('type_bien').annotate(
         count=Count('id')
-    ).order_by('date')
+    ).order_by('type_bien')
     
-    # Préparer les données pour le graphique des inscriptions
-    registration_dates = [str(reg['date']) for reg in registrations]
-    registration_counts = [reg['count'] for reg in registrations]
+    # Statistiques des transactions
+    transactions = Transaction.objects.all()
+    total_revenue = transactions.aggregate(total=Sum('montant'))['total'] or 0
+    
+    # Dernières visites programmées
+    recent_visits = Visite.objects.select_related('bien', 'client', 'proprietaire').order_by('-date_visite')[:5]
+    
+    # Derniers utilisateurs inscrits
+    recent_users = users.order_by('-date_joined')[:5]
+    
+    # Dernières transactions
+    recent_transactions = transactions.select_related('bien', 'acheteur', 'vendeur').order_by('-date_transaction')[:5]
     
     # Préparer les données pour les graphiques
-    property_type_data = list(property_type_data.items())
+    # Utilisateurs par jour des 30 derniers jours
+    thirty_days_ago = today - timedelta(days=30)
+    users_by_day = users.filter(date_joined__date__gte=thirty_days_ago).extra(
+        select={'day': "date(date_joined)"}
+    ).values('day').annotate(count=Count('id')).order_by('day')
     
-    # Préparer les données pour le graphique d'activité des utilisateurs
-    activity_data = {
-        'labels': registration_dates,
-        'datasets': [{
-            'label': 'Inscriptions',
-            'data': registration_counts,
-            'borderColor': '#4f46e5',
-            'tension': 0.4,
-            'fill': False
-        }]
+    # Préparer les données pour le graphique d'utilisateurs par jour
+    user_dates = []
+    user_counts = []
+    
+    for i in range(30):
+        date = thirty_days_ago + timedelta(days=i)
+        count = sum(1 for u in users_by_day if u['day'] == date)
+        user_dates.append(date.strftime('%Y-%m-%d'))
+        user_counts.append(count)
+    
+    # Préparer les données pour le graphique des utilisateurs par type
+    users_by_type = users.values('profession').annotate(
+        count=Count('id')
+    ).order_by('profession')
+    
+    user_types = []
+    user_type_counts = []
+    
+    for ut in users_by_type:
+        profession = ut['profession']
+        if profession is None:
+            display_name = 'Non spécifié'
+        else:
+            display_name = dict(User.PROFESSION_CHOICES).get(profession, profession.capitalize() if profession else 'Non spécifié')
+        user_types.append(display_name)
+        user_type_counts.append(ut['count'])
+    
+    # Préparer le contexte
+    context = {
+        'stats': {
+            'total_users': user_stats['total'],
+            'new_users_this_week': user_stats['new_this_week'],
+            'total_properties': total_properties,
+            'total_revenue': total_revenue,
+            'upcoming_visits': recent_visits.count(),
+        },
+        'recent_users': recent_users,
+        'recent_visits': recent_visits,
+        'recent_transactions': recent_transactions,
+        'chart_data': {
+            'user_dates': user_dates,
+            'user_counts': user_counts,
+            'user_types': user_types,
+            'user_type_counts': user_type_counts,
+        },
+        'users_by_profession': dict(zip(user_types, user_type_counts)),
     }
     
-    return render(request, 'admin/index.html', {
-        'connected_users': connected_users,
-        'user_stats': user_stats,
-        'total_properties': total_properties,
-        'monthly_properties': monthly_properties,
-        'upcoming_visits': upcoming_visits,
-        'recent_transactions': recent_transactions,
-        'property_type_data': property_type_data,
-        'activity_data': activity_data,
-        'registration_dates': registration_dates,
-        'registration_counts': registration_counts
-    })
+    return render(request, 'admin_dashboard/index.html', context)
 
-def analytics_variation (request):
+
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Vue pour afficher la liste des utilisateurs."""
+    model = User
+    template_name = 'admin_dashboard/users.html'
+    context_object_name = 'users'
+    paginate_by = 10
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_queryset(self):
+        queryset = User.objects.all().order_by('-date_joined')
+        
+        # Filtrage par recherche
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(username__icontains=query) |
+                Q(email__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query)
+            )
+        
+        # Filtrage par type d'utilisateur
+        profession = self.request.GET.get('profession')
+        if profession:
+            queryset = queryset.filter(profession=profession)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        
+        # Statistiques
+        context['profession_filter'] = self.request.GET.get('profession', '')
+        context['query'] = self.request.GET.get('q', '')
+        context['proprietaires_count'] = User.objects.filter(profession='proprietaire').count()
+        context['clients_count'] = User.objects.filter(profession='client').count()
+        context['agents_count'] = User.objects.filter(profession='agent').count()
+        
+        return context
+
+
+class BienImmobilierListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Vue pour afficher la liste des biens immobiliers."""
+    model = BienImmobilier
+    template_name = 'admin_dashboard/biens.html'
+    context_object_name = 'biens'
+    paginate_by = 10
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_queryset(self):
+        queryset = BienImmobilier.objects.select_related('proprietaire').order_by('-id')
+        
+        # Filtrage par recherche
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(description__icontains=query) |
+                Q(type_bien__icontains=query) |
+                Q(proprietaire__username__icontains=query) |
+                Q(proprietaire__email__icontains=query)
+            )
+        
+        # Filtrage par type de bien
+        type_bien = self.request.GET.get('type_bien')
+        if type_bien:
+            queryset = queryset.filter(type_bien=type_bien)
+            
+        # Filtrage par propriétaire
+        proprietaire_id = self.request.GET.get('proprietaire')
+        if proprietaire_id:
+            queryset = queryset.filter(proprietaire_id=proprietaire_id)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Statistiques
+        context['type_filter'] = self.request.GET.get('type_bien', '')
+        context['proprietaire_filter'] = self.request.GET.get('proprietaire', '')
+        context['query'] = self.request.GET.get('q', '')
+        
+        # Compteurs par type de bien
+        context['total_biens'] = BienImmobilier.objects.count()
+        context['maisons_count'] = BienImmobilier.objects.filter(type_bien='Maison').count()
+        context['appartements_count'] = BienImmobilier.objects.filter(type_bien='Appartement').count()
+        context['terrains_count'] = BienImmobilier.objects.filter(type_bien='Terrain').count()
+        
+        # Liste des propriétaires pour le filtre
+        context['proprietaires'] = Utilisateur.objects.filter(
+            profession='proprietaire'
+        ).values('id', 'username', 'email')
+        
+        return context
+
+
+class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """Vue pour afficher les détails d'un utilisateur."""
+    model = User
+    template_name = 'admin_dashboard/user_detail.html'
+    context_object_name = 'user_profile'
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        
+        # Récupérer les biens de l'utilisateur
+        properties = BienImmobilier.objects.filter(proprietaire=user)
+        
+        # Récupérer les visites liées à l'utilisateur
+        visits = Visite.objects.filter(Q(client=user) | Q(proprietaire=user))
+        
+        # Récupérer les transactions liées à l'utilisateur
+        transactions = Transaction.objects.filter(Q(acheteur=user) | Q(vendeur=user))
+        
+        # Compter les biens par type
+        properties_by_type = properties.values('type_bien').annotate(
+            count=Count('id')
+        ).order_by('type_bien')
+        
+        # Préparer les statistiques
+        stats = {
+            'total_properties': properties.count(),
+            'properties_by_type': dict(properties_by_type.values_list('type_bien', 'count')),
+            'visits_count': visits.count(),
+            'transactions_count': transactions.count(),
+        }
+        
+        context.update({
+            'properties': properties.order_by('-id')[:5],  # Tri par ID au lieu de date_creation
+            'properties_by_type': properties_by_type,
+            'visits': visits.order_by('-date_visite')[:5],
+            'transactions': transactions.order_by('-date_transaction')[:5],
+            'stats': stats,
+        })
+        
+        return context
+
+
+class BienImmobilierListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Vue pour afficher la liste des biens immobiliers."""
+    model = BienImmobilier
+    template_name = 'admin_dashboard/biens.html'
+    context_object_name = 'properties'
+    paginate_by = 10
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        # Filtrage par recherche
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(adresse__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
+            
+        # Filtrage par type de bien
+        type_bien = self.request.GET.get('type_bien')
+        if type_bien:
+            queryset = queryset.filter(type_bien=type_bien)
+            
+        # Filtrage par statut de publication
+        statut = self.request.GET.get('statut')
+        if statut == 'publie':
+            queryset = queryset.filter(est_publie=True)
+        elif statut == 'brouillon':
+            queryset = queryset.filter(est_publie=False)
+            
+        return queryset.order_by('-id')  # Tri par ID au lieu de date_creation
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Statistiques
+        context['total_properties'] = self.get_queryset().count()
+        context['published_properties'] = self.get_queryset().filter(est_publie=True).count()
+        context['draft_properties'] = self.get_queryset().filter(est_publie=False).count()
+        
+        # Filtres
+        context['search_query'] = self.request.GET.get('q', '')
+        context['selected_type'] = self.request.GET.get('type_bien', '')
+        context['selected_status'] = self.request.GET.get('statut', '')
+        
+        return context
+
+
+class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Vue pour modifier un utilisateur."""
+    model = User
+    form_class = CustomUserChangeForm
+    template_name = 'admin_dashboard/user_edit.html'
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_success_url(self):
+        return reverse('admin_dashboard:user_detail', kwargs={'pk': self.object.pk})
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Les modifications ont été enregistrées avec succès.')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_editing'] = True
+        return context
+    
+    # Cette méthode ne fait plus rien car la logique a été déplacée dans dashboard_home
+    pass
+
+def analytics_variation(request):
     return render(request, 'admin/analytics-variation.html')
 
-def apps_chat (request):
+def apps_chat(request):
     return render(request, 'admin/apps-chat.html')
 
-def apps_faq_section (request):
+def apps_faq_section(request):
     return render(request, 'admin/apps-faq-section.html')
 
 def apps_forum_discussion (request):
